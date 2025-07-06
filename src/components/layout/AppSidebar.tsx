@@ -49,8 +49,8 @@ export function AppSidebar() {
   const isActive = (path: string) => currentPath === path
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive 
-      ? "bg-primary/10 text-primary font-medium border-r-2 border-primary" 
-      : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+      ? "bg-gradient-to-r from-primary/20 to-primary/10 text-primary font-semibold scale-105 transform transition-all duration-200" 
+      : "hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all duration-200"
 
   return (
     <Sidebar
@@ -82,8 +82,13 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavCls}>
-                      <item.icon className="mr-3 h-4 w-4" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      <div className={`flex items-center w-full relative ${isCollapsed ? 'justify-center' : ''}`}>
+                        <item.icon className={`h-5 w-5 ${isActive(item.url) ? 'text-primary' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
+                        {!isCollapsed && <span>{item.title}</span>}
+                        {isActive(item.url) && (
+                          <div className="absolute -left-2 w-1 h-6 bg-primary rounded-r-full"></div>
+                        )}
+                      </div>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -101,8 +106,13 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavCls}>
-                      <item.icon className="mr-3 h-4 w-4" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      <div className={`flex items-center w-full relative ${isCollapsed ? 'justify-center' : ''}`}>
+                        <item.icon className={`h-5 w-5 ${isActive(item.url) ? 'text-primary' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
+                        {!isCollapsed && <span>{item.title}</span>}
+                        {isActive(item.url) && (
+                          <div className="absolute -left-2 w-1 h-6 bg-primary rounded-r-full"></div>
+                        )}
+                      </div>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -120,8 +130,13 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavCls}>
-                      <item.icon className="mr-3 h-4 w-4" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      <div className={`flex items-center w-full relative ${isCollapsed ? 'justify-center' : ''}`}>
+                        <item.icon className={`h-5 w-5 ${isActive(item.url) ? 'text-primary' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
+                        {!isCollapsed && <span>{item.title}</span>}
+                        {isActive(item.url) && (
+                          <div className="absolute -left-2 w-1 h-6 bg-primary rounded-r-full"></div>
+                        )}
+                      </div>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
