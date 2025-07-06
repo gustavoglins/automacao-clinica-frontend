@@ -22,7 +22,7 @@ const Pacientes = () => {
       id: 2,
       name: "Carlos Santos",
       age: 45,
-      phone: "(11) 88888-8888", 
+      phone: "(11) 88888-8888",
       email: "carlos.santos@email.com",
       lastVisit: "2024-01-10",
       nextVisit: "2024-01-20",
@@ -86,7 +86,7 @@ const Pacientes = () => {
             <h1 className="text-3xl font-bold text-foreground">Pacientes</h1>
             <p className="text-muted-foreground">Gerencie o cadastro e histórico dos pacientes</p>
           </div>
-          <Button className="gap-2 bg-gradient-primary">
+          <Button variant="primary" size="sm" className="gap-2">
             <Plus className="w-4 h-4" />
             Novo Paciente
           </Button>
@@ -98,12 +98,12 @@ const Pacientes = () => {
             <div className="flex items-center gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input 
-                  placeholder="Buscar por nome, telefone ou email..." 
+                <Input
+                  placeholder="Buscar por nome, telefone ou email..."
                   className="pl-10"
                 />
               </div>
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline-primary" size="sm" className="gap-2">
                 <Filter className="w-4 h-4" />
                 Filtros
               </Button>
@@ -124,7 +124,7 @@ const Pacientes = () => {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="shadow-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -215,13 +215,13 @@ const Pacientes = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="outline-primary">
                     Ver Prontuário
                   </Button>
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="outline-success">
                     Agendar
                   </Button>
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="outline-warning">
                     Editar
                   </Button>
                 </div>

@@ -117,7 +117,7 @@ export function Dashboard() {
                 </div>
               </div>
             ))}
-            <Button className="w-full" variant="outline">
+            <Button size="sm" className="w-full" variant="outline-primary">
               Ver Agenda Completa
             </Button>
           </CardContent>
@@ -149,7 +149,7 @@ export function Dashboard() {
                 </span>
               </div>
             ))}
-            <Button className="w-full" variant="outline">
+            <Button size="sm" className="w-full" variant="outline-primary">
               Ver Todas as Tarefas
             </Button>
           </CardContent>
@@ -166,15 +166,15 @@ export function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button className="h-auto p-4 flex-col gap-2" variant="outline">
+            <Button size="sm" className="h-auto p-4 flex-col gap-2" variant="outline-primary">
               <Users className="w-6 h-6" />
               <span>Novo Paciente</span>
             </Button>
-            <Button className="h-auto p-4 flex-col gap-2" variant="outline">
+            <Button size="sm" className="h-auto p-4 flex-col gap-2" variant="outline-success">
               <Calendar className="w-6 h-6" />
               <span>Agendar Consulta</span>
             </Button>
-            <Button className="h-auto p-4 flex-col gap-2" variant="outline">
+            <Button size="sm" className="h-auto p-4 flex-col gap-2" variant="outline-warning">
               <DollarSign className="w-6 h-6" />
               <span>Registrar Pagamento</span>
             </Button>

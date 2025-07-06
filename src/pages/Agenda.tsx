@@ -67,11 +67,11 @@ const Agenda = () => {
             <p className="text-muted-foreground">Gerencie todas as consultas e horários</p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline-primary" size="sm" className="gap-2">
               <Filter className="w-4 h-4" />
               Filtros
             </Button>
-            <Button className="gap-2 bg-primary hover:bg-primary/90">
+            <Button variant="primary" size="sm" className="gap-2">
               <Plus className="w-4 h-4" />
               Nova Consulta
             </Button>
@@ -116,10 +116,10 @@ const Agenda = () => {
                   <p className="text-lg font-bold text-primary">{appointment.time}</p>
                   <p className="text-sm text-muted-foreground">{appointment.duration}</p>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline-warning">
                       Editar
                     </Button>
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline-success">
                       Confirmar
                     </Button>
                   </div>

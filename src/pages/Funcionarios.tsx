@@ -94,7 +94,7 @@ const Funcionarios = () => {
             <h1 className="text-3xl font-bold text-foreground">Funcionários</h1>
             <p className="text-muted-foreground">Gerencie o cadastro e informações da equipe</p>
           </div>
-          <Button className="gap-2 bg-gradient-primary">
+          <Button variant="primary" size="sm" className="gap-2">
             <Plus className="w-4 h-4" />
             Novo Funcionário
           </Button>
@@ -111,7 +111,7 @@ const Funcionarios = () => {
                   className="pl-10"
                 />
               </div>
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline-primary" size="sm" className="gap-2">
                 <Filter className="w-4 h-4" />
                 Filtros
               </Button>
@@ -227,13 +227,13 @@ const Funcionarios = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="outline-primary">
                     Ver Perfil
                   </Button>
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="outline-primary">
                     Horários
                   </Button>
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="outline-warning">
                     Editar
                   </Button>
                 </div>

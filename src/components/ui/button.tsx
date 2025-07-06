@@ -9,13 +9,19 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        primary: "bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500",
+        success: "bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-500",
+        warning: "bg-yellow-400 text-white hover:bg-yellow-500 focus-visible:ring-yellow-400",
+        danger: "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500",
+        "outline-primary": "border border-blue-600 bg-background text-blue-600 hover:bg-blue-600 hover:text-white",
+        "outline-success": "border border-green-600 bg-background text-green-600 hover:bg-green-600 hover:text-white",
+        "outline-warning": "border border-yellow-400 bg-background text-yellow-500 hover:bg-yellow-400 hover:text-white",
+        "outline-danger": "border border-red-600 bg-background text-red-600 hover:bg-red-600 hover:text-white",
+        // Variantes do sistema (manter para compatibilidade)
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        // outline: "border border-input bg-background hover:bg-primary/100 hover:text-accent-foreground",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline: "border border-input bg-background hover:bg-primary/100 hover:text-white",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
@@ -27,8 +33,8 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "default",
-      size: "default",
+      variant: "primary",
+      size: "sm",
     },
   }
 )
