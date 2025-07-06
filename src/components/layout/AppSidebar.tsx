@@ -47,27 +47,23 @@ export function AppSidebar() {
   const isCollapsed = state === "collapsed"
 
   const isActive = (path: string) => currentPath === path
-  const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive 
-      ? "bg-gradient-to-r from-primary/20 to-primary/10 text-primary font-semibold scale-105 transform transition-all duration-200" 
-      : "hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all duration-200"
 
   return (
     <Sidebar
-      className={isCollapsed ? "w-20" : "w-64"}
+      className={isCollapsed ? "w-14" : "w-64"}
       collapsible="icon"
     >
-      <SidebarContent className="bg-gradient-card">
+      <SidebarContent className="bg-white border-r border-gray-200/50">
         {/* Logo Section */}
         <div className="p-4 border-b border-border">
-          <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
+          <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center text-primary-foreground font-bold text-sm">
               AO
             </div>
             {!isCollapsed && (
               <div>
-                <h2 className="font-bold text-primary">Alpha Odonto</h2>
-                <p className="text-xs text-muted-foreground">Sistema de Gestão</p>
+                <h2 className="font-bold text-gray-900">Alpha Odonto</h2>
+                <p className="text-xs text-gray-500">Sistema de Gestão</p>
               </div>
             )}
           </div>
@@ -75,20 +71,29 @@ export function AppSidebar() {
 
         {/* Main Navigation */}
         <SidebarGroup>
-          {!isCollapsed && <SidebarGroupLabel>Principal</SidebarGroupLabel>}
+          <SidebarGroupLabel>Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className={getNavCls}>
-                      <div className={`flex items-center w-full relative ${isCollapsed ? 'justify-center' : ''}`}>
-                        <item.icon className={`h-5 w-5 ${isActive(item.url) ? 'text-primary' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
-                        {!isCollapsed && <span>{item.title}</span>}
-                        {isActive(item.url) && (
-                          <div className="absolute -left-2 w-1 h-6 bg-primary rounded-r-full"></div>
-                        )}
-                      </div>
+                    <NavLink 
+                      to={item.url} 
+                      end 
+                      className={({ isActive }) => `
+                        flex items-center w-full px-3 py-2 rounded-lg transition-all duration-200
+                        ${isActive 
+                          ? 'bg-blue-50 text-blue-700 font-medium' 
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                        }
+                      `}
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <item.icon className={`h-6 w-6 ${isActive ? 'text-blue-600' : 'text-gray-500'} ${!isCollapsed ? 'mr-3' : ''}`} />
+                          {!isCollapsed && <span className={`text-base font-semibold ${isActive ? 'text-blue-700' : 'text-gray-500'}`}>{item.title}</span>}
+                        </>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -99,20 +104,28 @@ export function AppSidebar() {
 
         {/* Business Navigation */}
         <SidebarGroup>
-          {!isCollapsed && <SidebarGroupLabel>Gestão</SidebarGroupLabel>}
+          <SidebarGroupLabel>Gestão</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {businessItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className={getNavCls}>
-                      <div className={`flex items-center w-full relative ${isCollapsed ? 'justify-center' : ''}`}>
-                        <item.icon className={`h-5 w-5 ${isActive(item.url) ? 'text-primary' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
-                        {!isCollapsed && <span>{item.title}</span>}
-                        {isActive(item.url) && (
-                          <div className="absolute -left-2 w-1 h-6 bg-primary rounded-r-full"></div>
-                        )}
-                      </div>
+                    <NavLink 
+                      to={item.url} 
+                      className={({ isActive }) => `
+                        flex items-center w-full px-3 py-2 rounded-lg transition-all duration-200
+                        ${isActive 
+                          ? 'bg-blue-50 text-blue-700 font-medium' 
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                        }
+                      `}
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <item.icon className={`h-6 w-6 ${isActive ? 'text-blue-600' : 'text-gray-500'} ${!isCollapsed ? 'mr-3' : ''}`} />
+                          {!isCollapsed && <span className={`text-base font-semibold ${isActive ? 'text-blue-700' : 'text-gray-500'}`}>{item.title}</span>}
+                        </>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -123,20 +136,28 @@ export function AppSidebar() {
 
         {/* System Navigation */}
         <SidebarGroup>
-          {!isCollapsed && <SidebarGroupLabel>Sistema</SidebarGroupLabel>}
+          <SidebarGroupLabel>Sistema</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {systemItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className={getNavCls}>
-                      <div className={`flex items-center w-full relative ${isCollapsed ? 'justify-center' : ''}`}>
-                        <item.icon className={`h-5 w-5 ${isActive(item.url) ? 'text-primary' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
-                        {!isCollapsed && <span>{item.title}</span>}
-                        {isActive(item.url) && (
-                          <div className="absolute -left-2 w-1 h-6 bg-primary rounded-r-full"></div>
-                        )}
-                      </div>
+                    <NavLink 
+                      to={item.url} 
+                      className={({ isActive }) => `
+                        flex items-center w-full px-3 py-2 rounded-lg transition-all duration-200
+                        ${isActive 
+                          ? 'bg-blue-50 text-blue-700 font-medium' 
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                        }
+                      `}
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <item.icon className={`h-6 w-6 ${isActive ? 'text-blue-600' : 'text-gray-500'} ${!isCollapsed ? 'mr-3' : ''}`} />
+                          {!isCollapsed && <span className={`text-base ${isActive ? 'text-blue-700' : 'text-gray-500'}`}>{item.title}</span>}
+                        </>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -145,9 +166,9 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Collapse trigger inside sidebar */}
+        {/* Collapse trigger */}
         <div className="mt-auto p-2">
-          <SidebarTrigger className="w-full" />
+          <SidebarTrigger className="w-full h-10 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors" />
         </div>
       </SidebarContent>
     </Sidebar>
