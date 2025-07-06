@@ -78,16 +78,20 @@ export function AppSidebar() {
           {!isCollapsed && <SidebarGroupLabel>Principal</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainItems.map((item) => (
+               {mainItems.map((item) => (
                  <SidebarMenuItem key={item.title}>
                    <SidebarMenuButton asChild>
-                     <NavLink to={item.url} end className={`${getNavCls} ${isCollapsed ? 'justify-center' : ''}`}>
+                     <NavLink 
+                       to={item.url} 
+                       end 
+                       className={`${getNavCls} ${isCollapsed ? 'flex justify-center items-center w-full' : 'flex items-center'}`}
+                     >
                        <item.icon className={isCollapsed ? "h-6 w-6" : "mr-3 h-4 w-4"} />
                        {!isCollapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+                     </NavLink>
+                   </SidebarMenuButton>
+                 </SidebarMenuItem>
+               ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -97,16 +101,19 @@ export function AppSidebar() {
           {!isCollapsed && <SidebarGroupLabel>Gestão</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
-              {businessItems.map((item) => (
+               {businessItems.map((item) => (
                  <SidebarMenuItem key={item.title}>
                    <SidebarMenuButton asChild>
-                     <NavLink to={item.url} className={`${getNavCls} ${isCollapsed ? 'justify-center' : ''}`}>
+                     <NavLink 
+                       to={item.url} 
+                       className={`${getNavCls} ${isCollapsed ? 'flex justify-center items-center w-full' : 'flex items-center'}`}
+                     >
                        <item.icon className={isCollapsed ? "h-6 w-6" : "mr-3 h-4 w-4"} />
                        {!isCollapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+                     </NavLink>
+                   </SidebarMenuButton>
+                 </SidebarMenuItem>
+               ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -116,16 +123,19 @@ export function AppSidebar() {
           {!isCollapsed && <SidebarGroupLabel>Sistema</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
-              {systemItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                     <NavLink to={item.url} className={`${getNavCls} ${isCollapsed ? 'justify-center' : ''}`}>
-                        <item.icon className={isCollapsed ? "h-6 w-6" : "mr-3 h-4 w-4"} />
-                        {!isCollapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+               {systemItems.map((item) => (
+                 <SidebarMenuItem key={item.title}>
+                   <SidebarMenuButton asChild>
+                     <NavLink 
+                       to={item.url} 
+                       className={`${getNavCls} ${isCollapsed ? 'flex justify-center items-center w-full' : 'flex items-center'}`}
+                     >
+                       <item.icon className={isCollapsed ? "h-6 w-6" : "mr-3 h-4 w-4"} />
+                       {!isCollapsed && <span>{item.title}</span>}
+                     </NavLink>
+                   </SidebarMenuButton>
+                 </SidebarMenuItem>
+               ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
