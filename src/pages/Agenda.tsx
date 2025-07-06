@@ -18,7 +18,7 @@ const Agenda = () => {
     {
       id: 2,
       time: "10:30",
-      patient: "Carlos Santos", 
+      patient: "Carlos Santos",
       service: "Avaliação",
       doctor: "Dra. Ana",
       status: "pendente",
@@ -29,7 +29,7 @@ const Agenda = () => {
       time: "14:00",
       patient: "Ana Costa",
       service: "Tratamento Canal",
-      doctor: "Dr. João", 
+      doctor: "Dr. João",
       status: "confirmada",
       duration: "2h"
     },
@@ -71,7 +71,7 @@ const Agenda = () => {
               <Filter className="w-4 h-4" />
               Filtros
             </Button>
-            <Button className="gap-2 bg-gradient-primary">
+            <Button className="gap-2 bg-primary hover:bg-primary/90">
               <Plus className="w-4 h-4" />
               Nova Consulta
             </Button>
@@ -83,11 +83,11 @@ const Agenda = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-primary" />
-              Hoje - {new Date().toLocaleDateString('pt-BR', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+              Hoje - {new Date().toLocaleDateString('pt-BR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
               })}
             </CardTitle>
             <CardDescription>

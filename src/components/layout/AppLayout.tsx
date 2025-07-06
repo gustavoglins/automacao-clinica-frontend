@@ -1,6 +1,6 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "./AppSidebar"
-import { Bell, Search, User, Settings, ChevronDown } from "lucide-react"
+import { Bell, Search, User, Settings, ChevronDown, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -69,16 +69,13 @@ export function AppLayout({ children }: AppLayoutProps) {
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer">
                       <User className="w-4 h-4 mr-2" />
                       Perfil
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Settings className="w-4 h-4 mr-2" />
-                      Configurações
-                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-red-600">
+                    <DropdownMenuItem className="text-red-600 hover:bg-red-50 hover:text-red-600 focus:bg-red-50 focus:text-red-600 cursor-pointer">
+                      <LogOut className="w-4 h-4 mr-2" />
                       Sair
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -98,7 +95,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <footer className="px-4 py-3 border-t border-gray-200/50 bg-white/95 backdrop-blur-sm">
             <div className="w-full">
               <p className="text-xs text-gray-500 text-center">
-                Powered by <span className="font-semibold text-blue-600">Norvand</span> • Alpha Odonto System
+                Powered by <span className="font-semibold text-blue-600">Norvand</span>
               </p>
             </div>
           </footer>

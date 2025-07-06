@@ -5,7 +5,8 @@ import {
   UserCheck,
   Clock,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  CheckCheck
 } from "lucide-react"
 import { StatsCard } from "./StatsCard"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -46,7 +47,7 @@ export function Dashboard() {
     { time: "15:30", patient: "Pedro Lima", type: "Implante", doctor: "Dr. Roberto" },
   ]
 
-  const pendingTasks = [
+  const registeredTasks = [
     { task: "Confirmar consultas de amanhã", priority: "high" },
     { task: "Atualizar prontuário - Maria Silva", priority: "medium" },
     { task: "Enviar orçamento - Carlos Santos", priority: "high" },
@@ -126,19 +127,19 @@ export function Dashboard() {
         <Card className="shadow-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-warning" />
-              Tarefas Pendentes
+              <CheckCheck className="w-5 h-5 text-green-500" />
+              Tarefas Registradas
             </CardTitle>
             <CardDescription>
-              {pendingTasks.length} tarefas aguardando atenção
+              {registeredTasks.length} tarefas registradas hoje
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {pendingTasks.map((item, index) => (
+            {registeredTasks.map((item, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className={`w-2 h-2 rounded-full ${item.priority === 'high' ? 'bg-destructive' :
-                      item.priority === 'medium' ? 'bg-warning' : 'bg-muted-foreground'
+                    item.priority === 'medium' ? 'bg-warning' : 'bg-muted-foreground'
                     }`} />
                   <p className="text-sm text-foreground">{item.task}</p>
                 </div>
