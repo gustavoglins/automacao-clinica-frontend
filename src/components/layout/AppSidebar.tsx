@@ -54,13 +54,13 @@ export function AppSidebar() {
 
   return (
     <Sidebar
-      className={isCollapsed ? "w-14" : "w-64"}
+      className={isCollapsed ? "w-20" : "w-64"}
       collapsible="icon"
     >
       <SidebarContent className="bg-gradient-card">
         {/* Logo Section */}
         <div className="p-4 border-b border-border">
-          <div className="flex items-center gap-3">
+          <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center text-primary-foreground font-bold text-sm">
               AO
             </div>
@@ -75,20 +75,15 @@ export function AppSidebar() {
 
         {/* Main Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>Principal</SidebarGroupLabel>
+          {!isCollapsed && <SidebarGroupLabel>Principal</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavCls}>
-                      <div className={`flex items-center w-full relative ${isCollapsed ? 'justify-center' : ''}`}>
-                        <item.icon className={`h-5 w-5 ${isActive(item.url) ? 'text-primary' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
-                        {!isCollapsed && <span>{item.title}</span>}
-                        {isActive(item.url) && (
-                          <div className="absolute -left-2 w-1 h-6 bg-primary rounded-r-full"></div>
-                        )}
-                      </div>
+                      <item.icon className="mr-3 h-4 w-4" />
+                      {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -99,20 +94,15 @@ export function AppSidebar() {
 
         {/* Business Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>Gestão</SidebarGroupLabel>
+          {!isCollapsed && <SidebarGroupLabel>Gestão</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
               {businessItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavCls}>
-                      <div className={`flex items-center w-full relative ${isCollapsed ? 'justify-center' : ''}`}>
-                        <item.icon className={`h-5 w-5 ${isActive(item.url) ? 'text-primary' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
-                        {!isCollapsed && <span>{item.title}</span>}
-                        {isActive(item.url) && (
-                          <div className="absolute -left-2 w-1 h-6 bg-primary rounded-r-full"></div>
-                        )}
-                      </div>
+                      <item.icon className="mr-3 h-4 w-4" />
+                      {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -123,20 +113,15 @@ export function AppSidebar() {
 
         {/* System Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>Sistema</SidebarGroupLabel>
+          {!isCollapsed && <SidebarGroupLabel>Sistema</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
               {systemItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavCls}>
-                      <div className={`flex items-center w-full relative ${isCollapsed ? 'justify-center' : ''}`}>
-                        <item.icon className={`h-5 w-5 ${isActive(item.url) ? 'text-primary' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
-                        {!isCollapsed && <span>{item.title}</span>}
-                        {isActive(item.url) && (
-                          <div className="absolute -left-2 w-1 h-6 bg-primary rounded-r-full"></div>
-                        )}
-                      </div>
+                      <item.icon className="mr-3 h-4 w-4" />
+                      {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
