@@ -64,7 +64,7 @@ export function AppSidebar() {
             {!isCollapsed && (
               <div>
                 <h2 className="font-bold text-gray-900">Alpha Odonto</h2>
-                <p className="text-xs text-gray-500">Sistema Integrado</p>
+                <p className="text-xs text-gray-500">Sistema de IA Integrado</p>
               </div>
             )}
           </div>
