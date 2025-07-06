@@ -1,7 +1,7 @@
-import { 
-  Calendar, 
-  Users, 
-  DollarSign, 
+import {
+  Calendar,
+  Users,
+  DollarSign,
   UserCheck,
   Clock,
   TrendingUp,
@@ -26,7 +26,7 @@ export function Dashboard() {
       change: { value: "+45", type: "increase" as const }
     },
     {
-      title: "Receita Mensal", 
+      title: "Receita Mensal",
       value: "R$ 45.890",
       icon: DollarSign,
       change: { value: "+12%", type: "increase" as const }
@@ -81,7 +81,6 @@ export function Dashboard() {
             value={stat.value}
             icon={stat.icon}
             change={stat.change}
-            gradient={index === 0}
           />
         ))}
       </div>
@@ -138,15 +137,14 @@ export function Dashboard() {
             {pendingTasks.map((item, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${
-                    item.priority === 'high' ? 'bg-destructive' :
-                    item.priority === 'medium' ? 'bg-warning' : 'bg-muted-foreground'
-                  }`} />
+                  <div className={`w-2 h-2 rounded-full ${item.priority === 'high' ? 'bg-destructive' :
+                      item.priority === 'medium' ? 'bg-warning' : 'bg-muted-foreground'
+                    }`} />
                   <p className="text-sm text-foreground">{item.task}</p>
                 </div>
                 <span className={`text-xs font-medium ${getPriorityColor(item.priority)}`}>
-                  {item.priority === 'high' ? 'ALTA' : 
-                   item.priority === 'medium' ? 'MÉDIA' : 'BAIXA'}
+                  {item.priority === 'high' ? 'ALTA' :
+                    item.priority === 'medium' ? 'MÉDIA' : 'BAIXA'}
                 </span>
               </div>
             ))}

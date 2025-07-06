@@ -4,9 +4,9 @@ import {
   User,
   FileText,
   UserCheck,
-  BarChart3,
   Settings,
-  Home
+  Home,
+  Phone,
 } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
 
@@ -31,13 +31,14 @@ const mainItems = [
 ]
 
 const businessItems = [
-  { title: "Financeiro", url: "/financeiro", icon: BarChart3 },
+  // { title: "Financeiro", url: "/financeiro", icon: BarChart3 },
+  { title: "Whatsapp", url: "/whatsapp", icon: Phone },
   { title: "Relatórios", url: "/relatorios", icon: FileText },
 ]
 
 const systemItems = [
   { title: "Configurações", url: "/configuracoes", icon: Settings },
-  { title: "Área do Paciente", url: "/area-paciente", icon: User },
+  // { title: "Área do Paciente", url: "/area-paciente", icon: User },
 ]
 
 export function AppSidebar() {
@@ -189,10 +190,12 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+
+        {/* TODO: */}
         {/* Collapse trigger */}
-        <div className="mt-auto p-2">
+        {/* <div className="mt-auto p-2">
           <SidebarTrigger className="w-full h-10 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors" />
-        </div>
+        </div> */}
       </SidebarContent>
     </Sidebar>
   )
