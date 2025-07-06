@@ -58,9 +58,10 @@ export function AppSidebar() {
         {/* Logo Section */}
         <div className="p-3 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+            {/* <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
               AO
-            </div>
+            </div> */}
+            <img src="favicon.svg" alt="Software Logo" className="w-10 h-10" />
             {!isCollapsed && (
               <div>
                 <h2 className="font-bold text-gray-900">Alpha Odonto</h2>
