@@ -60,7 +60,7 @@ export function AppSidebar() {
       <SidebarContent className="bg-gradient-card">
         {/* Logo Section */}
         <div className="p-4 border-b border-border">
-          <div className="flex items-center gap-3">
+          <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center text-primary-foreground font-bold text-sm">
               AO
             </div>
@@ -75,14 +75,14 @@ export function AppSidebar() {
 
         {/* Main Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>Principal</SidebarGroupLabel>
+          {!isCollapsed && <SidebarGroupLabel>Principal</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
               {mainItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                     <NavLink to={item.url} end className={getNavCls}>
-                       <item.icon className={isCollapsed ? "h-5 w-5" : "mr-3 h-4 w-4"} />
+                 <SidebarMenuItem key={item.title}>
+                   <SidebarMenuButton asChild>
+                     <NavLink to={item.url} end className={`${getNavCls} ${isCollapsed ? 'justify-center' : ''}`}>
+                       <item.icon className={isCollapsed ? "h-6 w-6" : "mr-3 h-4 w-4"} />
                        {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -94,14 +94,14 @@ export function AppSidebar() {
 
         {/* Business Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>Gestão</SidebarGroupLabel>
+          {!isCollapsed && <SidebarGroupLabel>Gestão</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
               {businessItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className={getNavCls}>
-                       <item.icon className={isCollapsed ? "h-5 w-5" : "mr-3 h-4 w-4"} />
+                 <SidebarMenuItem key={item.title}>
+                   <SidebarMenuButton asChild>
+                     <NavLink to={item.url} className={`${getNavCls} ${isCollapsed ? 'justify-center' : ''}`}>
+                       <item.icon className={isCollapsed ? "h-6 w-6" : "mr-3 h-4 w-4"} />
                        {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -113,15 +113,15 @@ export function AppSidebar() {
 
         {/* System Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>Sistema</SidebarGroupLabel>
+          {!isCollapsed && <SidebarGroupLabel>Sistema</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
               {systemItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className={getNavCls}>
-                       <item.icon className={isCollapsed ? "h-5 w-5" : "mr-3 h-4 w-4"} />
-                       {!isCollapsed && <span>{item.title}</span>}
+                     <NavLink to={item.url} className={`${getNavCls} ${isCollapsed ? 'justify-center' : ''}`}>
+                        <item.icon className={isCollapsed ? "h-6 w-6" : "mr-3 h-4 w-4"} />
+                        {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
