@@ -62,26 +62,26 @@ const Funcionarios = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ativo':
-        return 'bg-success/10 text-success border-success/20';
+        return 'bg-green-100 text-green-800 border-green-200';
       case 'inativo':
-        return 'bg-destructive/10 text-destructive border-destructive/20';
+        return 'bg-red-100 text-red-800 border-red-200';
       default:
-        return 'bg-muted/10 text-muted-foreground border-muted/20';
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'Dentista':
-        return 'bg-primary/10 text-primary border-primary/20';
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'Recepcionista':
-        return 'bg-accent/10 text-accent border-accent/20';
+        return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'Auxiliar de Saúde Bucal':
-        return 'bg-warning/10 text-warning border-warning/20';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'Gerente Administrativo':
-        return 'bg-purple-100 text-purple-700 border-purple-200';
+        return 'bg-indigo-100 text-indigo-800 border-indigo-200';
       default:
-        return 'bg-muted/10 text-muted-foreground border-muted/20';
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 

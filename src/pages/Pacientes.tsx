@@ -56,24 +56,24 @@ const Pacientes = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ativo':
-        return 'bg-success/10 text-success border-success/20';
+        return 'bg-green-100 text-green-800 border-green-200';
       case 'inativo':
-        return 'bg-destructive/10 text-destructive border-destructive/20';
+        return 'bg-red-100 text-red-800 border-red-200';
       default:
-        return 'bg-muted/10 text-muted-foreground border-muted/20';
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
   const getPlanColor = (plan: string) => {
     switch (plan) {
       case 'Particular':
-        return 'bg-primary/10 text-primary border-primary/20';
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'Unimed':
-        return 'bg-accent/10 text-accent border-accent/20';
+        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
       case 'Amil':
-        return 'bg-warning/10 text-warning border-warning/20';
+        return 'bg-orange-100 text-orange-800 border-orange-200';
       default:
-        return 'bg-muted/10 text-muted-foreground border-muted/20';
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
