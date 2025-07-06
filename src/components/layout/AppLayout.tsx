@@ -23,22 +23,21 @@ export function AppLayout({ children }: AppLayoutProps) {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50">
         <AppSidebar />
-        
+
         <div className="flex-1 flex flex-col min-w-0">
           {/* Header */}
           <header className="h-16 bg-white/95 backdrop-blur-md border-b border-gray-200/50 flex items-center justify-between px-6 shadow-sm sticky top-0 z-50">
             <div className="flex items-center gap-4">
-              <SidebarTrigger className="p-2 hover:bg-gray-100 rounded-lg transition-colors" />
-              
+
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input 
-                  placeholder="Buscar pacientes, consultas..." 
+                <Input
+                  placeholder="Buscar pacientes, consultas..."
                   className="pl-10 pr-4 py-2 w-80 bg-gray-50/50 border-gray-200 rounded-lg focus:bg-white focus:border-blue-300 transition-all duration-200"
                 />
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3">
               {/* Notifications */}
               <div className="relative">
@@ -56,7 +55,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                   <p className="text-sm font-semibold text-gray-900">Dr. Alpha Odonto</p>
                   <p className="text-xs text-gray-500">Administrador</p>
                 </div>
-                
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-10 px-2 rounded-lg hover:bg-gray-100 transition-colors">
@@ -89,17 +88,17 @@ export function AppLayout({ children }: AppLayoutProps) {
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 p-6 bg-gray-50/30 overflow-auto">
+          <main className="flex-1 p-4 bg-gray-50/30 overflow-auto">
             <div className="w-full">
               {children}
             </div>
           </main>
-          
+
           {/* Footer */}
           <footer className="px-4 py-3 border-t border-gray-200/50 bg-white/95 backdrop-blur-sm">
             <div className="w-full">
               <p className="text-xs text-gray-500 text-center">
-                Powered by <span className="font-semibold text-blue-600">Norvand</span>
+                Powered by <span className="font-semibold text-blue-600">Norvand</span> • Alpha Odonto System
               </p>
             </div>
           </footer>
