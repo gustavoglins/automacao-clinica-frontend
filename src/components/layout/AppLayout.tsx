@@ -52,6 +52,13 @@ export function AppLayout({ children }: AppLayoutProps) {
           <main className="flex-1 p-6 bg-gradient-to-br from-background to-background/95">
             {children}
           </main>
+          
+          {/* Footer */}
+          <footer className="px-6 py-3 border-t border-border bg-card">
+            <p className="text-xs text-muted-foreground text-center">
+              Powered by <span className="font-medium text-primary">Norvand</span>
+            </p>
+          </footer>
         </div>
       </div>
     </SidebarProvider>
