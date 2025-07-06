@@ -82,8 +82,13 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavCls}>
-                      <item.icon className="mr-3 h-4 w-4" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      <div className={`flex items-center w-full relative ${isCollapsed ? 'justify-center' : ''}`}>
+                        <item.icon className={`h-5 w-5 ${isActive(item.url) ? 'text-primary' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
+                        {!isCollapsed && <span>{item.title}</span>}
+                        {isActive(item.url) && (
+                          <div className="absolute -left-2 w-1 h-6 bg-primary rounded-r-full"></div>
+                        )}
+                      </div>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -101,8 +106,13 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavCls}>
-                      <item.icon className="mr-3 h-4 w-4" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      <div className={`flex items-center w-full relative ${isCollapsed ? 'justify-center' : ''}`}>
+                        <item.icon className={`h-5 w-5 ${isActive(item.url) ? 'text-primary' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
+                        {!isCollapsed && <span>{item.title}</span>}
+                        {isActive(item.url) && (
+                          <div className="absolute -left-2 w-1 h-6 bg-primary rounded-r-full"></div>
+                        )}
+                      </div>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -120,8 +130,13 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavCls}>
-                      <item.icon className="mr-3 h-4 w-4" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      <div className={`flex items-center w-full relative ${isCollapsed ? 'justify-center' : ''}`}>
+                        <item.icon className={`h-5 w-5 ${isActive(item.url) ? 'text-primary' : ''} ${!isCollapsed ? 'mr-3' : ''}`} />
+                        {!isCollapsed && <span>{item.title}</span>}
+                        {isActive(item.url) && (
+                          <div className="absolute -left-2 w-1 h-6 bg-primary rounded-r-full"></div>
+                        )}
+                      </div>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
