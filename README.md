@@ -1,6 +1,6 @@
 # Rastreador de Automação Clínica
 
-![Preview](src/assets/preview.png)
+![Preview](src/assets/previews/preview.png)
 
 ## Sobre o Projeto
 O Rastreador de Automação Clínica é um painel web desenvolvido pela Norvand Tecnologia Ltda para clínicas odontológicas acompanharem, em tempo real, as ações e resultados de automações de IA personalizadas criadas sob demanda. O sistema integra-se ao agente de IA do cliente, permitindo total transparência e acompanhamento das atividades automatizadas.
@@ -45,7 +45,7 @@ Acesse: http://localhost:8080
 > **Atenção:** O sistema é exclusivo para clientes Norvand. O acesso à produção é restrito e não há versão pública.
 
 ## Screenshots
-Veja exemplos em `src/assets/preview.png`.
+Veja exemplos em `src/assets/previews`.
 
 ## Licença e Uso
 Este projeto é propriedade exclusiva da Norvand Tecnologia Ltda. **É proibido o uso, cópia ou redistribuição, seja para fins pessoais ou comerciais.**
