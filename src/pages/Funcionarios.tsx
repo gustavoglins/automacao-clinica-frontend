@@ -1,11 +1,19 @@
+import React, { useState } from "react";
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Users, Search, Plus, Filter, Phone, Mail, Calendar, UserCheck } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useSearch } from "@/context/SearchContext";
+import { useLocation } from "react-router-dom";
 
 const Funcionarios = () => {
+  const { search, setSearch } = useSearch();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const query = params.get("q") || search;
+
   const employees = [
     {
       id: 1,
@@ -59,6 +67,15 @@ const Funcionarios = () => {
     }
   ];
 
+  const filteredEmployees = employees.filter((employee) => {
+    const term = query.toLowerCase();
+    return (
+      employee.name.toLowerCase().includes(term) ||
+      employee.role.toLowerCase().includes(term) ||
+      (employee.specialty ? employee.specialty.toLowerCase().includes(term) : false)
+    );
+  });
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ativo':
@@ -94,10 +111,6 @@ const Funcionarios = () => {
             <h1 className="text-3xl font-bold text-foreground">Funcionários</h1>
             <p className="text-muted-foreground">Gerencie o cadastro e informações da equipe</p>
           </div>
-          <Button variant="primary" size="sm" className="gap-2">
-            <Plus className="w-4 h-4" />
-            Novo Funcionário
-          </Button>
         </div>
 
         {/* Search and Filter Bar */}
@@ -109,11 +122,18 @@ const Funcionarios = () => {
                 <Input
                   placeholder="Buscar por nome, função ou especialidade..."
                   className="pl-10"
+                  value={query}
+                  onChange={e => setSearch(e.target.value)}
+                  autoComplete="off"
                 />
               </div>
               <Button variant="outline-primary" size="sm" className="gap-2">
                 <Filter className="w-4 h-4" />
                 Filtros
+              </Button>
+              <Button variant="primary" size="sm" className="gap-2">
+                <Plus className="w-4 h-4" />
+                Novo Funcionário
               </Button>
             </div>
           </CardContent>
@@ -152,10 +172,10 @@ const Funcionarios = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Dentistas</p>
-                  <p className="text-2xl font-bold text-accent">{employees.filter(emp => emp.role === 'Dentista').length}</p>
+                  <p className="text-2xl font-bold text-primary">{employees.filter(emp => emp.role === 'Dentista').length}</p>
                 </div>
-                <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center">
-                  <Users className="w-4 h-4 text-accent" />
+                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                  <Users className="w-4 h-4 text-primary" />
                 </div>
               </div>
             </CardContent>
@@ -185,7 +205,7 @@ const Funcionarios = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {employees.map((employee) => (
+            {filteredEmployees.map((employee) => (
               <div key={employee.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">

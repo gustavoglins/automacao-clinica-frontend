@@ -1,11 +1,19 @@
+import React, { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Users, Search, Plus, Filter, Phone, Mail } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useSearch } from "@/context/SearchContext";
+import { useLocation } from "react-router-dom";
 
 const Pacientes = () => {
+  const { search, setSearch } = useSearch();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const query = params.get("q") || search;
+
   const patients = [
     {
       id: 1,
@@ -53,6 +61,15 @@ const Pacientes = () => {
     }
   ];
 
+  const filteredPatients = patients.filter((patient) => {
+    const term = query.toLowerCase();
+    return (
+      patient.name.toLowerCase().includes(term) ||
+      patient.phone.toLowerCase().includes(term) ||
+      patient.email.toLowerCase().includes(term)
+    );
+  });
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ativo':
@@ -86,10 +103,6 @@ const Pacientes = () => {
             <h1 className="text-3xl font-bold text-foreground">Pacientes</h1>
             <p className="text-muted-foreground">Gerencie o cadastro e histórico dos pacientes</p>
           </div>
-          <Button variant="primary" size="sm" className="gap-2">
-            <Plus className="w-4 h-4" />
-            Novo Paciente
-          </Button>
         </div>
 
         {/* Search and Filter Bar */}
@@ -101,11 +114,18 @@ const Pacientes = () => {
                 <Input
                   placeholder="Buscar por nome, telefone ou email..."
                   className="pl-10"
+                  value={query}
+                  onChange={e => setSearch(e.target.value)}
+                  autoComplete="off"
                 />
               </div>
               <Button variant="outline-primary" size="sm" className="gap-2">
                 <Filter className="w-4 h-4" />
                 Filtros
+              </Button>
+              <Button variant="primary" size="sm" className="gap-2">
+                <Plus className="w-4 h-4" />
+                Novo Paciente
               </Button>
             </div>
           </CardContent>
@@ -144,10 +164,10 @@ const Pacientes = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Novos este Mês</p>
-                  <p className="text-2xl font-bold text-accent">45</p>
+                  <p className="text-2xl font-bold text-primary">45</p>
                 </div>
-                <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center">
-                  <Plus className="w-4 h-4 text-accent" />
+                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                  <Plus className="w-4 h-4 text-primary" />
                 </div>
               </div>
             </CardContent>
@@ -177,7 +197,7 @@ const Pacientes = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {patients.map((patient) => (
+            {filteredPatients.map((patient) => (
               <div key={patient.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">

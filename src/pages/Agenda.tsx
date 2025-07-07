@@ -66,30 +66,32 @@ const Agenda = () => {
             <h1 className="text-3xl font-bold text-foreground">Agenda</h1>
             <p className="text-muted-foreground">Gerencie todas as consultas e horários</p>
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline-primary" size="sm" className="gap-2">
-              <Filter className="w-4 h-4" />
-              Filtros
-            </Button>
-            <Button variant="primary" size="sm" className="gap-2">
-              <Plus className="w-4 h-4" />
-              Nova Consulta
-            </Button>
-          </div>
         </div>
 
         {/* Today's Schedule */}
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              Hoje - {new Date().toLocaleDateString('pt-BR', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
-            </CardTitle>
+            <div className="flex items-center justify-between w-full">
+              <CardTitle className="flex items-center gap-2 m-0 p-0">
+                <Calendar className="w-5 h-5 text-primary" />
+                Hoje - {new Date().toLocaleDateString('pt-BR', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </CardTitle>
+              <div className="flex gap-2">
+                <Button variant="outline-primary" size="sm" className="gap-2">
+                  <Filter className="w-4 h-4" />
+                  Filtros
+                </Button>
+                <Button variant="primary" size="sm" className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Nova Consulta
+                </Button>
+              </div>
+            </div>
             <CardDescription>
               {appointments.length} consultas agendadas
             </CardDescription>
@@ -130,7 +132,7 @@ const Agenda = () => {
         </Card>
 
         {/* Weekly View Preview */}
-        <Card className="shadow-card bg-gradient-card">
+        <Card className="shadow-card">
           <CardHeader>
             <CardTitle>Visão Semanal</CardTitle>
             <CardDescription>
@@ -144,7 +146,7 @@ const Agenda = () => {
                   <p className="text-sm font-medium text-muted-foreground mb-2">{day}</p>
                   <div className="bg-card rounded-lg p-3">
                     <p className="text-lg font-bold text-foreground">{index + 15}</p>
-                    <p className="text-xs text-primary">{Math.floor(Math.random() * 8) + 2} consultas</p>
+                    <p className="text-sm text-primary">{Math.floor(Math.random() * 8) + 2} consultas</p>
                   </div>
                 </div>
               ))}
