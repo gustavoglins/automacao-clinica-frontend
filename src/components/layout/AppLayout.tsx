@@ -16,12 +16,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { SearchProvider, useSearch } from "@/context/SearchContext"
 import { useNavigate } from "react-router-dom"
+import { useClinic } from "@/context/ClinicContext"
 
 interface AppLayoutProps {
   children: React.ReactNode
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
+  const { clinicName } = useClinic();
   return (
     <SearchProvider>
       <SidebarProvider>
@@ -29,7 +31,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <AppSidebar />
           <div className="flex-1 flex flex-col min-w-0">
             {/* Header */}
-            <HeaderWithSearch />
+            <HeaderWithSearch clinicName={clinicName} />
             {/* Main Content */}
             <main className="flex-1 p-4 bg-gray-50/30 overflow-auto">
               <div className="w-full">
@@ -51,7 +53,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   )
 }
 
-function HeaderWithSearch() {
+function HeaderWithSearch({ clinicName }: { clinicName: string }) {
   const { search, setSearch } = useSearch();
   const [showResults, setShowResults] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -155,29 +157,29 @@ function HeaderWithSearch() {
 
           {/* User Profile */}
           <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
-            <div className="text-right hidden sm:block">
+            {/* <div className="text-right hidden sm:block">
               <p className="text-sm font-semibold text-gray-900">Dr. Alpha Odonto</p>
               <p className="text-xs text-gray-500">Administrador</p>
-            </div>
+            </div> */}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-10 px-2 rounded-lg hover:bg-gray-100 transition-colors">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder-avatar.jpg" alt="Avatar" />
-                    <AvatarFallback className="bg-[#3b82f6] text-white text-sm font-medium">AO</AvatarFallback>
+                    <AvatarFallback className="bg-[#3b82f6] text-white text-sm font-medium">{clinicName.slice(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <ChevronDown className="w-4 h-4 ml-2 text-gray-500" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+                {/* <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer">
                   <User className="w-4 h-4 mr-2" />
                   Perfil
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator /> */}
                 <DropdownMenuItem className="text-red-600 hover:bg-red-50 hover:text-red-600 focus:bg-red-50 focus:text-red-600 cursor-pointer">
                   <LogOut className="w-4 h-4 mr-2" />
                   Sair
@@ -186,7 +188,7 @@ function HeaderWithSearch() {
             </DropdownMenu>
           </div>
         </div>
-      </header>
+      </header >
     </>
   );
 }
