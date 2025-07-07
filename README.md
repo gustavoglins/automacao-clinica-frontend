@@ -1,73 +1,59 @@
-# Welcome to your Lovable project
+# Alpha Smile Hub Odonto
 
-## Project info
+![Preview](src/assets/preview.png)
 
-**URL**: https://lovable.dev/projects/2dca41d7-1ac4-4ed9-9642-018dcb6c5e92
+## Sobre o Projeto
+O Alpha Smile Hub Odonto é um painel web desenvolvido pela Norvand Tecnologia Ltda para clínicas odontológicas acompanharem, em tempo real, as ações e resultados de automações de IA personalizadas criadas sob demanda. O sistema integra-se ao agente de IA do cliente, permitindo total transparência e acompanhamento das atividades automatizadas.
 
-## How can I edit this code?
+## Público-alvo
+- Clínicas odontológicas que utilizam soluções de automação e IA desenvolvidas pela Norvand.
 
-There are several ways of editing your application.
+## Funcionalidades Principais
+- **Dashboard** com estatísticas e indicadores em tempo real
+- **Agenda inteligente**: visualização, busca e gerenciamento de consultas
+- **Cadastro e gestão de pacientes**
+- **Gestão de funcionários e equipe**
+- **Busca global/autocomplete** (pacientes, funcionários, consultas)
+- **Visualização de logs e ações da IA**
+- **Interface responsiva e moderna**
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/2dca41d7-1ac4-4ed9-9642-018dcb6c5e92) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
+## Tecnologias & Destaques
+- React 18 + TypeScript
 - Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- TailwindCSS + shadcn/ui
+- Radix UI (componentes acessíveis)
+- React Router DOM
+- React Query
+- Lucide Icons
+- Charts (Recharts)
+- Estrutura modular e escalável
 
-## How can I deploy this project?
+## Como rodar localmente
+```bash
+# Instale as dependências
+npm install
+# ou
+bun install
 
-Simply open [Lovable](https://lovable.dev/projects/2dca41d7-1ac4-4ed9-9642-018dcb6c5e92) and click on Share -> Publish.
+# Rode o projeto em modo desenvolvimento
+npm run dev
+# ou
+bun run dev
+```
+Acesse: http://localhost:8080
 
-## Can I connect a custom domain to my Lovable project?
+> **Atenção:** O sistema é exclusivo para clientes Norvand. O acesso à produção é restrito e não há versão pública.
 
-Yes, you can!
+## Screenshots
+Veja exemplos em `src/assets/preview.png`.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Licença e Uso
+Este projeto é propriedade exclusiva da Norvand Tecnologia Ltda. **É proibido o uso, cópia ou redistribuição, seja para fins pessoais ou comerciais.**
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Contato
+- E-mail: contato@norvand.com
+- WhatsApp: +55 (11) 91548-0518
+- CNPJ: 61.428.864/0001-59
+
+---
+Norvand Tecnologia Ltda
