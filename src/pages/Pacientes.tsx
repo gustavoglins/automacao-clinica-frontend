@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Users, Search, Plus, Filter, Phone, Mail } from "lucide-react";
+import { Search, Plus, Filter, Phone, Mail, Users } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useSearch } from "@/context/SearchContext";
 import { useLocation } from "react-router-dom";
+import { StatsCard } from "@/components/dashboard/StatsCard";
 
 const Pacientes = () => {
-  const { search, setSearch } = useSearch();
+  const [search, setSearch] = useState("");
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const query = params.get("q") || search;
@@ -133,59 +133,26 @@ const Pacientes = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total de Pacientes</p>
-                  <p className="text-2xl font-bold text-foreground">1,247</p>
-                </div>
-                <Users className="w-8 h-8 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Pacientes Ativos</p>
-                  <p className="text-2xl font-bold text-success">1,156</p>
-                </div>
-                <div className="w-8 h-8 bg-success/10 rounded-full flex items-center justify-center">
-                  <Users className="w-4 h-4 text-success" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Novos este Mês</p>
-                  <p className="text-2xl font-bold text-primary">45</p>
-                </div>
-                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Plus className="w-4 h-4 text-primary" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Próximas Consultas</p>
-                  <p className="text-2xl font-bold text-primary">89</p>
-                </div>
-                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Users className="w-4 h-4 text-primary" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatsCard
+            title="Total de Pacientes"
+            value={patients.length}
+            icon={Users}
+          />
+          <StatsCard
+            title="Pacientes Ativos"
+            value={patients.filter(p => p.status === 'ativo').length}
+            icon={Users}
+          />
+          <StatsCard
+            title="Novos este Mês"
+            value={45}
+            icon={Plus}
+          />
+          <StatsCard
+            title="Próximas Consultas"
+            value={89}
+            icon={Users}
+          />
         </div>
 
         {/* Patients List */}

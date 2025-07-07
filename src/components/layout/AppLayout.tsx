@@ -103,7 +103,7 @@ function HeaderWithSearch() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               ref={inputRef}
-              placeholder="Buscar pacientes, consultas..."
+              placeholder="Buscar pacientes, funcionários..."
               className="pl-10 pr-4 py-2 w-full bg-gray-50/50 border-gray-200 rounded-lg focus:bg-white focus:border-blue-300 transition-all duration-200"
               value={search}
               onChange={e => setSearch(e.target.value)}

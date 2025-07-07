@@ -5,11 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useSearch } from "@/context/SearchContext";
 import { useLocation } from "react-router-dom";
+import { StatsCard } from "@/components/dashboard/StatsCard";
 
 const Funcionarios = () => {
-  const { search, setSearch } = useSearch();
+  const [search, setSearch] = useState("");
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const query = params.get("q") || search;
@@ -141,59 +141,26 @@ const Funcionarios = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total de Funcionários</p>
-                  <p className="text-2xl font-bold text-foreground">{employees.length}</p>
-                </div>
-                <Users className="w-8 h-8 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Funcionários Ativos</p>
-                  <p className="text-2xl font-bold text-success">{employees.filter(emp => emp.status === 'ativo').length}</p>
-                </div>
-                <div className="w-8 h-8 bg-success/10 rounded-full flex items-center justify-center">
-                  <UserCheck className="w-4 h-4 text-success" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Dentistas</p>
-                  <p className="text-2xl font-bold text-primary">{employees.filter(emp => emp.role === 'Dentista').length}</p>
-                </div>
-                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Users className="w-4 h-4 text-primary" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-card">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Equipe de Apoio</p>
-                  <p className="text-2xl font-bold text-primary">{employees.filter(emp => emp.role !== 'Dentista').length}</p>
-                </div>
-                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                  <Users className="w-4 h-4 text-primary" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatsCard
+            title="Total de Funcionários"
+            value={employees.length}
+            icon={Users}
+          />
+          <StatsCard
+            title="Funcionários Ativos"
+            value={employees.filter(emp => emp.status === 'ativo').length}
+            icon={UserCheck}
+          />
+          <StatsCard
+            title="Dentistas"
+            value={employees.filter(emp => emp.role === 'Dentista').length}
+            icon={Users}
+          />
+          <StatsCard
+            title="Equipe de Apoio"
+            value={employees.filter(emp => emp.role !== 'Dentista').length}
+            icon={Users}
+          />
         </div>
 
         {/* Employees List */}
