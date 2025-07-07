@@ -8,26 +8,33 @@ import Agenda from "./pages/Agenda";
 import Pacientes from "./pages/Pacientes";
 import NotFound from "./pages/NotFound";
 import Funcionarios from "./pages/Funcionarios";
+import Configuracoes from "./pages/Configuracoes";
+import Relatorios from "./pages/Relatorios";
+import { ClinicProvider } from "@/context/ClinicContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/agenda" element={<Agenda />} />
-          <Route path="/pacientes" element={<Pacientes />} />
-          <Route path="/funcionarios" element={<Funcionarios />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ClinicProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/agenda" element={<Agenda />} />
+            <Route path="/pacientes" element={<Pacientes />} />
+            <Route path="/funcionarios" element={<Funcionarios />} />
+            <Route path="/configuracoes" element={<Configuracoes />} />
+            <Route path="/relatorios" element={<Relatorios />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ClinicProvider>
 );
 
 export default App;

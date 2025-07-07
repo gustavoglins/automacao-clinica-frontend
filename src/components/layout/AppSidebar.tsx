@@ -20,6 +20,7 @@ import {
   SidebarMenuItem,
   useSidebar
 } from "@/components/ui/sidebar"
+import { useClinic } from "@/context/ClinicContext"
 
 const mainItems = [
   { title: "Dashboard", url: "/", icon: Home },
@@ -46,6 +47,7 @@ export function AppSidebar() {
   const isCollapsed = state === "collapsed"
 
   const isActive = (path: string) => currentPath === path
+  const { clinicName } = useClinic()
 
   return (
     <Sidebar
@@ -59,7 +61,7 @@ export function AppSidebar() {
             <img src="favicon.svg" alt="Software Logo" className="w-10 h-10" />
             {!isCollapsed && (
               <div>
-                <h2 className="font-bold text-gray-900">Alpha Odonto</h2>
+                <h2 className="font-bold text-gray-900">{clinicName}</h2>
                 <p className="text-xs text-gray-500">Sistema de IA Integrado</p>
               </div>
             )}
@@ -82,15 +84,15 @@ export function AppSidebar() {
                       className={({ isActive }) => `
                         flex items-center w-full px-3 py-2 rounded-lg transition-all duration-200
                         ${isActive
-                          ? 'bg-blue-50 text-blue-700 font-medium'
+                          ? 'bg-[#dbeafe] text-[#2563eb] font-medium'
                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                         }
                       `}
                     >
-                      <item.icon className={`h-5 w-5 ${isActive(item.url) ? 'text-blue-600' : 'text-gray-500'} ${!isCollapsed ? 'mr-3' : ''}`} />
+                      <item.icon className={`h-5 w-5 ${isActive(item.url) ? 'text-[#2563eb]' : 'text-gray-500'} ${!isCollapsed ? 'mr-3' : ''}`} />
                       {!isCollapsed && (
                         <span
-                          className={`font-semibold ${isActive(item.url) ? 'text-blue-700' : 'text-gray-500'
+                          className={`font-semibold ${isActive(item.url) ? 'text-[#2563eb]' : 'text-gray-500'
                             }`}
                         >
                           {item.title}
@@ -119,17 +121,17 @@ export function AppSidebar() {
                       className={({ isActive }) => `
                         flex items-center w-full px-3 py-2 rounded-lg transition-all duration-200
                         ${isActive
-                          ? 'bg-blue-50 text-blue-700 font-medium'
+                          ? 'bg-[#dbeafe] text-[#2563eb] font-medium'
                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                         }
                       `}
                     >
                       {({ isActive }) => (
                         <>
-                          <item.icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'} ${!isCollapsed ? 'mr-3' : ''}`} />
+                          <item.icon className={`h-5 w-5 ${isActive ? 'text-[#2563eb]' : 'text-gray-500'} ${!isCollapsed ? 'mr-3' : ''}`} />
                           {!isCollapsed && (
                             <span
-                              className={`font-semibold ${isActive ? 'text-blue-700' : 'text-gray-500'
+                              className={`font-semibold ${isActive ? 'text-[#2563eb]' : 'text-gray-500'
                                 }`}
                             >
                               {item.title}
@@ -160,17 +162,17 @@ export function AppSidebar() {
                       className={({ isActive }) => `
                         flex items-center w-full px-3 py-2 rounded-lg transition-all duration-200
                         ${isActive
-                          ? 'bg-blue-50 text-blue-700 font-medium'
+                          ? 'bg-[#dbeafe] text-[#2563eb] font-medium'
                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                         }
                       `}
                     >
                       {({ isActive }) => (
                         <>
-                          <item.icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'} ${!isCollapsed ? 'mr-3' : ''}`} />
+                          <item.icon className={`h-5 w-5 ${isActive ? 'text-[#2563eb]' : 'text-gray-500'} ${!isCollapsed ? 'mr-3' : ''}`} />
                           {!isCollapsed && (
                             <span
-                              className={`font-semibold ${isActive ? 'text-blue-700' : 'text-gray-500'
+                              className={`font-semibold ${isActive ? 'text-[#2563eb]' : 'text-gray-500'
                                 }`}
                             >
                               {item.title}

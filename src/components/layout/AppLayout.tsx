@@ -40,7 +40,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <footer className="px-4 py-3 border-t border-gray-200/50 bg-white/95 backdrop-blur-sm">
               <div className="w-full">
                 <p className="text-xs text-gray-500 text-center">
-                  Powered by <span className="font-semibold text-blue-600">Norvand</span>
+                  Powered by <span className="font-semibold text-[#2563eb]">Norvand</span>
                 </p>
               </div>
             </footer>
@@ -165,7 +165,7 @@ function HeaderWithSearch() {
                 <Button variant="ghost" className="h-10 px-2 rounded-lg hover:bg-gray-100 transition-colors">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder-avatar.jpg" alt="Avatar" />
-                    <AvatarFallback className="bg-blue-500 text-white text-sm font-medium">AO</AvatarFallback>
+                    <AvatarFallback className="bg-[#3b82f6] text-white text-sm font-medium">AO</AvatarFallback>
                   </Avatar>
                   <ChevronDown className="w-4 h-4 ml-2 text-gray-500" />
                 </Button>
