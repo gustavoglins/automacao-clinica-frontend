@@ -199,7 +199,7 @@ const Funcionarios = () => {
                       <Badge className={getStatusColor(employee.status)}>
                         {employee.status}
                       </Badge>
-                      <Badge className={getRoleColor(employee.role)}>
+                      <Badge variant="outline" className='text-xs'>
                         {employee.role}
                       </Badge>
                       {employee.specialty && (

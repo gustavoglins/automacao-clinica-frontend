@@ -191,7 +191,7 @@ const Pacientes = () => {
                       <Badge className={getStatusColor(patient.status)}>
                         {patient.status}
                       </Badge>
-                      <Badge className={getPlanColor(patient.plan)}>
+                      <Badge variant="outline" className="text-xs">
                         {patient.plan}
                       </Badge>
                     </div>
