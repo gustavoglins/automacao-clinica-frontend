@@ -1,9 +1,9 @@
-# Alpha Smile Hub Odonto
+# Rastreador de Automação Clínica
 
 ![Preview](src/assets/preview.png)
 
 ## Sobre o Projeto
-O Alpha Smile Hub Odonto é um painel web desenvolvido pela Norvand Tecnologia Ltda para clínicas odontológicas acompanharem, em tempo real, as ações e resultados de automações de IA personalizadas criadas sob demanda. O sistema integra-se ao agente de IA do cliente, permitindo total transparência e acompanhamento das atividades automatizadas.
+O Rastreador de Automação Clínica é um painel web desenvolvido pela Norvand Tecnologia Ltda para clínicas odontológicas acompanharem, em tempo real, as ações e resultados de automações de IA personalizadas criadas sob demanda. O sistema integra-se ao agente de IA do cliente, permitindo total transparência e acompanhamento das atividades automatizadas.
 
 ## Público-alvo
 - Clínicas odontológicas que utilizam soluções de automação e IA desenvolvidas pela Norvand.
