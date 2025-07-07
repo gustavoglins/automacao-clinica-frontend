@@ -45,12 +45,20 @@ export function Dashboard() {
     { time: "10:30", patient: "Carlos Santos", type: "Avaliação", doctor: "Dra. Ana" },
     { time: "14:00", patient: "Ana Costa", type: "Tratamento Canal", doctor: "Dr. João" },
     { time: "15:30", patient: "Pedro Lima", type: "Implante", doctor: "Dr. Roberto" },
+    { time: "15:30", patient: "Pedro Lima", type: "Implante", doctor: "Dr. Roberto" },
+    { time: "15:30", patient: "Pedro Lima", type: "Implante", doctor: "Dr. Roberto" },
+    { time: "15:30", patient: "Pedro Lima", type: "Implante", doctor: "Dr. Roberto" },
   ]
 
   const registeredTasks = [
     { task: "Confirmar consultas de amanhã", priority: "high" },
     { task: "Atualizar prontuário - Maria Silva", priority: "medium" },
     { task: "Enviar orçamento - Carlos Santos", priority: "high" },
+    { task: "Reagendar consulta cancelada", priority: "low" },
+    { task: "Reagendar consulta cancelada", priority: "low" },
+    { task: "Reagendar consulta cancelada", priority: "low" },
+    { task: "Reagendar consulta cancelada", priority: "low" },
+    { task: "Reagendar consulta cancelada", priority: "low" },
     { task: "Reagendar consulta cancelada", priority: "low" },
   ]
 
@@ -89,7 +97,7 @@ export function Dashboard() {
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Today's Appointments */}
-        <Card className="shadow-card">
+        <Card className="shadow-card h-full flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-primary" />
@@ -99,32 +107,36 @@ export function Dashboard() {
               {todayAppointments.length} consultas agendadas
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {todayAppointments.map((appointment, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full">
-                    <Clock className="w-4 h-4 text-primary" />
+          <CardContent className="flex-1 flex flex-col">
+            <div className="space-y-4 flex-1">
+              {todayAppointments.slice(0, 5).map((appointment, index) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full">
+                      <Clock className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">{appointment.patient}</p>
+                      <p className="text-sm text-muted-foreground">{appointment.type}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-foreground">{appointment.patient}</p>
-                    <p className="text-sm text-muted-foreground">{appointment.type}</p>
+                  <div className="text-right">
+                    <p className="font-medium text-primary">{appointment.time}</p>
+                    <p className="text-sm text-muted-foreground">{appointment.doctor}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-medium text-primary">{appointment.time}</p>
-                  <p className="text-sm text-muted-foreground">{appointment.doctor}</p>
-                </div>
-              </div>
-            ))}
-            <Button size="sm" className="w-full" variant="outline-primary">
-              Ver Agenda Completa
-            </Button>
+              ))}
+            </div>
+            <div className="mt-4">
+              <Button size="sm" className="w-full mt-auto" variant="outline-primary">
+                Ver Agenda Completa
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
         {/* Pending Tasks */}
-        <Card className="shadow-card">
+        <Card className="shadow-card h-full flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCheck className="w-5 h-5 text-green-500" />
@@ -134,24 +146,28 @@ export function Dashboard() {
               {registeredTasks.length} tarefas registradas hoje
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {registeredTasks.map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${item.priority === 'high' ? 'bg-destructive' :
-                    item.priority === 'medium' ? 'bg-warning' : 'bg-muted-foreground'
-                    }`} />
-                  <p className="text-sm text-foreground">{item.task}</p>
+          <CardContent className="flex-1 flex flex-col">
+            <div className="space-y-4 flex-1">
+              {registeredTasks.slice(0, 7).map((item, index) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full ${item.priority === 'high' ? 'bg-destructive' :
+                      item.priority === 'medium' ? 'bg-warning' : 'bg-muted-foreground'
+                      }`} />
+                    <p className="text-sm text-foreground">{item.task}</p>
+                  </div>
+                  <span className={`text-xs font-medium ${getPriorityColor(item.priority)}`}>
+                    {item.priority === 'high' ? 'ALTA' :
+                      item.priority === 'medium' ? 'MÉDIA' : 'BAIXA'}
+                  </span>
                 </div>
-                <span className={`text-xs font-medium ${getPriorityColor(item.priority)}`}>
-                  {item.priority === 'high' ? 'ALTA' :
-                    item.priority === 'medium' ? 'MÉDIA' : 'BAIXA'}
-                </span>
-              </div>
-            ))}
-            <Button size="sm" className="w-full" variant="outline-primary">
-              Ver Todas as Tarefas
-            </Button>
+              ))}
+            </div>
+            <div className="mt-4">
+              <Button size="sm" className="w-full mt-auto" variant="outline-primary">
+                Ver Todas as Tarefas
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
