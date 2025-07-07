@@ -31,7 +31,6 @@ const mainItems = [
 
 const businessItems = [
   // { title: "Financeiro", url: "/financeiro", icon: BarChart3 },
-  { title: "Whatsapp", url: "/whatsapp", icon: Phone },
   { title: "Relatórios", url: "/relatorios", icon: FileText },
 ]
 
