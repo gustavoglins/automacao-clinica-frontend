@@ -12,6 +12,7 @@ import {
 import { StatsCard } from "./StatsCard"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
 export function Dashboard() {
   const todayStats = [
@@ -79,6 +80,10 @@ export function Dashboard() {
   const [tasksPage, setTasksPage] = useState(0)
   const APPOINTMENTS_PER_PAGE = 5
   const TASKS_PER_PAGE = 7
+
+  // Estados para abrir os modais
+  const [openAppointmentsDialog, setOpenAppointmentsDialog] = useState(false)
+  const [openTasksDialog, setOpenTasksDialog] = useState(false)
 
   // Ordena as consultas do mais cedo para o mais tarde
   const sortedAppointments = [...todayAppointments].sort((a, b) => a.time.localeCompare(b.time))
@@ -200,7 +205,7 @@ export function Dashboard() {
               </div>
             )}
             <div className="mt-4">
-              <Button size="sm" className="w-full mt-auto" variant="outline-primary">
+              <Button size="sm" className="w-full mt-auto" variant="outline-primary" onClick={() => setOpenAppointmentsDialog(true)}>
                 Ver Agenda Completa
               </Button>
             </div>
@@ -283,7 +288,7 @@ export function Dashboard() {
               </div>
             )}
             <div className="mt-4">
-              <Button size="sm" className="w-full mt-auto" variant="outline-primary">
+              <Button size="sm" className="w-full mt-auto" variant="outline-primary" onClick={() => setOpenTasksDialog(true)}>
                 Ver Todas as Tarefas
               </Button>
             </div>
@@ -316,6 +321,61 @@ export function Dashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog: Agenda Completa */}
+      <Dialog open={openAppointmentsDialog} onOpenChange={setOpenAppointmentsDialog}>
+        <DialogContent className="max-w-lg w-full">
+          <DialogHeader>
+            <DialogTitle>Agenda Completa</DialogTitle>
+            <DialogDescription>Veja todas as consultas de hoje</DialogDescription>
+          </DialogHeader>
+          <div className="max-h-96 overflow-y-auto space-y-3 mt-2">
+            {sortedAppointments.map((appointment, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full">
+                    <Clock className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">{appointment.patient}</p>
+                    <p className="text-sm text-muted-foreground">{appointment.type}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-medium text-primary">{appointment.time}</p>
+                  <p className="text-sm text-muted-foreground">{appointment.doctor}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Todas as Tarefas */}
+      <Dialog open={openTasksDialog} onOpenChange={setOpenTasksDialog}>
+        <DialogContent className="max-w-lg w-full">
+          <DialogHeader>
+            <DialogTitle>Todas as Tarefas</DialogTitle>
+            <DialogDescription>Veja todas as tarefas registradas hoje</DialogDescription>
+          </DialogHeader>
+          <div className="max-h-96 overflow-y-auto space-y-3 mt-2">
+            {registeredTasks.map((item, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className={`w-2 h-2 rounded-full ${item.priority === 'high' ? 'bg-destructive' :
+                    item.priority === 'medium' ? 'bg-warning' : 'bg-muted-foreground'
+                    }`} />
+                  <p className="text-sm text-foreground">{item.task}</p>
+                </div>
+                <span className={`text-xs font-medium ${getPriorityColor(item.priority)}`}>
+                  {item.priority === 'high' ? 'ALTA' :
+                    item.priority === 'medium' ? 'MÉDIA' : 'BAIXA'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
