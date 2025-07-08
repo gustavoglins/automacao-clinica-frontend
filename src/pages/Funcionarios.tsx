@@ -9,6 +9,7 @@ import { useLocation } from "react-router-dom";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/lib/supabaseClient";
 
 const Funcionarios = () => {
   const [search, setSearch] = useState("");
@@ -188,12 +189,44 @@ const Funcionarios = () => {
   async function handleNewEmployeeSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5678/webhook-test/employees", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newEmployee)
-      });
-      if (!response.ok) throw new Error("Erro ao cadastrar funcionário");
+      // 1. Inserir funcionário (apenas os campos da tabela employees)
+      const { data, error } = await supabase
+        .from('employees')
+        .insert([
+          {
+            name: newEmployee.name,
+            email: newEmployee.email,
+            phone: newEmployee.phone,
+            role: newEmployee.role
+          }
+        ])
+        .select('id')
+        .single();
+      if (error) {
+        console.error("DADOS - Erro ao inserir funcionário:", error); // Log do erro ============
+        throw error;
+      }
+
+      // 2. Mapear workDays para números (0=Dom, ..., 6=Sáb)
+      const dayMap = { 'Dom': 0, 'Seg': 1, 'Ter': 2, 'Qua': 3, 'Qui': 4, 'Sex': 5, 'Sáb': 6 };
+      const schedules = newEmployee.workDays.map(day => ({
+        employee_id: data.id,
+        day_of_week: dayMap[day],
+        start_time: newEmployee.startHour,
+        end_time: newEmployee.endHour
+      }));
+
+      // 3. Inserir horários
+      if (schedules.length > 0) {
+        const { error: schedError } = await supabase
+          .from('employee_work_schedules')
+          .insert(schedules);
+        if (schedError) {
+          console.error("schedError - Erro ao inserir funcionário:", schedError); // Log do erro ============
+          throw schedError;
+        }
+      }
+
       toast({
         title: undefined,
         description: (
