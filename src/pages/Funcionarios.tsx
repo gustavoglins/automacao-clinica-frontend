@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, Search, Plus, Filter, Phone, Mail, Calendar, UserCheck } from "lucide-react";
+import { Users, Search, Plus, Filter, Phone, Mail, Calendar, UserCheck, CheckCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useLocation } from "react-router-dom";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
 
 const Funcionarios = () => {
   const [search, setSearch] = useState("");
@@ -15,9 +16,19 @@ const Funcionarios = () => {
   const [filterStatus, setFilterStatus] = useState("");
   const [filterRole, setFilterRole] = useState("");
   const [filterSpecialty, setFilterSpecialty] = useState("");
+  const [openNewEmployeeDialog, setOpenNewEmployeeDialog] = useState(false);
+  const [newEmployee, setNewEmployee] = useState({
+    name: "",
+    role: "",
+    specialty: "",
+    phone: "",
+    email: "",
+    status: "ativo"
+  });
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const query = params.get("q") || search;
+  const { toast } = useToast();
 
   const employees = [
     {
@@ -115,6 +126,31 @@ const Funcionarios = () => {
     }
   };
 
+  async function handleNewEmployeeSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      const response = await fetch("http://localhost:5678/webhook-test/employees", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newEmployee)
+      });
+      if (!response.ok) throw new Error("Erro ao cadastrar funcionário");
+      toast({
+        title: undefined,
+        description: (
+          <span className="flex items-center gap-2 text-green-600">
+            <CheckCircle className="w-5 h-5" /> Funcionário cadastrado com sucesso!
+          </span>
+        ),
+        duration: 3000
+      });
+      setOpenNewEmployeeDialog(false);
+      setNewEmployee({ name: "", role: "", specialty: "", phone: "", email: "", status: "ativo" });
+    } catch (err) {
+      toast({ title: "Erro ao cadastrar funcionário!" });
+    }
+  }
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -144,13 +180,55 @@ const Funcionarios = () => {
                 <Filter className="w-4 h-4" />
                 Filtros
               </Button>
-              <Button variant="primary" size="sm" className="gap-2">
+              <Button variant="primary" size="sm" className="gap-2" onClick={() => setOpenNewEmployeeDialog(true)}>
                 <Plus className="w-4 h-4" />
                 Novo Funcionário
               </Button>
             </div>
           </CardContent>
         </Card>
+        {/* Dialog: Novo Funcionário */}
+        <Dialog open={openNewEmployeeDialog} onOpenChange={setOpenNewEmployeeDialog}>
+          <DialogContent className="max-w-md w-full">
+            <DialogHeader>
+              <DialogTitle>Novo Funcionário</DialogTitle>
+              <DialogDescription>Preencha os dados para cadastrar um novo funcionário</DialogDescription>
+            </DialogHeader>
+            <form className="space-y-4 mt-2" onSubmit={handleNewEmployeeSubmit}>
+              <div>
+                <label className="block text-sm font-medium mb-1">Nome</label>
+                <Input value={newEmployee.name} onChange={e => setNewEmployee(emp => ({ ...emp, name: e.target.value }))} required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Função</label>
+                <Input value={newEmployee.role} onChange={e => setNewEmployee(emp => ({ ...emp, role: e.target.value }))} required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Especialidade</label>
+                <Input value={newEmployee.specialty} onChange={e => setNewEmployee(emp => ({ ...emp, specialty: e.target.value }))} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Telefone</label>
+                <Input value={newEmployee.phone} onChange={e => setNewEmployee(emp => ({ ...emp, phone: e.target.value }))} required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <Input value={newEmployee.email} onChange={e => setNewEmployee(emp => ({ ...emp, email: e.target.value }))} required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Status</label>
+                <select className="w-full border rounded px-3 py-2" value={newEmployee.status} onChange={e => setNewEmployee(emp => ({ ...emp, status: e.target.value }))}>
+                  <option value="ativo">Ativo</option>
+                  <option value="inativo">Inativo</option>
+                </select>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button size="sm" variant="outline" type="button" onClick={() => setOpenNewEmployeeDialog(false)}>Cancelar</Button>
+                <Button size="sm" variant="primary" type="submit">Salvar</Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
         {/* Dialog de Filtros */}
         <Dialog open={openFilterDialog} onOpenChange={setOpenFilterDialog}>
           <DialogContent className="max-w-sm w-full">
