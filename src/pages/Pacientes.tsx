@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Search, Plus, Filter, Phone, Mail, Users } from "lucide-react";
+import { Search, Plus, Filter, Phone, Mail, Users, Calendar, Edit, ClipboardList, MoreVertical } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { useLocation } from "react-router-dom";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem
+} from "@/components/ui/dropdown-menu";
 
 const Pacientes = () => {
   const [search, setSearch] = useState("");
@@ -221,15 +227,22 @@ const Pacientes = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline-primary">
+                  <Button size="sm" variant="classic">
                     Ver Prontuário
                   </Button>
-                  <Button size="sm" variant="outline-success">
-                    Agendar
-                  </Button>
-                  <Button size="sm" variant="outline-warning">
-                    Editar
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" variant="classic" className="px-2"><span className="sr-only">Mais opções</span><MoreVertical className="w-4 h-4" /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => {/* ação de agendar */ }}>
+                        <Calendar className="w-4 h-4 mr-2 text-muted-foreground" /> Agendar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => {/* ação de editar */ }}>
+                        <Edit className="w-4 h-4 mr-2 text-muted-foreground" /> Editar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             ))}

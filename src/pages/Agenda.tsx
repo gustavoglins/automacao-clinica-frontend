@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Calendar, Clock, Plus, Filter, Search, CalendarSync, CalendarCheck2, CalendarClock } from "lucide-react";
+import { Calendar, Clock, Plus, Filter, Search, CalendarSync, CalendarCheck2, CalendarClock, Edit, MoreVertical } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,12 @@ import { Input } from "@/components/ui/input";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem
+} from "@/components/ui/dropdown-menu";
 
 const Agenda = () => {
   const [search, setSearch] = useState("");
@@ -230,12 +236,19 @@ const Agenda = () => {
                   <p className="text-lg font-bold text-primary">{appointment.time}</p>
                   <p className="text-sm text-muted-foreground">{appointment.duration}</p>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline-warning">
-                      Editar
-                    </Button>
-                    <Button size="sm" variant="outline-success">
+                    <Button size="sm" variant="primary">
                       Confirmar
                     </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="sm" variant="classic" className="px-2"><span className="sr-only">Mais opções</span><MoreVertical className="w-4 h-4" /></Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => {/* ação de editar */ }}>
+                          <Edit className="w-4 h-4 mr-2 text-muted-foreground" /> Editar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               </div>

@@ -10,6 +10,12 @@ import { StatsCard } from "@/components/dashboard/StatsCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabaseClient";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem
+} from "@/components/ui/dropdown-menu";
 
 const Funcionarios = () => {
   const [search, setSearch] = useState("");
@@ -694,15 +700,22 @@ const Funcionarios = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline-primary">
+                  <Button size="sm" variant="classic">
                     Ver Perfil
                   </Button>
-                  <Button size="sm" variant="outline-primary">
-                    Horários
-                  </Button>
-                  <Button size="sm" variant="outline-warning">
-                    Editar
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" variant="classic" className="px-2"><span className="sr-only">Mais opções</span><svg width="18" height="18" fill="none" viewBox="0 0 20 20"><circle cx="10" cy="4" r="1.5" fill="currentColor" /><circle cx="10" cy="10" r="1.5" fill="currentColor" /><circle cx="10" cy="16" r="1.5" fill="currentColor" /></svg></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => {/* ação de horários */ }}>
+                        <Calendar className="w-4 h-4 mr-2 text-muted-foreground" /> Horários
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => {/* ação de editar */ }}>
+                        <svg className="w-4 h-4 mr-2 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 5.487l1.65-1.65a2.121 2.121 0 113 3l-1.65 1.65m-2-2l-9.193 9.193a2 2 0 00-.497.878l-.684 2.736a.5.5 0 00.606.606l2.736-.684a2 2 0 00.878-.497l9.193-9.193m-2-2z" /></svg> Editar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             ))}

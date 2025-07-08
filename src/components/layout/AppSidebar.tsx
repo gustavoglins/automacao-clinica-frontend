@@ -57,7 +57,9 @@ export function AppSidebar() {
         {/* Logo Section */}
         <div className="p-3 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <img src="favicon.svg" alt="Software Logo" className="w-10 h-10" />
+            <NavLink to="/" end>
+              <img src="favicon.svg" alt="Software Logo" className="w-10 h-10 cursor-pointer" />
+            </NavLink>
             {!isCollapsed && (
               <div>
                 <h2 className="font-bold text-gray-900">{clinicName}</h2>
