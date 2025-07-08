@@ -17,13 +17,13 @@ const buttonVariants = cva(
         "outline-success": "border border-green-600 bg-background text-green-600 hover:bg-green-600 hover:text-white",
         "outline-warning": "border border-yellow-400 bg-background text-yellow-500 hover:bg-yellow-400 hover:text-white",
         "outline-danger": "border border-red-600 bg-background text-red-600 hover:bg-red-600 hover:text-white",
-        // Variantes do sistema (manter para compatibilidade)
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline: "border border-input bg-background hover:bg-primary/100 hover:text-white",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        classic: "border border-gray-300 bg-white text-gray-800 hover:bg-stone-50 hover:text-gray-900 shadow-sm",
       },
       size: {
         default: "h-10 px-4 py-2",

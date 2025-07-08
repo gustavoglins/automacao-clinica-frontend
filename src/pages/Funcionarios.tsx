@@ -321,7 +321,7 @@ const Funcionarios = () => {
                   autoComplete="off"
                 />
               </div>
-              <Button variant="outline-primary" size="sm" className="gap-2" onClick={() => setOpenFilterDialog(true)}>
+              <Button variant="classic" size="sm" className="gap-2" onClick={() => setOpenFilterDialog(true)}>
                 <Filter className="w-4 h-4" />
                 Filtros
               </Button>
@@ -574,7 +574,7 @@ const Funcionarios = () => {
                 </div>
               </div>
               <div className="flex gap-2 justify-end">
-                <Button size="sm" variant="outline" type="button" onClick={() => setOpenNewEmployeeDialog(false)}>Cancelar</Button>
+                <Button size="sm" variant="outline-primary" type="button" onClick={() => setOpenNewEmployeeDialog(false)}>Cancelar</Button>
                 <Button size="sm" variant="primary" type="submit">Salvar</Button>
               </div>
             </form>
@@ -616,7 +616,7 @@ const Funcionarios = () => {
               </div>
               <div className="flex gap-2 justify-end">
                 <Button size="sm" variant="outline" onClick={() => { setFilterRole(""); setFilterSpecialty(""); }}>Limpar</Button>
-                <Button size="sm" variant="primary" onClick={() => setOpenFilterDialog(false)}>Aplicar Filtros</Button>
+                <Button size="sm" variant="classic" onClick={() => setOpenFilterDialog(false)}>Aplicar Filtros</Button>
               </div>
             </div>
           </DialogContent>
