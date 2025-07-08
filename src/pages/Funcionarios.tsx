@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Users, Search, Plus, Filter, Phone, Mail, Calendar, UserCheck, CheckCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,12 +23,23 @@ const Funcionarios = () => {
     specialty: "",
     phone: "",
     email: "",
-    status: "ativo"
+    status: "ativo",
+    workDays: ["Seg", "Ter", "Qua", "Qui", "Sex"], // Dias de trabalho padrão comercial
+    startHour: "08:00",
+    endHour: "18:00"
   });
+  const [roleSearch, setRoleSearch] = useState("");
+  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+  const roleInputRef = useRef(null);
+  const roleDropdownRef = useRef(null);
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const query = params.get("q") || search;
   const { toast } = useToast();
+  const [specialtySearch, setSpecialtySearch] = useState("");
+  const [showSpecialtyDropdown, setShowSpecialtyDropdown] = useState(false);
+  const specialtyInputRef = useRef(null);
+  const specialtyDropdownRef = useRef(null);
 
   const employees = [
     {
@@ -86,6 +97,54 @@ const Funcionarios = () => {
   // Listas únicas
   const roles = Array.from(new Set(employees.map(e => e.role)));
   const specialties = Array.from(new Set(employees.map(e => e.specialty).filter(Boolean)));
+
+  // Lista de funções típicas de uma clínica odontológica
+  const clinicRoles = [
+    "Dentista",
+    "Ortodontista",
+    "Endodontista",
+    "Periodontista",
+    "Implantodontista",
+    "Protesista",
+    "Odontopediatra",
+    "Cirurgião Bucomaxilofacial",
+    "Recepcionista",
+    "Auxiliar de Saúde Bucal",
+    "Técnico em Saúde Bucal",
+    "Gerente Administrativo",
+    "Higienista",
+    "Financeiro",
+    "Atendente",
+    "Radiologista",
+    "Secretária",
+    "Zelador(a)",
+    "Estagiário(a)"
+  ];
+
+  // Lista de especialidades odontológicas
+  const clinicSpecialties = [
+    "Ortodontia",
+    "Endodontia",
+    "Periodontia",
+    "Implantodontia",
+    "Prótese Dentária",
+    "Odontopediatria",
+    "Cirurgia Bucomaxilofacial",
+    "Radiologia Odontológica",
+    "Odontologia Estética",
+    "Odontogeriatria",
+    "Odontologia do Trabalho",
+    "Odontologia Legal",
+    "Disfunção Temporomandibular (DTM)",
+    "Patologia Oral",
+    "Dentística",
+    "Saúde Coletiva",
+    "Harmonização Orofacial",
+    "Odontologia Hospitalar",
+    "Odontologia para Pacientes com Necessidades Especiais",
+    "Odontologia Preventiva",
+    "Odontologia Restauradora"
+  ];
 
   // Filtro
   const filteredEmployees = employees.filter((employee) => {
@@ -145,11 +204,55 @@ const Funcionarios = () => {
         duration: 3000
       });
       setOpenNewEmployeeDialog(false);
-      setNewEmployee({ name: "", role: "", specialty: "", phone: "", email: "", status: "ativo" });
+      setNewEmployee({ name: "", role: "", specialty: "", phone: "", email: "", status: "ativo", workDays: ["Seg", "Ter", "Qua", "Qui", "Sex"], startHour: "08:00", endHour: "18:00" });
     } catch (err) {
       toast({ title: "Erro ao cadastrar funcionário!" });
     }
   }
+
+  // Fecha o dropdown ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        roleDropdownRef.current &&
+        !roleDropdownRef.current.contains(event.target) &&
+        roleInputRef.current &&
+        !roleInputRef.current.contains(event.target)
+      ) {
+        setShowRoleDropdown(false);
+      }
+    }
+    if (showRoleDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showRoleDropdown]);
+
+  // Fecha o dropdown de especialidade ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        specialtyDropdownRef.current &&
+        !specialtyDropdownRef.current.contains(event.target) &&
+        specialtyInputRef.current &&
+        !specialtyInputRef.current.contains(event.target)
+      ) {
+        setShowSpecialtyDropdown(false);
+      }
+    }
+    if (showSpecialtyDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showSpecialtyDropdown]);
 
   return (
     <AppLayout>
@@ -201,11 +304,93 @@ const Funcionarios = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Função</label>
-                <Input value={newEmployee.role} onChange={e => setNewEmployee(emp => ({ ...emp, role: e.target.value }))} required />
+                <div className="relative">
+                  <Input
+                    ref={roleInputRef}
+                    type="text"
+                    placeholder="Buscar e selecionar função..."
+                    className="cursor-pointer"
+                    value={roleSearch || newEmployee.role}
+                    onFocus={() => setShowRoleDropdown(true)}
+                    onChange={e => {
+                      setRoleSearch(e.target.value);
+                      setShowRoleDropdown(true);
+                      setNewEmployee(emp => ({ ...emp, role: "" }));
+                    }}
+                    autoComplete="off"
+                    readOnly={false}
+                  />
+                  {showRoleDropdown && (
+                    <ul
+                      ref={roleDropdownRef}
+                      className="absolute z-10 w-full bg-white border rounded shadow max-h-48 overflow-auto mt-1"
+                    >
+                      {clinicRoles.filter(role => role.toLowerCase().includes(roleSearch.toLowerCase())).length === 0 && (
+                        <li className="px-3 py-2 text-muted-foreground">Nenhuma função encontrada</li>
+                      )}
+                      {clinicRoles
+                        .filter(role => role.toLowerCase().includes(roleSearch.toLowerCase()))
+                        .map(role => (
+                          <li
+                            key={role}
+                            className={`px-3 py-2 cursor-pointer hover:bg-primary/10 ${newEmployee.role === role ? "bg-primary/20" : ""}`}
+                            onClick={() => {
+                              setNewEmployee(emp => ({ ...emp, role }));
+                              setRoleSearch("");
+                              setShowRoleDropdown(false);
+                            }}
+                          >
+                            {role}
+                          </li>
+                        ))}
+                    </ul>
+                  )}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Especialidade</label>
-                <Input value={newEmployee.specialty} onChange={e => setNewEmployee(emp => ({ ...emp, specialty: e.target.value }))} />
+                <div className="relative">
+                  <Input
+                    ref={specialtyInputRef}
+                    type="text"
+                    placeholder="Buscar e selecionar especialidade..."
+                    className="cursor-pointer"
+                    value={specialtySearch || newEmployee.specialty}
+                    onFocus={() => setShowSpecialtyDropdown(true)}
+                    onChange={e => {
+                      setSpecialtySearch(e.target.value);
+                      setShowSpecialtyDropdown(true);
+                      setNewEmployee(emp => ({ ...emp, specialty: "" }));
+                    }}
+                    autoComplete="off"
+                    readOnly={false}
+                  />
+                  {showSpecialtyDropdown && (
+                    <ul
+                      ref={specialtyDropdownRef}
+                      className="absolute z-10 w-full bg-white border rounded shadow max-h-48 overflow-auto mt-1"
+                    >
+                      {clinicSpecialties.filter(s => s.toLowerCase().includes(specialtySearch.toLowerCase())).length === 0 && (
+                        <li className="px-3 py-2 text-muted-foreground">Nenhuma especialidade encontrada</li>
+                      )}
+                      {clinicSpecialties
+                        .filter(s => s.toLowerCase().includes(specialtySearch.toLowerCase()))
+                        .map(s => (
+                          <li
+                            key={s}
+                            className={`px-3 py-2 cursor-pointer hover:bg-primary/10 ${newEmployee.specialty === s ? "bg-primary/20" : ""}`}
+                            onClick={() => {
+                              setNewEmployee(emp => ({ ...emp, specialty: s }));
+                              setSpecialtySearch("");
+                              setShowSpecialtyDropdown(false);
+                            }}
+                          >
+                            {s}
+                          </li>
+                        ))}
+                    </ul>
+                  )}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Telefone</label>
@@ -217,10 +402,53 @@ const Funcionarios = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Status</label>
-                <select className="w-full border rounded px-3 py-2" value={newEmployee.status} onChange={e => setNewEmployee(emp => ({ ...emp, status: e.target.value }))}>
-                  <option value="ativo">Ativo</option>
-                  <option value="inativo">Inativo</option>
-                </select>
+                <div className="relative">
+                  <select
+                    className="w-full border rounded px-3 py-2 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
+                    value={newEmployee.status}
+                    onChange={e => setNewEmployee(emp => ({ ...emp, status: e.target.value }))}
+                    required
+                  >
+                    <option value="ativo">Ativo</option>
+                    <option value="inativo">Inativo</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Dias de Trabalho</label>
+                <div className="flex flex-wrap gap-2">
+                  {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(day => {
+                    const selected = newEmployee.workDays.includes(day);
+                    return (
+                      <button
+                        type="button"
+                        key={day}
+                        className={`px-3 py-1 rounded-full border text-sm transition-colors
+                          ${selected ? 'bg-primary text-white border-primary shadow' : 'bg-muted text-foreground border-muted-foreground hover:bg-primary/10'}`}
+                        onClick={() => {
+                          setNewEmployee(emp => {
+                            const workDays = emp.workDays.includes(day)
+                              ? emp.workDays.filter(d => d !== day)
+                              : [...emp.workDays, day];
+                            return { ...emp, workDays };
+                          });
+                        }}
+                      >
+                        {day}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium mb-1">Hora de Entrada</label>
+                  <Input type="time" value={newEmployee.startHour} onChange={e => setNewEmployee(emp => ({ ...emp, startHour: e.target.value }))} required />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium mb-1">Hora de Saída</label>
+                  <Input type="time" value={newEmployee.endHour} onChange={e => setNewEmployee(emp => ({ ...emp, endHour: e.target.value }))} required />
+                </div>
               </div>
               <div className="flex gap-2 justify-end">
                 <Button size="sm" variant="outline" type="button" onClick={() => setOpenNewEmployeeDialog(false)}>Cancelar</Button>
