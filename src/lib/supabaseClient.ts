@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Substitua pelos dados do seu projeto Supabase
-export const supabase = createClient(
-  '',
-  ''
-);
+const supabaseUrl = import.meta.env.VITE_SUP_DEV_URL;
+const supabaseKey = import.meta.env.VITE_SUP_DEV_API_KEY;
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
