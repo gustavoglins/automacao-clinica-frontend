@@ -14,7 +14,6 @@ import { supabase } from "@/lib/supabaseClient";
 const Funcionarios = () => {
   const [search, setSearch] = useState("");
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
-  const [filterStatus, setFilterStatus] = useState("");
   const [filterRole, setFilterRole] = useState("");
   const [filterSpecialty, setFilterSpecialty] = useState("");
   const [openNewEmployeeDialog, setOpenNewEmployeeDialog] = useState(false);
@@ -24,7 +23,6 @@ const Funcionarios = () => {
     specialty: "",
     phone: "",
     email: "",
-    status: "ativo",
     workDays: ["Seg", "Ter", "Qua", "Qui", "Sex"], // Dias de trabalho padrão comercial
     startHour: "08:00",
     endHour: "18:00"
@@ -41,6 +39,17 @@ const Funcionarios = () => {
   const [showSpecialtyDropdown, setShowSpecialtyDropdown] = useState(false);
   const specialtyInputRef = useRef(null);
   const specialtyDropdownRef = useRef(null);
+  const [touched, setTouched] = useState({
+    name: false,
+    role: false,
+    specialty: false,
+    phone: false,
+    email: false,
+    workDays: false,
+    startHour: false,
+    endHour: false
+  });
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const employees = [
     {
@@ -50,7 +59,6 @@ const Funcionarios = () => {
       specialty: "Ortodontia",
       phone: "(11) 91234-5678",
       email: "juliana.ferreira@clinica.com",
-      status: "ativo",
       startDate: "2022-03-15"
     },
     {
@@ -60,7 +68,6 @@ const Funcionarios = () => {
       specialty: "Implantodontia",
       phone: "(11) 99876-5432",
       email: "rafael.oliveira@clinica.com",
-      status: "ativo",
       startDate: "2023-01-10"
     },
     {
@@ -70,7 +77,6 @@ const Funcionarios = () => {
       specialty: null,
       phone: "(11) 93456-7890",
       email: "camila.souza@clinica.com",
-      status: "ativo",
       startDate: "2021-09-05"
     },
     {
@@ -80,7 +86,6 @@ const Funcionarios = () => {
       specialty: null,
       phone: "(11) 94567-1234",
       email: "fernanda.lima@clinica.com",
-      status: "ativo",
       startDate: "2022-11-01"
     },
     {
@@ -90,7 +95,6 @@ const Funcionarios = () => {
       specialty: null,
       phone: "(11) 95678-2345",
       email: "thiago.martins@clinica.com",
-      status: "inativo",
       startDate: "2020-07-20"
     }
   ];
@@ -154,37 +158,10 @@ const Funcionarios = () => {
       employee.name.toLowerCase().includes(term) ||
       employee.role.toLowerCase().includes(term) ||
       (employee.specialty ? employee.specialty.toLowerCase().includes(term) : false);
-    const matchesStatus = filterStatus ? employee.status === filterStatus : true;
     const matchesRole = filterRole ? employee.role === filterRole : true;
     const matchesSpecialty = filterSpecialty ? employee.specialty === filterSpecialty : true;
-    return matchesSearch && matchesStatus && matchesRole && matchesSpecialty;
+    return matchesSearch && matchesRole && matchesSpecialty;
   });
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'ativo':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'inativo':
-        return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'Dentista':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Recepcionista':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'Auxiliar de Saúde Bucal':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Gerente Administrativo':
-        return 'bg-indigo-100 text-indigo-800 border-indigo-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
 
   async function handleNewEmployeeSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -237,7 +214,7 @@ const Funcionarios = () => {
         duration: 3000
       });
       setOpenNewEmployeeDialog(false);
-      setNewEmployee({ name: "", role: "", specialty: "", phone: "", email: "", status: "ativo", workDays: ["Seg", "Ter", "Qua", "Qui", "Sex"], startHour: "08:00", endHour: "18:00" });
+      setNewEmployee({ name: "", role: "", specialty: "", phone: "", email: "", workDays: ["Seg", "Ter", "Qua", "Qui", "Sex"], startHour: "08:00", endHour: "18:00" });
     } catch (err) {
       toast({ title: "Erro ao cadastrar funcionário!" });
     }
@@ -287,6 +264,38 @@ const Funcionarios = () => {
     };
   }, [showSpecialtyDropdown]);
 
+  // Função para formatar telefone brasileiro
+  function formatPhone(phone: string) {
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6, 10)}`;
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
+  }
+
+  const isValidPhone = (phone: string) => {
+    const digits = phone.replace(/\D/g, "");
+    return digits.length === 10 || digits.length === 11;
+  };
+
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const validate = () => {
+    return {
+      name: !newEmployee.name,
+      role: !newEmployee.role,
+      specialty: !newEmployee.specialty,
+      phone: !newEmployee.phone,
+      phoneInvalid: newEmployee.phone && !isValidPhone(newEmployee.phone),
+      email: !newEmployee.email,
+      emailInvalid: newEmployee.email && !isValidEmail(newEmployee.email),
+      workDays: !newEmployee.workDays.length,
+      startHour: !newEmployee.startHour,
+      endHour: !newEmployee.endHour
+    };
+  };
+  const errors = validate();
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -330,13 +339,39 @@ const Funcionarios = () => {
               <DialogTitle>Novo Funcionário</DialogTitle>
               <DialogDescription>Preencha os dados para cadastrar um novo funcionário</DialogDescription>
             </DialogHeader>
-            <form className="space-y-4 mt-2" onSubmit={handleNewEmployeeSubmit}>
+            <form className="space-y-4 mt-2" onSubmit={e => {
+              setSubmitAttempted(true);
+              setTouched({
+                name: true,
+                role: true,
+                specialty: true,
+                phone: true,
+                email: true,
+                workDays: true,
+                startHour: true,
+                endHour: true
+              });
+              if (Object.values(validate()).some(Boolean)) {
+                e.preventDefault();
+                return;
+              }
+              handleNewEmployeeSubmit(e);
+            }}>
               <div>
-                <label className="block text-sm font-medium mb-1">Nome</label>
-                <Input value={newEmployee.name} onChange={e => setNewEmployee(emp => ({ ...emp, name: e.target.value }))} required />
+                <label className="block text-sm font-medium mb-1">Nome <span className="text-red-600">*</span></label>
+                <Input
+                  value={newEmployee.name}
+                  onChange={e => setNewEmployee(emp => ({ ...emp, name: e.target.value }))}
+                  onBlur={() => setTouched(t => ({ ...t, name: true }))}
+                  required
+                  aria-invalid={errors.name && (touched.name || submitAttempted)}
+                />
+                {errors.name && (touched.name || submitAttempted) && (
+                  <span className="text-xs text-red-600">Preencha o nome</span>
+                )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Função</label>
+                <label className="block text-sm font-medium mb-1">Função <span className="text-red-600">*</span></label>
                 <div className="relative">
                   <Input
                     ref={roleInputRef}
@@ -350,9 +385,15 @@ const Funcionarios = () => {
                       setShowRoleDropdown(true);
                       setNewEmployee(emp => ({ ...emp, role: "" }));
                     }}
+                    onBlur={() => setTouched(t => ({ ...t, role: true }))}
                     autoComplete="off"
                     readOnly={false}
+                    required
+                    aria-invalid={errors.role && (touched.role || submitAttempted)}
                   />
+                  {errors.role && (touched.role || submitAttempted) && (
+                    <span className="text-xs text-red-600 absolute left-0 mt-1">Selecione a função</span>
+                  )}
                   {showRoleDropdown && (
                     <ul
                       ref={roleDropdownRef}
@@ -381,7 +422,7 @@ const Funcionarios = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Especialidade</label>
+                <label className="block text-sm font-medium mb-1">Especialidade <span className="text-red-600">*</span></label>
                 <div className="relative">
                   <Input
                     ref={specialtyInputRef}
@@ -395,9 +436,15 @@ const Funcionarios = () => {
                       setShowSpecialtyDropdown(true);
                       setNewEmployee(emp => ({ ...emp, specialty: "" }));
                     }}
+                    onBlur={() => setTouched(t => ({ ...t, specialty: true }))}
                     autoComplete="off"
                     readOnly={false}
+                    required
+                    aria-invalid={errors.specialty && (touched.specialty || submitAttempted)}
                   />
+                  {errors.specialty && (touched.specialty || submitAttempted) && (
+                    <span className="text-xs text-red-600 absolute left-0 mt-1">Selecione a especialidade</span>
+                  )}
                   {showSpecialtyDropdown && (
                     <ul
                       ref={specialtyDropdownRef}
@@ -426,29 +473,48 @@ const Funcionarios = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Telefone</label>
-                <Input value={newEmployee.phone} onChange={e => setNewEmployee(emp => ({ ...emp, phone: e.target.value }))} required />
+                <label className="block text-sm font-medium mb-1">Telefone <span className="text-red-600">*</span></label>
+                <Input
+                  value={formatPhone(newEmployee.phone)}
+                  onChange={e => {
+                    const raw = e.target.value.replace(/\D/g, "");
+                    setNewEmployee(emp => ({ ...emp, phone: raw }));
+                  }}
+                  onBlur={() => setTouched(t => ({ ...t, phone: true }))}
+                  required
+                  aria-invalid={(errors.phone || errors.phoneInvalid) && (touched.phone || submitAttempted)}
+                  inputMode="tel"
+                  maxLength={15}
+                  placeholder="(00) 00000-0000"
+                />
+                {errors.phone && (touched.phone || submitAttempted) && (
+                  <span className="text-xs text-red-600">Preencha o telefone</span>
+                )}
+                {!errors.phone && errors.phoneInvalid && (touched.phone || submitAttempted) && (
+                  <span className="text-xs text-red-600">Telefone inválido</span>
+                )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
-                <Input value={newEmployee.email} onChange={e => setNewEmployee(emp => ({ ...emp, email: e.target.value }))} required />
+                <label className="block text-sm font-medium mb-1">Email <span className="text-red-600">*</span></label>
+                <Input
+                  value={newEmployee.email}
+                  onChange={e => setNewEmployee(emp => ({ ...emp, email: e.target.value }))}
+                  onBlur={() => setTouched(t => ({ ...t, email: true }))}
+                  required
+                  aria-invalid={(errors.email || errors.emailInvalid) && (touched.email || submitAttempted)}
+                  inputMode="email"
+                  type="email"
+                  placeholder="exemplo@dominio.com"
+                />
+                {errors.email && (touched.email || submitAttempted) && (
+                  <span className="text-xs text-red-600">Preencha o email</span>
+                )}
+                {!errors.email && errors.emailInvalid && (touched.email || submitAttempted) && (
+                  <span className="text-xs text-red-600">Email inválido</span>
+                )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Status</label>
-                <div className="relative">
-                  <select
-                    className="w-full border rounded px-3 py-2 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
-                    value={newEmployee.status}
-                    onChange={e => setNewEmployee(emp => ({ ...emp, status: e.target.value }))}
-                    required
-                  >
-                    <option value="ativo">Ativo</option>
-                    <option value="inativo">Inativo</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Dias de Trabalho</label>
+                <label className="block text-sm font-medium mb-1">Dias de Trabalho <span className="text-red-600">*</span></label>
                 <div className="flex flex-wrap gap-2">
                   {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(day => {
                     const selected = newEmployee.workDays.includes(day);
@@ -465,6 +531,7 @@ const Funcionarios = () => {
                               : [...emp.workDays, day];
                             return { ...emp, workDays };
                           });
+                          setTouched(t => ({ ...t, workDays: true }));
                         }}
                       >
                         {day}
@@ -472,15 +539,38 @@ const Funcionarios = () => {
                     );
                   })}
                 </div>
+                {errors.workDays && (touched.workDays || submitAttempted) && (
+                  <span className="text-xs text-red-600">Selecione pelo menos um dia</span>
+                )}
               </div>
               <div className="flex gap-4">
                 <div className="flex-1">
-                  <label className="block text-sm font-medium mb-1">Hora de Entrada</label>
-                  <Input type="time" value={newEmployee.startHour} onChange={e => setNewEmployee(emp => ({ ...emp, startHour: e.target.value }))} required />
+                  <label className="block text-sm font-medium mb-1">Hora de Entrada <span className="text-red-600">*</span></label>
+                  <Input
+                    type="time"
+                    value={newEmployee.startHour}
+                    onChange={e => setNewEmployee(emp => ({ ...emp, startHour: e.target.value }))}
+                    onBlur={() => setTouched(t => ({ ...t, startHour: true }))}
+                    required
+                    aria-invalid={errors.startHour && (touched.startHour || submitAttempted)}
+                  />
+                  {errors.startHour && (touched.startHour || submitAttempted) && (
+                    <span className="text-xs text-red-600">Informe a hora de entrada</span>
+                  )}
                 </div>
                 <div className="flex-1">
-                  <label className="block text-sm font-medium mb-1">Hora de Saída</label>
-                  <Input type="time" value={newEmployee.endHour} onChange={e => setNewEmployee(emp => ({ ...emp, endHour: e.target.value }))} required />
+                  <label className="block text-sm font-medium mb-1">Hora de Saída <span className="text-red-600">*</span></label>
+                  <Input
+                    type="time"
+                    value={newEmployee.endHour}
+                    onChange={e => setNewEmployee(emp => ({ ...emp, endHour: e.target.value }))}
+                    onBlur={() => setTouched(t => ({ ...t, endHour: true }))}
+                    required
+                    aria-invalid={errors.endHour && (touched.endHour || submitAttempted)}
+                  />
+                  {errors.endHour && (touched.endHour || submitAttempted) && (
+                    <span className="text-xs text-red-600">Informe a hora de saída</span>
+                  )}
                 </div>
               </div>
               <div className="flex gap-2 justify-end">
@@ -495,21 +585,9 @@ const Funcionarios = () => {
           <DialogContent className="max-w-sm w-full">
             <DialogHeader>
               <DialogTitle>Filtros</DialogTitle>
-              <DialogDescription>Filtre os funcionários por status, função ou especialidade</DialogDescription>
+              <DialogDescription>Filtre os funcionários por função ou especialidade</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 mt-2">
-              <div>
-                <label className="block text-sm font-medium mb-1">Status</label>
-                <select
-                  className="w-full border rounded px-3 py-2"
-                  value={filterStatus}
-                  onChange={e => setFilterStatus(e.target.value)}
-                >
-                  <option value="">Todos</option>
-                  <option value="ativo">Ativo</option>
-                  <option value="inativo">Inativo</option>
-                </select>
-              </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Função</label>
                 <select
@@ -537,7 +615,7 @@ const Funcionarios = () => {
                 </select>
               </div>
               <div className="flex gap-2 justify-end">
-                <Button size="sm" variant="outline" onClick={() => { setFilterStatus(""); setFilterRole(""); setFilterSpecialty(""); }}>Limpar</Button>
+                <Button size="sm" variant="outline" onClick={() => { setFilterRole(""); setFilterSpecialty(""); }}>Limpar</Button>
                 <Button size="sm" variant="primary" onClick={() => setOpenFilterDialog(false)}>Aplicar Filtros</Button>
               </div>
             </div>
@@ -553,7 +631,7 @@ const Funcionarios = () => {
           />
           <StatsCard
             title="Funcionários Ativos"
-            value={employees.filter(emp => emp.status === 'ativo').length}
+            value={employees.length} // Agora mostra o total, pois não há mais status
             icon={UserCheck}
           />
           <StatsCard
@@ -588,9 +666,6 @@ const Funcionarios = () => {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-foreground">{employee.name}</h3>
-                      <Badge className={getStatusColor(employee.status)}>
-                        {employee.status}
-                      </Badge>
                       <Badge variant="outline" className='text-xs'>
                         {employee.role}
                       </Badge>
