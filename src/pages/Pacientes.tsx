@@ -7,9 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "react-router-dom";
 import { StatsCard } from "@/components/dashboard/StatsCard";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const Pacientes = () => {
   const [search, setSearch] = useState("");
+  const [openFilterDialog, setOpenFilterDialog] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("");
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const query = params.get("q") || search;
@@ -61,13 +64,15 @@ const Pacientes = () => {
     }
   ];
 
+  // Filtro
   const filteredPatients = patients.filter((patient) => {
     const term = query.toLowerCase();
-    return (
+    const matchesSearch =
       patient.name.toLowerCase().includes(term) ||
       patient.phone.toLowerCase().includes(term) ||
-      patient.email.toLowerCase().includes(term)
-    );
+      patient.email.toLowerCase().includes(term);
+    const matchesStatus = filterStatus ? patient.status === filterStatus : true;
+    return matchesSearch && matchesStatus;
   });
 
   const getStatusColor = (status: string) => {
@@ -76,19 +81,6 @@ const Pacientes = () => {
         return 'bg-green-100 text-green-800 border-green-200';
       case 'inativo':
         return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getPlanColor = (plan: string) => {
-    switch (plan) {
-      case 'Particular':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Unimed':
-        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-      case 'Amil':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -119,7 +111,7 @@ const Pacientes = () => {
                   autoComplete="off"
                 />
               </div>
-              <Button variant="outline-primary" size="sm" className="gap-2">
+              <Button variant="outline-primary" size="sm" className="gap-2" onClick={() => setOpenFilterDialog(true)}>
                 <Filter className="w-4 h-4" />
                 Filtros
               </Button>
@@ -130,6 +122,33 @@ const Pacientes = () => {
             </div>
           </CardContent>
         </Card>
+        {/* Dialog de Filtros */}
+        <Dialog open={openFilterDialog} onOpenChange={setOpenFilterDialog}>
+          <DialogContent className="max-w-sm w-full">
+            <DialogHeader>
+              <DialogTitle>Filtros</DialogTitle>
+              <DialogDescription>Filtre os pacientes por status</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 mt-2">
+              <div>
+                <label className="block text-sm font-medium mb-1">Status</label>
+                <select
+                  className="w-full border rounded px-3 py-2"
+                  value={filterStatus}
+                  onChange={e => setFilterStatus(e.target.value)}
+                >
+                  <option value="">Todos</option>
+                  <option value="ativo">Ativo</option>
+                  <option value="inativo">Inativo</option>
+                </select>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button size="sm" variant="outline" onClick={() => { setFilterStatus(""); }}>Limpar</Button>
+                <Button size="sm" variant="primary" onClick={() => setOpenFilterDialog(false)}>Aplicar Filtros</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

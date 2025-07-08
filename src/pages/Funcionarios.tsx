@@ -7,9 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "react-router-dom";
 import { StatsCard } from "@/components/dashboard/StatsCard";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const Funcionarios = () => {
   const [search, setSearch] = useState("");
+  const [openFilterDialog, setOpenFilterDialog] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterRole, setFilterRole] = useState("");
+  const [filterSpecialty, setFilterSpecialty] = useState("");
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const query = params.get("q") || search;
@@ -67,13 +72,21 @@ const Funcionarios = () => {
     }
   ];
 
+  // Listas únicas
+  const roles = Array.from(new Set(employees.map(e => e.role)));
+  const specialties = Array.from(new Set(employees.map(e => e.specialty).filter(Boolean)));
+
+  // Filtro
   const filteredEmployees = employees.filter((employee) => {
     const term = query.toLowerCase();
-    return (
+    const matchesSearch =
       employee.name.toLowerCase().includes(term) ||
       employee.role.toLowerCase().includes(term) ||
-      (employee.specialty ? employee.specialty.toLowerCase().includes(term) : false)
-    );
+      (employee.specialty ? employee.specialty.toLowerCase().includes(term) : false);
+    const matchesStatus = filterStatus ? employee.status === filterStatus : true;
+    const matchesRole = filterRole ? employee.role === filterRole : true;
+    const matchesSpecialty = filterSpecialty ? employee.specialty === filterSpecialty : true;
+    return matchesSearch && matchesStatus && matchesRole && matchesSpecialty;
   });
 
   const getStatusColor = (status: string) => {
@@ -127,7 +140,7 @@ const Funcionarios = () => {
                   autoComplete="off"
                 />
               </div>
-              <Button variant="outline-primary" size="sm" className="gap-2">
+              <Button variant="outline-primary" size="sm" className="gap-2" onClick={() => setOpenFilterDialog(true)}>
                 <Filter className="w-4 h-4" />
                 Filtros
               </Button>
@@ -138,6 +151,59 @@ const Funcionarios = () => {
             </div>
           </CardContent>
         </Card>
+        {/* Dialog de Filtros */}
+        <Dialog open={openFilterDialog} onOpenChange={setOpenFilterDialog}>
+          <DialogContent className="max-w-sm w-full">
+            <DialogHeader>
+              <DialogTitle>Filtros</DialogTitle>
+              <DialogDescription>Filtre os funcionários por status, função ou especialidade</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 mt-2">
+              <div>
+                <label className="block text-sm font-medium mb-1">Status</label>
+                <select
+                  className="w-full border rounded px-3 py-2"
+                  value={filterStatus}
+                  onChange={e => setFilterStatus(e.target.value)}
+                >
+                  <option value="">Todos</option>
+                  <option value="ativo">Ativo</option>
+                  <option value="inativo">Inativo</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Função</label>
+                <select
+                  className="w-full border rounded px-3 py-2"
+                  value={filterRole}
+                  onChange={e => setFilterRole(e.target.value)}
+                >
+                  <option value="">Todas</option>
+                  {roles.map(role => (
+                    <option key={role} value={role}>{role}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Especialidade</label>
+                <select
+                  className="w-full border rounded px-3 py-2"
+                  value={filterSpecialty}
+                  onChange={e => setFilterSpecialty(e.target.value)}
+                >
+                  <option value="">Todas</option>
+                  {specialties.map(specialty => (
+                    <option key={specialty} value={specialty}>{specialty}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button size="sm" variant="outline" onClick={() => { setFilterStatus(""); setFilterRole(""); setFilterSpecialty(""); }}>Limpar</Button>
+                <Button size="sm" variant="primary" onClick={() => setOpenFilterDialog(false)}>Aplicar Filtros</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

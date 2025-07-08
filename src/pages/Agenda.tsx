@@ -6,9 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { StatsCard } from "@/components/dashboard/StatsCard";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Select } from "@/components/ui/select";
 
 const Agenda = () => {
   const [search, setSearch] = useState("");
+  const [openFilterDialog, setOpenFilterDialog] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterDoctor, setFilterDoctor] = useState("");
 
   const appointments = [
     {
@@ -49,13 +54,19 @@ const Agenda = () => {
     }
   ];
 
+  // Lista de médicos únicos
+  const doctors = Array.from(new Set(appointments.map(a => a.doctor)));
+
+  // Filtro
   const filteredAppointments = appointments.filter((appointment) => {
     const term = search.toLowerCase();
-    return (
+    const matchesSearch =
       appointment.patient.toLowerCase().includes(term) ||
       appointment.service.toLowerCase().includes(term) ||
-      appointment.doctor.toLowerCase().includes(term)
-    );
+      appointment.doctor.toLowerCase().includes(term);
+    const matchesStatus = filterStatus ? appointment.status === filterStatus : true;
+    const matchesDoctor = filterDoctor ? appointment.doctor === filterDoctor : true;
+    return matchesSearch && matchesStatus && matchesDoctor;
   });
 
   const getStatusColor = (status: string) => {
@@ -102,7 +113,7 @@ const Agenda = () => {
                   autoComplete="off"
                 />
               </div>
-              <Button variant="outline-primary" size="sm" className="gap-2">
+              <Button variant="outline-primary" size="sm" className="gap-2" onClick={() => setOpenFilterDialog(true)}>
                 <Filter className="w-4 h-4" />
                 Filtros
               </Button>
@@ -113,6 +124,47 @@ const Agenda = () => {
             </div>
           </CardContent>
         </Card>
+        {/* Dialog de Filtros */}
+        <Dialog open={openFilterDialog} onOpenChange={setOpenFilterDialog}>
+          <DialogContent className="max-w-sm w-full">
+            <DialogHeader>
+              <DialogTitle>Filtros</DialogTitle>
+              <DialogDescription>Filtre as consultas por status ou médico</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 mt-2">
+              <div>
+                <label className="block text-sm font-medium mb-1">Status</label>
+                <select
+                  className="w-full border rounded px-3 py-2"
+                  value={filterStatus}
+                  onChange={e => setFilterStatus(e.target.value)}
+                >
+                  <option value="">Todos</option>
+                  <option value="confirmada">Confirmada</option>
+                  <option value="pendente">Pendente</option>
+                  <option value="reagendada">Reagendada</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Médico</label>
+                <select
+                  className="w-full border rounded px-3 py-2"
+                  value={filterDoctor}
+                  onChange={e => setFilterDoctor(e.target.value)}
+                >
+                  <option value="">Todos</option>
+                  {doctors.map(doctor => (
+                    <option key={doctor} value={doctor}>{doctor}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button size="sm" variant="outline" onClick={() => { setFilterStatus(""); setFilterDoctor(""); }}>Limpar</Button>
+                <Button size="sm" variant="primary" onClick={() => setOpenFilterDialog(false)}>Aplicar Filtros</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
