@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Users, Search, Plus, Filter, Phone, Mail, Calendar, UserCheck, CheckCircle } from "lucide-react";
+import { Users, Search, Plus, Filter, Phone, Mail, Calendar, UserCheck, CheckCircle, User, Clock, MapPin } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -295,6 +295,10 @@ const Funcionarios = () => {
   const [filterSpecialty, setFilterSpecialty] = useState("");
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
 
+  // Estados para o dialog de perfil
+  const [openProfileDialog, setOpenProfileDialog] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+
   // Listas únicas
   const roles = Array.from(new Set(employees.map(e => e.role)));
   const specialties = Array.from(new Set(employees.map(e => e.specialty).filter(Boolean)));
@@ -580,6 +584,39 @@ const Funcionarios = () => {
     );
   }
 
+  // Função para abrir o perfil do funcionário
+  const handleOpenProfile = (employee) => {
+    setSelectedEmployee(employee);
+    setOpenProfileDialog(true);
+  };
+
+  // Função para calcular o tempo de trabalho
+  const calculateWorkTime = (startDate) => {
+    const start = new Date(startDate);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 30) {
+      return `${diffDays} dias`;
+    } else if (diffDays < 365) {
+      const months = Math.floor(diffDays / 30);
+      return `${months} ${months === 1 ? 'mês' : 'meses'}`;
+    } else {
+      const years = Math.floor(diffDays / 365);
+      const remainingMonths = Math.floor((diffDays % 365) / 30);
+      if (remainingMonths === 0) {
+        return `${years} ${years === 1 ? 'ano' : 'anos'}`;
+      }
+      return `${years} ${years === 1 ? 'ano' : 'anos'} e ${remainingMonths} ${remainingMonths === 1 ? 'mês' : 'meses'}`;
+    }
+  };
+
+  // Função para determinar o status do funcionário (sempre ativo neste caso)
+  const getEmployeeStatus = () => {
+    return { label: "Ativo", color: "text-green-600", bgColor: "bg-green-100" };
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -706,7 +743,7 @@ const Funcionarios = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Especialidade <span className="text-red-600">*</span></label>
+                <label className="block text-sm font-medium mb-1">Especialidade</label>
                 <div className="relative">
                   <Input
                     ref={specialtyInputRef}
@@ -723,12 +760,8 @@ const Funcionarios = () => {
                     onBlur={() => setTouched(t => ({ ...t, specialty: true }))}
                     autoComplete="off"
                     readOnly={false}
-                    required
                     aria-invalid={errors.specialty && (touched.specialty || submitAttempted)}
                   />
-                  {errors.specialty && (touched.specialty || submitAttempted) && (
-                    <span className="text-xs text-red-600 absolute left-0 mt-1">Selecione a especialidade</span>
-                  )}
                   {showSpecialtyDropdown && (
                     <ul
                       ref={specialtyDropdownRef}
@@ -981,7 +1014,10 @@ const Funcionarios = () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="classic">
+                    <Button size="sm" variant="classic" onClick={() => {
+                      setSelectedEmployee(employee);
+                      setOpenProfileDialog(true);
+                    }}>
                       Ver Perfil
                     </Button>
                     <DropdownMenu>
@@ -1147,9 +1183,8 @@ const Funcionarios = () => {
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button size="sm" variant="classic">
+                            </div>                  <div className="flex gap-2">
+                              <Button size="sm" variant="classic" onClick={() => handleOpenProfile(employee)}>
                                 Ver Perfil
                               </Button>
                               <DropdownMenu>
@@ -1176,6 +1211,117 @@ const Funcionarios = () => {
                 </div>
               </div>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog: Perfil do Funcionário */}
+        <Dialog open={openProfileDialog} onOpenChange={setOpenProfileDialog}>
+          <DialogContent className="max-w-2xl w-full">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <User className="w-5 h-5" />
+                Perfil do Funcionário
+              </DialogTitle>
+              <DialogDescription>
+                Informações detalhadas do funcionário
+              </DialogDescription>
+            </DialogHeader>
+
+            {selectedEmployee && (
+              <div className="space-y-6 mt-4">
+                {/* Informações Básicas */}
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="font-semibold text-primary text-lg">
+                      {selectedEmployee.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-xl font-semibold text-foreground">{selectedEmployee.name}</h3>
+                      <Badge variant="outline" className={`${getEmployeeStatus().color} ${getEmployeeStatus().bgColor} border-current`}>
+                        {getEmployeeStatus().label}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          {selectedEmployee.role}
+                        </Badge>
+                        {selectedEmployee.specialty && (
+                          <Badge variant="outline" className="text-xs">
+                            {selectedEmployee.specialty}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Informações de Contato */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-medium text-foreground mb-2">Contato</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Phone className="w-4 h-4 text-muted-foreground" />
+                          <span>{selectedEmployee.phone}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Mail className="w-4 h-4 text-muted-foreground" />
+                          <span>{selectedEmployee.email}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-medium text-foreground mb-2">Informações Profissionais</h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Calendar className="w-4 h-4 text-muted-foreground" />
+                          <span>Admitido em: {new Date(selectedEmployee.startDate).toLocaleDateString('pt-BR')}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          <span>Tempo de trabalho: {calculateWorkTime(selectedEmployee.startDate)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Horários de Trabalho */}
+                <div>
+                  <h4 className="font-medium text-foreground mb-2">Horários de Trabalho</h4>
+                  <div className="p-4 bg-muted/30 rounded-lg">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                      <div><strong>Segunda:</strong> 08:00 - 18:00</div>
+                      <div><strong>Terça:</strong> 08:00 - 18:00</div>
+                      <div><strong>Quarta:</strong> 08:00 - 18:00</div>
+                      <div><strong>Quinta:</strong> 08:00 - 18:00</div>
+                      <div><strong>Sexta:</strong> 08:00 - 18:00</div>
+                      <div><strong>Sábado:</strong> Folga</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Ações */}
+                <div className="flex justify-end gap-2 pt-4 border-t">
+                  <Button variant="classic" onClick={() => setOpenProfileDialog(false)}>
+                    Fechar
+                  </Button>
+                  <Button variant="classic" onClick={() => {
+                    setOpenProfileDialog(false);
+                    /* Implementar edição futura */
+                  }}>
+                    Editar Funcionário
+                  </Button>
+                </div>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       </div>
