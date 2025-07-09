@@ -299,6 +299,43 @@ const Funcionarios = () => {
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
+  // Estados para o dialog de edição
+  const [openEditEmployeeDialog, setOpenEditEmployeeDialog] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState(null);
+  const [editEmployee, setEditEmployee] = useState({
+    name: "",
+    role: "",
+    specialty: "",
+    phone: "",
+    email: "",
+    workDays: ["Seg", "Ter", "Qua", "Qui", "Sex"],
+    startHour: "08:00",
+    endHour: "18:00"
+  });
+  const [editRoleSearch, setEditRoleSearch] = useState("");
+  const [showEditRoleDropdown, setShowEditRoleDropdown] = useState(false);
+  const editRoleInputRef = useRef(null);
+  const editRoleDropdownRef = useRef(null);
+  const [editSpecialtySearch, setEditSpecialtySearch] = useState("");
+  const [showEditSpecialtyDropdown, setShowEditSpecialtyDropdown] = useState(false);
+  const editSpecialtyInputRef = useRef(null);
+  const editSpecialtyDropdownRef = useRef(null);
+  const [editTouched, setEditTouched] = useState({
+    name: false,
+    role: false,
+    specialty: false,
+    phone: false,
+    email: false,
+    workDays: false,
+    startHour: false,
+    endHour: false
+  });
+  const [editSubmitAttempted, setEditSubmitAttempted] = useState(false);
+
+  // Estados para o dialog de confirmação de exclusão
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState(null);
+
   // Listas únicas
   const roles = Array.from(new Set(employees.map(e => e.role)));
   const specialties = Array.from(new Set(employees.map(e => e.specialty).filter(Boolean)));
@@ -478,6 +515,50 @@ const Funcionarios = () => {
     };
   }, [showSpecialtyDropdown]);
 
+  // Fecha o dropdown de função de edição ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        editRoleDropdownRef.current &&
+        !editRoleDropdownRef.current.contains(event.target) &&
+        editRoleInputRef.current &&
+        !editRoleInputRef.current.contains(event.target)
+      ) {
+        setShowEditRoleDropdown(false);
+      }
+    }
+    if (showEditRoleDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showEditRoleDropdown]);
+
+  // Fecha o dropdown de especialidade de edição ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        editSpecialtyDropdownRef.current &&
+        !editSpecialtyDropdownRef.current.contains(event.target) &&
+        editSpecialtyInputRef.current &&
+        !editSpecialtyInputRef.current.contains(event.target)
+      ) {
+        setShowEditSpecialtyDropdown(false);
+      }
+    }
+    if (showEditSpecialtyDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showEditSpecialtyDropdown]);
+
   // Função para formatar telefone brasileiro
   function formatPhone(phone: string) {
     const digits = phone.replace(/\D/g, "");
@@ -589,6 +670,202 @@ const Funcionarios = () => {
     setSelectedEmployee(employee);
     setOpenProfileDialog(true);
   };
+
+  // Função para abrir o dialog de edição
+  const handleOpenEditEmployee = (employee) => {
+    setEditingEmployee(employee);
+    setEditEmployee({
+      name: employee.name,
+      role: employee.role,
+      specialty: employee.specialty || "",
+      phone: employee.phone.replace(/\D/g, ""), // Remove formatação para edição
+      email: employee.email,
+      workDays: ["Seg", "Ter", "Qua", "Qui", "Sex"], // Default - seria carregado do banco
+      startHour: "08:00", // Default - seria carregado do banco
+      endHour: "18:00" // Default - seria carregado do banco
+    });
+    setEditTouched({
+      name: false,
+      role: false,
+      specialty: false,
+      phone: false,
+      email: false,
+      workDays: false,
+      startHour: false,
+      endHour: false
+    });
+    setEditSubmitAttempted(false);
+    setEditRoleSearch("");
+    setEditSpecialtySearch("");
+    setOpenEditEmployeeDialog(true);
+  };
+
+  // Função para salvar as alterações do funcionário
+  async function handleEditEmployeeSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setEditSubmitAttempted(true);
+    setEditTouched({
+      name: true,
+      role: true,
+      specialty: true,
+      phone: true,
+      email: true,
+      workDays: true,
+      startHour: true,
+      endHour: true
+    });
+
+    const editErrors = validateEdit();
+    if (Object.values(editErrors).some(Boolean)) {
+      return;
+    }
+
+    try {
+      // 1. Atualizar dados do funcionário
+      const { error } = await supabase
+        .from('employees')
+        .update({
+          name: editEmployee.name,
+          email: editEmployee.email,
+          phone: editEmployee.phone,
+          role: editEmployee.role
+        })
+        .eq('id', editingEmployee.id);
+
+      if (error) {
+        console.error("Erro ao atualizar funcionário:", error);
+        throw error;
+      }
+
+      // 2. Atualizar horários (remover os antigos e inserir os novos)
+      const { error: deleteError } = await supabase
+        .from('employee_work_schedules')
+        .delete()
+        .eq('employee_id', editingEmployee.id);
+
+      if (deleteError) {
+        console.error("Erro ao remover horários antigos:", deleteError);
+        throw deleteError;
+      }
+
+      // 3. Inserir novos horários
+      const dayMap = { 'Dom': 0, 'Seg': 1, 'Ter': 2, 'Qua': 3, 'Qui': 4, 'Sex': 5, 'Sáb': 6 };
+      const schedules = editEmployee.workDays.map(day => ({
+        employee_id: editingEmployee.id,
+        day_of_week: dayMap[day],
+        start_time: editEmployee.startHour,
+        end_time: editEmployee.endHour
+      }));
+
+      if (schedules.length > 0) {
+        const { error: schedError } = await supabase
+          .from('employee_work_schedules')
+          .insert(schedules);
+
+        if (schedError) {
+          console.error("Erro ao inserir novos horários:", schedError);
+          throw schedError;
+        }
+      }
+
+      toast({
+        title: undefined,
+        description: (
+          <span className="flex items-center gap-2 text-green-600">
+            <CheckCircle className="w-5 h-5" /> Funcionário atualizado com sucesso!
+          </span>
+        ),
+        duration: 3000
+      });
+
+      setOpenEditEmployeeDialog(false);
+      setEditingEmployee(null);
+
+    } catch (err) {
+      console.error("Erro completo:", err);
+      toast({
+        title: "Erro ao atualizar funcionário!",
+        description: "Tente novamente ou entre em contato com o suporte.",
+        variant: "destructive"
+      });
+    }
+  }
+
+  // Função de validação para edição
+  const validateEdit = () => {
+    return {
+      name: !editEmployee.name,
+      role: !editEmployee.role,
+      specialty: !editEmployee.specialty,
+      phone: !editEmployee.phone,
+      phoneInvalid: editEmployee.phone && !isValidPhone(editEmployee.phone),
+      email: !editEmployee.email,
+      emailInvalid: editEmployee.email && !isValidEmail(editEmployee.email),
+      workDays: !editEmployee.workDays.length,
+      startHour: !editEmployee.startHour,
+      endHour: !editEmployee.endHour
+    };
+  };
+
+  // Função para abrir o dialog de confirmação de exclusão
+  const handleOpenDeleteDialog = (employee) => {
+    setEmployeeToDelete(employee);
+    setOpenDeleteDialog(true);
+  };
+
+  // Função para excluir funcionário
+  async function handleDeleteEmployee() {
+    if (!employeeToDelete) return;
+
+    try {
+      // 1. Remover horários do funcionário
+      const { error: schedError } = await supabase
+        .from('employee_work_schedules')
+        .delete()
+        .eq('employee_id', employeeToDelete.id);
+
+      if (schedError) {
+        console.error("Erro ao remover horários:", schedError);
+        throw schedError;
+      }
+
+      // 2. Remover funcionário
+      const { error } = await supabase
+        .from('employees')
+        .delete()
+        .eq('id', employeeToDelete.id);
+
+      if (error) {
+        console.error("Erro ao excluir funcionário:", error);
+        throw error;
+      }
+
+      toast({
+        title: undefined,
+        description: (
+          <span className="flex items-center gap-2 text-green-600">
+            <CheckCircle className="w-5 h-5" /> Funcionário excluído com sucesso!
+          </span>
+        ),
+        duration: 3000
+      });
+
+      setOpenDeleteDialog(false);
+      setEmployeeToDelete(null);
+
+      // Fechar outros dialogs se estiverem abertos
+      setOpenProfileDialog(false);
+      setOpenAllEmployeesDialog(false);
+
+    } catch (err) {
+      console.error("Erro completo:", err);
+      toast({
+        title: "Erro ao excluir funcionário!",
+        description: "Tente novamente ou entre em contato com o suporte.",
+        variant: "destructive"
+      });
+    }
+  }
 
   // Função para calcular o tempo de trabalho
   const calculateWorkTime = (startDate) => {
@@ -891,7 +1168,7 @@ const Funcionarios = () => {
                 </div>
               </div>
               <div className="flex gap-2 justify-end">
-                <Button size="sm" variant="outline-primary" type="button" onClick={() => setOpenNewEmployeeDialog(false)}>Cancelar</Button>
+                <Button size="sm" variant="classic" type="button" onClick={() => setOpenNewEmployeeDialog(false)}>Cancelar</Button>
                 <Button size="sm" variant="primary" type="submit">Salvar</Button>
               </div>
             </form>
@@ -939,6 +1216,238 @@ const Funcionarios = () => {
           </DialogContent>
         </Dialog>
 
+        {/* Dialog: Editar Funcionário */}
+        <Dialog open={openEditEmployeeDialog} onOpenChange={setOpenEditEmployeeDialog}>
+          <DialogContent className="max-w-xl w-full">
+            <DialogHeader>
+              <DialogTitle>Editar Funcionário</DialogTitle>
+              <DialogDescription>Altere os dados do funcionário</DialogDescription>
+            </DialogHeader>
+            <form className="space-y-4 mt-2" onSubmit={handleEditEmployeeSubmit}>
+              <div>
+                <label className="block text-sm font-medium mb-1">Nome <span className="text-red-600">*</span></label>
+                <Input
+                  value={editEmployee.name}
+                  onChange={e => setEditEmployee(emp => ({ ...emp, name: e.target.value }))}
+                  onBlur={() => setEditTouched(t => ({ ...t, name: true }))}
+                  required
+                  aria-invalid={validateEdit().name && (editTouched.name || editSubmitAttempted)}
+                />
+                {validateEdit().name && (editTouched.name || editSubmitAttempted) && (
+                  <span className="text-xs text-red-600">Preencha o nome</span>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Função <span className="text-red-600">*</span></label>
+                <div className="relative">
+                  <Input
+                    ref={editRoleInputRef}
+                    type="text"
+                    placeholder="Buscar e selecionar função..."
+                    className="cursor-pointer"
+                    value={editRoleSearch || editEmployee.role}
+                    onFocus={() => setShowEditRoleDropdown(true)}
+                    onChange={e => {
+                      setEditRoleSearch(e.target.value);
+                      setShowEditRoleDropdown(true);
+                      setEditEmployee(emp => ({ ...emp, role: "" }));
+                    }}
+                    onBlur={() => setEditTouched(t => ({ ...t, role: true }))}
+                    autoComplete="off"
+                    readOnly={false}
+                    required
+                    aria-invalid={validateEdit().role && (editTouched.role || editSubmitAttempted)}
+                  />
+                  {validateEdit().role && (editTouched.role || editSubmitAttempted) && (
+                    <span className="text-xs text-red-600 absolute left-0 mt-1">Selecione a função</span>
+                  )}
+                  {showEditRoleDropdown && (
+                    <ul
+                      ref={editRoleDropdownRef}
+                      className="absolute z-10 w-full bg-white border rounded shadow max-h-48 overflow-auto mt-1"
+                    >
+                      {clinicRoles.filter(role => role.toLowerCase().includes(editRoleSearch.toLowerCase())).length === 0 && (
+                        <li className="px-3 py-2 text-muted-foreground">Nenhuma função encontrada</li>
+                      )}
+                      {clinicRoles
+                        .filter(role => role.toLowerCase().includes(editRoleSearch.toLowerCase()))
+                        .map(role => (
+                          <li
+                            key={role}
+                            className={`px-3 py-2 cursor-pointer hover:bg-primary/10 ${editEmployee.role === role ? "bg-primary/20" : ""}`}
+                            onClick={() => {
+                              setEditEmployee(emp => ({ ...emp, role }));
+                              setEditRoleSearch("");
+                              setShowEditRoleDropdown(false);
+                            }}
+                          >
+                            {role}
+                          </li>
+                        ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Especialidade</label>
+                <div className="relative">
+                  <Input
+                    ref={editSpecialtyInputRef}
+                    type="text"
+                    placeholder="Buscar e selecionar especialidade..."
+                    className="cursor-pointer"
+                    value={editSpecialtySearch || editEmployee.specialty}
+                    onFocus={() => setShowEditSpecialtyDropdown(true)}
+                    onChange={e => {
+                      setEditSpecialtySearch(e.target.value);
+                      setShowEditSpecialtyDropdown(true);
+                      setEditEmployee(emp => ({ ...emp, specialty: "" }));
+                    }}
+                    onBlur={() => setEditTouched(t => ({ ...t, specialty: true }))}
+                    autoComplete="off"
+                    readOnly={false}
+                    aria-invalid={validateEdit().specialty && (editTouched.specialty || editSubmitAttempted)}
+                  />
+                  {showEditSpecialtyDropdown && (
+                    <ul
+                      ref={editSpecialtyDropdownRef}
+                      className="absolute z-10 w-full bg-white border rounded shadow max-h-48 overflow-auto mt-1"
+                    >
+                      {clinicSpecialties.filter(s => s.toLowerCase().includes(editSpecialtySearch.toLowerCase())).length === 0 && (
+                        <li className="px-3 py-2 text-muted-foreground">Nenhuma especialidade encontrada</li>
+                      )}
+                      {clinicSpecialties
+                        .filter(s => s.toLowerCase().includes(editSpecialtySearch.toLowerCase()))
+                        .map(s => (
+                          <li
+                            key={s}
+                            className={`px-3 py-2 cursor-pointer hover:bg-primary/10 ${editEmployee.specialty === s ? "bg-primary/20" : ""}`}
+                            onClick={() => {
+                              setEditEmployee(emp => ({ ...emp, specialty: s }));
+                              setEditSpecialtySearch("");
+                              setShowEditSpecialtyDropdown(false);
+                            }}
+                          >
+                            {s}
+                          </li>
+                        ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Telefone <span className="text-red-600">*</span></label>
+                <Input
+                  value={formatPhone(editEmployee.phone)}
+                  onChange={e => {
+                    const raw = e.target.value.replace(/\D/g, "");
+                    setEditEmployee(emp => ({ ...emp, phone: raw }));
+                  }}
+                  onBlur={() => setEditTouched(t => ({ ...t, phone: true }))}
+                  required
+                  aria-invalid={(validateEdit().phone || validateEdit().phoneInvalid) && (editTouched.phone || editSubmitAttempted)}
+                  inputMode="tel"
+                  maxLength={15}
+                  placeholder="(00) 00000-0000"
+                />
+                {validateEdit().phone && (editTouched.phone || editSubmitAttempted) && (
+                  <span className="text-xs text-red-600">Preencha o telefone</span>
+                )}
+                {!validateEdit().phone && validateEdit().phoneInvalid && (editTouched.phone || editSubmitAttempted) && (
+                  <span className="text-xs text-red-600">Telefone inválido</span>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Email <span className="text-red-600">*</span></label>
+                <Input
+                  value={editEmployee.email}
+                  onChange={e => setEditEmployee(emp => ({ ...emp, email: e.target.value }))}
+                  onBlur={() => setEditTouched(t => ({ ...t, email: true }))}
+                  required
+                  aria-invalid={(validateEdit().email || validateEdit().emailInvalid) && (editTouched.email || editSubmitAttempted)}
+                  inputMode="email"
+                  type="email"
+                  placeholder="exemplo@dominio.com"
+                />
+                {validateEdit().email && (editTouched.email || editSubmitAttempted) && (
+                  <span className="text-xs text-red-600">Preencha o email</span>
+                )}
+                {!validateEdit().email && validateEdit().emailInvalid && (editTouched.email || editSubmitAttempted) && (
+                  <span className="text-xs text-red-600">Email inválido</span>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Dias de Trabalho <span className="text-red-600">*</span></label>
+                <div className="flex flex-wrap gap-2">
+                  {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(day => {
+                    const selected = editEmployee.workDays.includes(day);
+                    return (
+                      <Button
+                        key={day}
+                        type="button"
+                        size="sm"
+                        variant={selected ? "primary" : "outline"}
+                        onClick={() => {
+                          setEditEmployee(emp => ({
+                            ...emp,
+                            workDays: selected
+                              ? emp.workDays.filter(d => d !== day)
+                              : [...emp.workDays, day]
+                          }));
+                        }}
+                        className="w-12"
+                      >
+                        {day}
+                      </Button>
+                    );
+                  })}
+                </div>
+                {validateEdit().workDays && (editTouched.workDays || editSubmitAttempted) && (
+                  <span className="text-xs text-red-600">Selecione pelo menos um dia</span>
+                )}
+              </div>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium mb-1">Hora de Entrada <span className="text-red-600">*</span></label>
+                  <Input
+                    type="time"
+                    value={editEmployee.startHour}
+                    onChange={e => setEditEmployee(emp => ({ ...emp, startHour: e.target.value }))}
+                    onBlur={() => setEditTouched(t => ({ ...t, startHour: true }))}
+                    required
+                    aria-invalid={validateEdit().startHour && (editTouched.startHour || editSubmitAttempted)}
+                  />
+                  {validateEdit().startHour && (editTouched.startHour || editSubmitAttempted) && (
+                    <span className="text-xs text-red-600">Preencha a hora de entrada</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium mb-1">Hora de Saída <span className="text-red-600">*</span></label>
+                  <Input
+                    type="time"
+                    value={editEmployee.endHour}
+                    onChange={e => setEditEmployee(emp => ({ ...emp, endHour: e.target.value }))}
+                    onBlur={() => setEditTouched(t => ({ ...t, endHour: true }))}
+                    required
+                    aria-invalid={validateEdit().endHour && (editTouched.endHour || editSubmitAttempted)}
+                  />
+                  {validateEdit().endHour && (editTouched.endHour || editSubmitAttempted) && (
+                    <span className="text-xs text-red-600">Preencha a hora de saída</span>
+                  )}
+                </div>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button size="sm" variant="classic" type="button" onClick={() => setOpenEditEmployeeDialog(false)}>
+                  Cancelar
+                </Button>
+                <Button size="sm" variant="primary" type="submit">
+                  Salvar Alterações
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <StatsCard
@@ -948,7 +1457,7 @@ const Funcionarios = () => {
           />
           <StatsCard
             title="Funcionários Ativos"
-            value={employees.length} // Agora mostra o total, pois não há mais status
+            value={employees.length}
             icon={UserCheck}
           />
           <StatsCard
@@ -1028,8 +1537,11 @@ const Funcionarios = () => {
                         <DropdownMenuItem onClick={() => {/* ação de horários */ }}>
                           <Calendar className="w-4 h-4 mr-2 text-muted-foreground" /> Horários
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => {/* ação de editar */ }}>
+                        <DropdownMenuItem onClick={() => handleOpenEditEmployee(employee)}>
                           <svg className="w-4 h-4 mr-2 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 5.487l1.65-1.65a2.121 2.121 0 113 3l-1.65 1.65m-2-2l-9.193 9.193a2 2 0 00-.497.878l-.684 2.736a.5.5 0 00.606.606l2.736-.684a2 2 0 00.878-.497l9.193-9.193m-2-2z" /></svg> Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleOpenDeleteDialog(employee)} className="text-red-600 focus:text-red-600">
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg> Excluir
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -1195,8 +1707,11 @@ const Funcionarios = () => {
                                   <DropdownMenuItem onClick={() => {/* ação de horários */ }}>
                                     <Calendar className="w-4 h-4 mr-2 text-muted-foreground" /> Horários
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => {/* ação de editar */ }}>
+                                  <DropdownMenuItem onClick={() => handleOpenEditEmployee(employee)}>
                                     <svg className="w-4 h-4 mr-2 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 5.487l1.65-1.65a2.121 2.121 0 113 3l-1.65 1.65m-2-2l-9.193 9.193a2 2 0 00-.497.878l-.684 2.736a.5.5 0 00.606.606l2.736-.684a2 2 0 00.878-.497l9.193-9.193m-2-2z" /></svg> Editar
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleOpenDeleteDialog(employee)} className="text-red-600 focus:text-red-600">
+                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg> Excluir
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
@@ -1313,11 +1828,67 @@ const Funcionarios = () => {
                   <Button variant="classic" onClick={() => setOpenProfileDialog(false)}>
                     Fechar
                   </Button>
-                  <Button variant="classic" onClick={() => {
+                  <Button variant="primary" onClick={() => {
                     setOpenProfileDialog(false);
-                    /* Implementar edição futura */
+                    handleOpenEditEmployee(selectedEmployee);
                   }}>
                     Editar Funcionário
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog: Confirmação de Exclusão */}
+        <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+          <DialogContent className="max-w-md w-full">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-red-600">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L4.35 16.5C3.58 17.333 4.042 19 5.582 19z" />
+                </svg>
+                Confirmar Exclusão
+              </DialogTitle>
+              <DialogDescription>
+                Esta ação não pode ser desfeita. O funcionário será permanentemente excluído do sistema.
+              </DialogDescription>
+            </DialogHeader>
+
+            {employeeToDelete && (
+              <div className="space-y-4 mt-4">
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="font-semibold text-red-600 text-sm">
+                        {employeeToDelete.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-red-900">{employeeToDelete.name}</h4>
+                      <p className="text-sm text-red-700">{employeeToDelete.role}</p>
+                      {employeeToDelete.specialty && (
+                        <p className="text-xs text-red-600">{employeeToDelete.specialty}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-sm text-muted-foreground">
+                  <p className="mb-2">Ao excluir este funcionário:</p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li>Todos os dados pessoais serão removidos</li>
+                    <li>Os horários de trabalho serão excluídos</li>
+                    <li>O histórico de agendamentos será mantido para auditoria</li>
+                  </ul>
+                </div>
+
+                <div className="flex gap-2 justify-end pt-4 border-t">
+                  <Button variant="classic" onClick={() => setOpenDeleteDialog(false)}>
+                    Cancelar
+                  </Button>
+                  <Button variant="destructive" onClick={handleDeleteEmployee}>
+                    Excluir Funcionário
                   </Button>
                 </div>
               </div>
