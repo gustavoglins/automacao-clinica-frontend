@@ -257,9 +257,6 @@ const employees = [
 
 const Funcionarios = () => {
   const [search, setSearch] = useState("");
-  const [openFilterDialog, setOpenFilterDialog] = useState(false);
-  const [filterRole, setFilterRole] = useState("");
-  const [filterSpecialty, setFilterSpecialty] = useState("");
   const [openNewEmployeeDialog, setOpenNewEmployeeDialog] = useState(false);
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -294,6 +291,9 @@ const Funcionarios = () => {
     endHour: false
   });
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [filterRole, setFilterRole] = useState("");
+  const [filterSpecialty, setFilterSpecialty] = useState("");
+  const [openFilterDialog, setOpenFilterDialog] = useState(false);
 
   // Listas únicas
   const roles = Array.from(new Set(employees.map(e => e.role)));
@@ -359,7 +359,7 @@ const Funcionarios = () => {
   // Filtro principal com normalização e busca inteligente
   const filteredEmployees = employees.filter((employee) => {
     const normalizedTerm = normalizeText(query);
-    if (!normalizedTerm) return true;
+    if (!normalizedTerm && !filterRole && !filterSpecialty) return true;
     const searchableFields = [
       normalizeText(employee.name),
       normalizeText(employee.role),
@@ -367,9 +367,9 @@ const Funcionarios = () => {
       normalizeText(employee.email),
       employee.phone.replace(/\D/g, ""),
     ];
-    const matchesSearch = searchableFields.some(field => field.includes(normalizedTerm));
+    const matchesSearch = normalizedTerm ? searchableFields.some(field => field.includes(normalizedTerm)) : true;
     const matchesRole = filterRole ? employee.role === filterRole : true;
-    const matchesSpecialty = filterSpecialty ? employee.specialty === filterSpecialty : true;
+    const matchesSpecialty = filterSpecialty ? (employee.specialty === filterSpecialty) : true;
     return matchesSearch && matchesRole && matchesSpecialty;
   });
 
