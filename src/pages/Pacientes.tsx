@@ -274,11 +274,36 @@ const Pacientes = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // Função para normalizar texto removendo acentos e caracteres especiais
+  const normalizeText = (text: string) => {
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // Remove acentos
+      .trim();
+  };
+
+  // Função de busca inteligente para o dialog
+  const searchInDialog = (patient: typeof patients[0], searchTerm: string) => {
+    if (!searchTerm.trim()) return true;
+
+    const normalizedSearch = normalizeText(searchTerm);
+
+    // Campos pesquisáveis normalizados
+    const searchableFields = [
+      normalizeText(patient.name),
+      normalizeText(patient.email),
+      normalizeText(patient.plan),
+      normalizeText(patient.status),
+      patient.phone.replace(/\D/g, ""), // Apenas números
+    ];
+
+    // Verifica se o termo está presente em qualquer campo
+    return searchableFields.some(field => field.includes(normalizedSearch));
+  };
+
   const filteredDialogPatients = filteredPatients.filter(patient =>
-    patient.name.toLowerCase().includes(dialogSearch.toLowerCase()) ||
-    patient.phone.includes(dialogSearch) ||
-    patient.phone.replace(/\D/g, "").includes(dialogSearch.replace(/\D/g, "")) ||
-    patient.email.toLowerCase().includes(dialogSearch.toLowerCase())
+    searchInDialog(patient, dialogSearch)
   );
 
   useEffect(() => {
@@ -309,14 +334,23 @@ const Pacientes = () => {
 
   function DialogSearchBar() {
     return (
-      <div className="mb-4">
-        <Input
-          placeholder="Buscar paciente por nome, telefone ou email..."
-          value={dialogSearch}
-          onChange={e => setDialogSearch(e.target.value)}
-          autoFocus
-          className="w-full"
-        />
+      <div className="mb-4 relative">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Input
+            placeholder="Buscar por nome, telefone, email, plano ou status..."
+            value={dialogSearch}
+            onChange={e => setDialogSearch(e.target.value)}
+            autoFocus
+            className="w-full pl-10"
+            autoComplete="off"
+          />
+        </div>
+        {dialogSearch && (
+          <div className="mt-2 text-xs text-muted-foreground">
+            {filteredDialogPatients.length} paciente{filteredDialogPatients.length !== 1 ? 's' : ''} encontrado{filteredDialogPatients.length !== 1 ? 's' : ''}
+          </div>
+        )}
       </div>
     );
   }
@@ -414,7 +448,7 @@ const Pacientes = () => {
           <CardHeader>
             <CardTitle>Lista de Pacientes</CardTitle>
             <CardDescription>
-              {patients.length} pacientes encontrados
+              {patients.length} pacientes cadastrados
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -527,70 +561,99 @@ const Pacientes = () => {
 
       {/* Dialog: Todos os Pacientes */}
       <Dialog open={openAllPatientsDialog} onOpenChange={setOpenAllPatientsDialog}>
-        <DialogContent className="max-w-5xl w-full h-[95vh]">
-          <DialogHeader>
-            <DialogTitle>Todos os Pacientes</DialogTitle>
-            <DialogDescription>Veja todos os pacientes cadastrados</DialogDescription>
-          </DialogHeader>
-          <DialogSearchBar />
-          <div className="max-h-[80vh] overflow-y-auto space-y-3 mt-2">
-            {filteredDialogPatients.map((patient) => (
-              <div key={patient.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                    <span className="font-semibold text-primary">
-                      {patient.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                    </span>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-foreground">{patient.name}</h3>
-                      <Badge className={getStatusColor(patient.status)}>
-                        {patient.status}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {patient.plan}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{patient.age} anos</span>
-                      <div className="flex items-center gap-1">
-                        <Phone className="w-3 h-3" />
-                        {patient.phone}
+        <DialogContent className="max-w-5xl w-full max-h-[95vh] m-0 top-4 translate-y-0 p-0 overflow-hidden">
+          <div className="flex flex-col h-full max-h-[95vh]">
+            {/* Header fixo */}
+            <div className="flex-shrink-0 p-6 pb-4 border-b bg-background">
+              <DialogHeader>
+                <DialogTitle>Todos os Pacientes</DialogTitle>
+                <DialogDescription>Veja todos os pacientes cadastrados</DialogDescription>
+              </DialogHeader>
+            </div>
+
+            {/* Barra de pesquisa fixa */}
+            <div className="flex-shrink-0 p-6 py-4 border-b bg-muted/10">
+              <DialogSearchBar />
+            </div>
+
+            {/* Conteúdo rolável centralizado */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="px-6 py-4">
+                <div className="max-w-4xl mx-auto space-y-3">
+                  {filteredDialogPatients.length === 0 && dialogSearch.trim().length >= 2 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <div className="mb-2">
+                        <Search className="w-12 h-12 mx-auto text-muted-foreground/50" />
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Mail className="w-3 h-3" />
-                        {patient.email}
-                      </div>
+                      <p>Nenhum paciente encontrado para "{dialogSearch}"</p>
+                      <p className="text-sm mt-1">Tente buscar por nome, email, telefone, plano ou status</p>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>Última: {new Date(patient.lastVisit).toLocaleDateString('pt-BR')}</span>
-                      {patient.nextVisit && (
-                        <span className="text-primary">Próxima: {new Date(patient.nextVisit).toLocaleDateString('pt-BR')}</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="classic">
-                    Ver Prontuário
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="sm" variant="classic" className="px-2"><span className="sr-only">Mais opções</span><MoreVertical className="w-4 h-4" /></Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => {/* ação de agendar */ }}>
-                        <Calendar className="w-4 h-4 mr-2 text-muted-foreground" /> Agendar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => {/* ação de editar */ }}>
-                        <Edit className="w-4 h-4 mr-2 text-muted-foreground" /> Editar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  ) : (
+                    <>
+                      {filteredDialogPatients.map((patient) => (
+                        <div key={patient.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                              <span className="font-semibold text-primary">
+                                {patient.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                              </span>
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-foreground">{patient.name}</h3>
+                                <Badge className={getStatusColor(patient.status)}>
+                                  {patient.status}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  {patient.plan}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                <span>{patient.age} anos</span>
+                                <div className="flex items-center gap-1">
+                                  <Phone className="w-3 h-3" />
+                                  {patient.phone}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Mail className="w-3 h-3" />
+                                  {patient.email}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                <span>Última: {new Date(patient.lastVisit).toLocaleDateString('pt-BR')}</span>
+                                {patient.nextVisit && (
+                                  <span className="text-primary">Próxima: {new Date(patient.nextVisit).toLocaleDateString('pt-BR')}</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="classic">
+                              Ver Prontuário
+                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button size="sm" variant="classic" className="px-2"><span className="sr-only">Mais opções</span><MoreVertical className="w-4 h-4" /></Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => {/* ação de agendar */ }}>
+                                  <Calendar className="w-4 h-4 mr-2 text-muted-foreground" /> Agendar
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {/* ação de editar */ }}>
+                                  <Edit className="w-4 h-4 mr-2 text-muted-foreground" /> Editar
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </div>
+                      ))}
+                      {/* Padding no final para garantir scroll */}
+                      <div className="h-8"></div>
+                    </>
+                  )}
                 </div>
               </div>
-            ))}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
