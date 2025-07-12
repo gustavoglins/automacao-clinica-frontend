@@ -312,52 +312,46 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
 
       {/* Dialog do Calendário - Separado */}
       <Dialog open={showCalendar} onOpenChange={setShowCalendar}>
-        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-900">
               Agenda de {employee.name}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-4">
             {/* Calendar */}
-            <div className="lg:col-span-1 space-y-4">
+            <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900">Calendário</h3>
-              <div className="flex justify-center">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  className="rounded-lg border shadow-sm w-full max-w-sm"
-                  modifiers={{
-                    hasAppointments: (date) => hasAppointments(date)
-                  }}
-                  modifiersStyles={{
-                    hasAppointments: {
-                      backgroundColor: '#22c55e',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      borderRadius: '6px'
-                    }
-                  }}
-                />
-              </div>
-              <div className="text-sm text-gray-600 text-center">
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 bg-green-500 rounded"></div>
-                  <span>Datas com compromissos</span>
-                </div>
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                className="rounded-md border"
+                modifiers={{
+                  hasAppointments: (date) => hasAppointments(date)
+                }}
+                modifiersStyles={{
+                  hasAppointments: {
+                    backgroundColor: '#dbeafe',
+                    color: '#1e40af',
+                    fontWeight: 'bold'
+                  }
+                }}
+              />
+              <div className="text-sm text-gray-600">
+                <p>💙 Datas com compromissos marcados</p>
               </div>
             </div>
 
             {/* Appointments for selected date */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900">
                 Compromissos {selectedDate ? `- ${selectedDate.toLocaleDateString('pt-BR')}` : ''}
               </h3>
 
               {selectedDate && getAppointmentsForDate(selectedDate).length > 0 ? (
-                <div className="space-y-3 max-h-96 overflow-y-auto">
+                <div className="space-y-3">
                   {getAppointmentsForDate(selectedDate).map((appointment) => (
                     <div key={appointment.id} className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
@@ -375,29 +369,24 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 text-gray-500">
-                  <CalendarIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <p className="text-lg">Nenhum compromisso para esta data</p>
+                <div className="text-center py-8 text-gray-500">
+                  <CalendarIcon className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <p>Nenhum compromisso para esta data</p>
                 </div>
               )}
 
               {/* Summary */}
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
-                <h4 className="font-semibold text-gray-900 mb-3">Resumo Geral</h4>
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <p className="text-2xl font-bold text-blue-600">{mockAppointments.length}</p>
-                    <p className="text-sm text-gray-600">Total</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-green-600">{mockAppointments.filter(a => a.status === 'confirmado').length}</p>
-                    <p className="text-sm text-gray-600">Confirmados</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-yellow-600">{mockAppointments.filter(a => a.status === 'pendente').length}</p>
-                    <p className="text-sm text-gray-600">Pendentes</p>
-                  </div>
-                </div>
+              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-semibold text-gray-900 mb-2">Resumo</h4>
+                <p className="text-sm text-gray-600">
+                  Total de compromissos: {mockAppointments.length}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Confirmados: {mockAppointments.filter(a => a.status === 'confirmado').length}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Pendentes: {mockAppointments.filter(a => a.status === 'pendente').length}
+                </p>
               </div>
             </div>
           </div>

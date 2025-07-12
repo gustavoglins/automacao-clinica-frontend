@@ -24,6 +24,14 @@ interface FilterState {
   role: string;
   specialty: string;
   showAll: boolean;
+  // Filtros avançados
+  dateRange?: {
+    start: Date | null;
+    end: Date | null;
+  };
+  status?: string;
+  location?: string;
+  performance?: string;
 }
 
 function Funcionarios() {
@@ -34,7 +42,11 @@ function Funcionarios() {
     search: "",
     role: "all",
     specialty: "all",
-    showAll: false
+    showAll: false,
+    dateRange: { start: null, end: null },
+    status: "",
+    location: "",
+    performance: ""
   });
 
   // Dialog states
@@ -75,7 +87,27 @@ function Funcionarios() {
     const matchesRole = !filters.role || filters.role === "all" || employee.role === filters.role;
     const matchesSpecialty = !filters.specialty || filters.specialty === "all" || employee.specialty === filters.specialty;
 
-    return matchesSearch && matchesRole && matchesSpecialty;
+    // Filtros avançados
+    const matchesStatus = !filters.status || employee.status === filters.status;
+
+    // Filtro de data de admissão
+    let matchesDateRange = true;
+    if (filters.dateRange && (filters.dateRange.start || filters.dateRange.end)) {
+      const hireDate = new Date(employee.hireDate);
+      if (filters.dateRange.start && hireDate < filters.dateRange.start) {
+        matchesDateRange = false;
+      }
+      if (filters.dateRange.end && hireDate > filters.dateRange.end) {
+        matchesDateRange = false;
+      }
+    }
+
+    // Para localização e performance, vamos assumir que não temos esses campos por enquanto
+    // Podem ser implementados quando os campos existirem no tipo Employee
+    const matchesLocation = !filters.location; // sempre true por enquanto
+    const matchesPerformance = !filters.performance; // sempre true por enquanto
+
+    return matchesSearch && matchesRole && matchesSpecialty && matchesStatus && matchesDateRange && matchesLocation && matchesPerformance;
   });
 
   // Event handlers
@@ -127,6 +159,26 @@ function Funcionarios() {
 
   const handleOpenAddEmployee = () => {
     setAddDialogOpen(true);
+  };
+
+  const handleApplyAdvancedFilters = (advancedFilters: {
+    dateRange: { start: Date | null; end: Date | null };
+    role: string;
+    specialty: string;
+    status: string;
+    location: string;
+    performance: string;
+  }) => {
+    setFilters(prev => ({
+      ...prev,
+      dateRange: advancedFilters.dateRange,
+      status: advancedFilters.status,
+      location: advancedFilters.location,
+      performance: advancedFilters.performance,
+      // Se os filtros avançados incluem role/specialty, atualizar também
+      role: advancedFilters.role || prev.role,
+      specialty: advancedFilters.specialty || prev.specialty
+    }));
   };
 
   if (loading) {
@@ -230,7 +282,7 @@ function Funcionarios() {
         <FilterDialog
           isOpen={filterDialogOpen}
           onClose={() => setFilterDialogOpen(false)}
-          onApplyFilters={() => { }} // Implementar se necessário
+          onApplyFilters={handleApplyAdvancedFilters}
         />
 
         <EmployeeProfileDialog

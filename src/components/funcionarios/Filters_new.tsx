@@ -18,14 +18,6 @@ interface FilterState {
   role: string;
   specialty: string;
   showAll: boolean;
-  // Filtros avançados
-  dateRange?: {
-    start: Date | null;
-    end: Date | null;
-  };
-  status?: string;
-  location?: string;
-  performance?: string;
 }
 
 interface FiltersProps {
@@ -48,24 +40,13 @@ export const Filters: React.FC<FiltersProps> = ({
   const clearFilters = () => {
     onFiltersChange({
       search: "",
-      role: "all",
-      specialty: "all",
-      showAll: false,
-      dateRange: { start: null, end: null },
-      status: "",
-      location: "",
-      performance: ""
+      role: "",
+      specialty: "",
+      showAll: false
     });
   };
 
-  const hasActiveFilters = filters.search ||
-    (filters.role && filters.role !== "all") ||
-    (filters.specialty && filters.specialty !== "all") ||
-    filters.showAll ||
-    (filters.dateRange && (filters.dateRange.start || filters.dateRange.end)) ||
-    (filters.status && filters.status !== "") ||
-    (filters.location && filters.location !== "") ||
-    (filters.performance && filters.performance !== "");
+  const hasActiveFilters = filters.search || filters.role || filters.specialty || filters.showAll;
   const countBadge = getCountBadge();
 
   return (
@@ -89,7 +70,7 @@ export const Filters: React.FC<FiltersProps> = ({
               <SelectValue placeholder="Cargo" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos os cargos</SelectItem>
+              <SelectItem value="">Todos os cargos</SelectItem>
               <SelectItem value="Dentista">Dentista</SelectItem>
               <SelectItem value="Auxiliar">Auxiliar</SelectItem>
               <SelectItem value="Recepcionista">Recepcionista</SelectItem>
@@ -103,7 +84,7 @@ export const Filters: React.FC<FiltersProps> = ({
               <SelectValue placeholder="Especialidade" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas especialidades</SelectItem>
+              <SelectItem value="">Todas especialidades</SelectItem>
               <SelectItem value="Ortodontia">Ortodontia</SelectItem>
               <SelectItem value="Endodontia">Endodontia</SelectItem>
               <SelectItem value="Periodontia">Periodontia</SelectItem>
@@ -144,34 +125,14 @@ export const Filters: React.FC<FiltersProps> = ({
                     Busca: {filters.search}
                   </Badge>
                 )}
-                {filters.role && filters.role !== "all" && (
+                {filters.role && (
                   <Badge variant={countBadge.variant} className={countBadge.className}>
                     Cargo: {filters.role}
                   </Badge>
                 )}
-                {filters.specialty && filters.specialty !== "all" && (
+                {filters.specialty && (
                   <Badge variant={countBadge.variant} className={countBadge.className}>
                     Especialidade: {filters.specialty}
-                  </Badge>
-                )}
-                {filters.status && filters.status !== "" && (
-                  <Badge variant={countBadge.variant} className={countBadge.className}>
-                    Status: {filters.status}
-                  </Badge>
-                )}
-                {filters.location && filters.location !== "" && (
-                  <Badge variant={countBadge.variant} className={countBadge.className}>
-                    Localização: {filters.location}
-                  </Badge>
-                )}
-                {filters.performance && filters.performance !== "" && (
-                  <Badge variant={countBadge.variant} className={countBadge.className}>
-                    Performance: {filters.performance}
-                  </Badge>
-                )}
-                {filters.dateRange && (filters.dateRange.start || filters.dateRange.end) && (
-                  <Badge variant={countBadge.variant} className={countBadge.className}>
-                    Data: {filters.dateRange.start?.toLocaleDateString('pt-BR') || '...'} - {filters.dateRange.end?.toLocaleDateString('pt-BR') || '...'}
                   </Badge>
                 )}
                 <Button
