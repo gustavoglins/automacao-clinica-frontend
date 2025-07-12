@@ -212,6 +212,22 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
 
             <Separator />
 
+            {/* Agenda do Funcionário */}
+            <div className="bg-white border border-gray-100 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-5 flex items-center gap-2">
+                <CalendarIcon className="w-5 h-5 text-blue-600" />
+                Agenda do Funcionário
+              </h3>
+              <Button
+                variant="outline"
+                onClick={handleViewSchedule}
+                className="w-full h-12 text-gray-700 border-gray-200 hover:bg-gray-50 justify-start"
+              >
+                <CalendarIcon className="w-4 h-4 mr-2" />
+                Ver Agendamentos do Funcionário
+              </Button>
+            </div>
+
             {/* Contact Details */}
             <div className="bg-white border border-gray-100 rounded-xl p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-5 flex items-center gap-2">
@@ -290,22 +306,6 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
             )}
 
             <Separator />
-
-            {/* Agenda do Funcionário */}
-            <div className="bg-white border border-gray-100 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-5 flex items-center gap-2">
-                <CalendarIcon className="w-5 h-5 text-blue-600" />
-                Agenda do Funcionário
-              </h3>
-              <Button
-                variant="outline"
-                onClick={handleViewSchedule}
-                className="w-full h-12 text-gray-700 border-gray-200 hover:bg-gray-50 justify-start"
-              >
-                <CalendarIcon className="w-4 h-4 mr-2" />
-                Ver Agendamentos do Funcionário
-              </Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -324,23 +324,27 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
             <div className="lg:col-span-1 space-y-4">
               <h3 className="text-lg font-semibold text-gray-900">Calendário</h3>
               <div className="flex justify-center">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  className="rounded-lg border shadow-sm w-full max-w-sm"
-                  modifiers={{
-                    hasAppointments: (date) => hasAppointments(date)
-                  }}
-                  modifiersStyles={{
-                    hasAppointments: {
-                      backgroundColor: '#22c55e',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      borderRadius: '6px'
-                    }
-                  }}
-                />
+                <div className="w-full max-w-sm min-h-[350px]">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    className="rounded-lg border shadow-sm w-full"
+                    modifiers={{
+                      hasAppointments: (date) => hasAppointments(date)
+                    }}
+                    modifiersStyles={{
+                      hasAppointments: {
+                        backgroundColor: '#22c55e',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        borderRadius: '6px'
+                      }
+                    }}
+                    fixedWeeks={true}
+                    showOutsideDays={true}
+                  />
+                </div>
               </div>
               <div className="text-sm text-gray-600 text-center">
                 <div className="flex items-center justify-center gap-2">
