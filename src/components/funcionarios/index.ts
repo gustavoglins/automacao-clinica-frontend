@@ -3,6 +3,7 @@ export { EmployeeList } from "./EmployeeList";
 export { EmployeeStats } from "./EmployeeStats";
 export { Filters } from "./Filters";
 export { ProfileDialog } from "./ProfileDialog";
+export { EmployeeProfileDialog } from "./EmployeeProfileDialog";
 export { EditEmployeeDialog } from "./EditEmployeeDialog";
 export { DeleteEmployeeDialog } from "./DeleteEmployeeDialog";
 export { AddEmployeeDialog } from "./AddEmployeeDialog";

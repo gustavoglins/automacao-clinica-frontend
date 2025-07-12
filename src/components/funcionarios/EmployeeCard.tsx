@@ -2,14 +2,9 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Phone, Mail, Calendar, User } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem
-} from "@/components/ui/dropdown-menu";
 import type { Employee } from "@/types/employee";
 import { formatPhone } from "@/lib/utils";
+import { getEmployeeStatusBadge } from "@/lib/badgeUtils";
 
 interface EmployeeCardProps {
   employee: Employee;
@@ -45,11 +40,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
     }
   };
 
-  const getEmployeeStatus = () => {
-    return { label: "Ativo", color: "text-green-600", bgColor: "bg-green-100" };
-  };
-
-  const status = getEmployeeStatus();
+  const statusBadge = getEmployeeStatusBadge('ativo');
 
   return (
     <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors flex-shrink-0">
@@ -57,8 +48,13 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
         <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
           <User className="w-6 h-6 text-primary" />
         </div>
-        <div>
-          <h3 className="font-semibold text-foreground">{employee.name}</h3>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-foreground">{employee.name}</h3>
+            <Badge variant={statusBadge.variant} className={statusBadge.className}>
+              Ativo
+            </Badge>
+          </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>{employee.role}</span>
             {employee.specialty && (
@@ -84,31 +80,14 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <Badge className={`${status.bgColor} ${status.color} hover:${status.bgColor}`}>
-          {status.label}
-        </Badge>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              ⋮
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => onOpenProfile(employee)}>
-              Ver Perfil
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onOpenEdit(employee)}>
-              Editar Funcionário
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onOpenDelete(employee)}
-              className="text-red-600 hover:text-red-700"
-            >
-              Excluir
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          variant="classic"
+          onClick={() => onOpenProfile(employee)}
+        >
+          Ver Perfil
+        </Button>
       </div>
     </div>
   );

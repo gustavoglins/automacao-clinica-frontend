@@ -11,6 +11,7 @@ import {
   Filters,
   EmployeeList,
   ProfileDialog,
+  EmployeeProfileDialog,
   EditEmployeeDialog,
   DeleteEmployeeDialog,
   AddEmployeeDialog,
@@ -31,14 +32,15 @@ function Funcionarios() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<FilterState>({
     search: "",
-    role: "",
-    specialty: "",
+    role: "all",
+    specialty: "all",
     showAll: false
   });
 
   // Dialog states
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const [modernProfileDialogOpen, setModernProfileDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -70,8 +72,8 @@ function Funcionarios() {
       employee.phone.includes(searchNumbers) || // Busca apenas pelos números
       employee.phone.includes(filters.search); // Busca pelo texto formatado também
 
-    const matchesRole = !filters.role || employee.role === filters.role;
-    const matchesSpecialty = !filters.specialty || employee.specialty === filters.specialty;
+    const matchesRole = !filters.role || filters.role === "all" || employee.role === filters.role;
+    const matchesSpecialty = !filters.specialty || filters.specialty === "all" || employee.specialty === filters.specialty;
 
     return matchesSearch && matchesRole && matchesSpecialty;
   });
@@ -79,19 +81,21 @@ function Funcionarios() {
   // Event handlers
   const handleOpenProfile = (employee: Employee) => {
     setSelectedEmployee(employee);
-    setProfileDialogOpen(true);
+    setModernProfileDialogOpen(true);
   };
 
   const handleOpenEdit = (employee: Employee) => {
     setSelectedEmployee(employee);
     setEditDialogOpen(true);
     setProfileDialogOpen(false);
+    setModernProfileDialogOpen(false);
   };
 
   const handleOpenDelete = (employee: Employee) => {
     setSelectedEmployee(employee);
     setDeleteDialogOpen(true);
     setProfileDialogOpen(false);
+    setModernProfileDialogOpen(false);
   };
 
   const handleToggleShowAll = () => {
@@ -139,12 +143,10 @@ function Funcionarios() {
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Funcionários</h1>
-            <p className="text-sm text-muted-foreground">
-              Gerencie os funcionários da clínica
-            </p>
+            <h1 className="text-3xl font-bold text-foreground">Funcionários</h1>
+            <p className="text-muted-foreground">Gerencie os funcionários da clínica</p>
           </div>
         </div>
 
@@ -177,7 +179,7 @@ function Funcionarios() {
                   <UserX className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Nenhum funcionário encontrado</h3>
                   <p className="text-muted-foreground">
-                    {filters.search || filters.role || filters.specialty
+                    {filters.search || (filters.role && filters.role !== "all") || (filters.specialty && filters.specialty !== "all")
                       ? "Tente ajustar os filtros para ver mais resultados"
                       : "Comece adicionando seu primeiro funcionário"}
                   </p>
@@ -229,6 +231,14 @@ function Funcionarios() {
           isOpen={filterDialogOpen}
           onClose={() => setFilterDialogOpen(false)}
           onApplyFilters={() => { }} // Implementar se necessário
+        />
+
+        <EmployeeProfileDialog
+          employee={selectedEmployee}
+          isOpen={modernProfileDialogOpen}
+          onClose={() => setModernProfileDialogOpen(false)}
+          onOpenEdit={handleOpenEdit}
+          onOpenDelete={handleOpenDelete}
         />
       </div>
     </AppLayout>

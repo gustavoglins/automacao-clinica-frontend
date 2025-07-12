@@ -14,6 +14,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem
 } from "@/components/ui/dropdown-menu";
+import { getAppointmentStatusBadge } from "@/lib/badgeUtils";
 
 const Agenda = () => {
   const [search, setSearch] = useState("");
@@ -74,19 +75,6 @@ const Agenda = () => {
     const matchesDoctor = filterDoctor ? appointment.doctor === filterDoctor : true;
     return matchesSearch && matchesStatus && matchesDoctor;
   });
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmada':
-        return 'bg-green-100 text-green-600 border-green-600';
-      case 'pendente':
-        return 'bg-yellow-100 text-yellow-600 border-yellow-600';
-      case 'reagendada':
-        return 'bg-red-100 text-red-600 border-red-600';
-      default:
-        return 'bg-gray-100 text-gray-600 border-gray-600';
-    }
-  };
 
   // Simula o total de consultas na semana (soma dos valores exibidos nos cards dos dias)
   const weekTotals = [
@@ -224,7 +212,10 @@ const Agenda = () => {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-foreground">{appointment.patient}</h3>
-                      <Badge className={getStatusColor(appointment.status)}>
+                      <Badge
+                        variant={getAppointmentStatusBadge(appointment.status).variant}
+                        className={getAppointmentStatusBadge(appointment.status).className}
+                      >
                         {appointment.status}
                       </Badge>
                     </div>

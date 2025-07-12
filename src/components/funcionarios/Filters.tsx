@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getCountBadge } from "@/lib/badgeUtils";
 
 interface FilterState {
   search: string;
@@ -39,13 +40,14 @@ export const Filters: React.FC<FiltersProps> = ({
   const clearFilters = () => {
     onFiltersChange({
       search: "",
-      role: "",
-      specialty: "",
+      role: "all",
+      specialty: "all",
       showAll: false
     });
   };
 
-  const hasActiveFilters = filters.search || filters.role || filters.specialty;
+  const hasActiveFilters = filters.search || (filters.role && filters.role !== "all") || (filters.specialty && filters.specialty !== "all") || filters.showAll;
+  const countBadge = getCountBadge();
 
   return (
     <div className="flex flex-col gap-4 p-6 bg-card rounded-lg border shadow-sm">
@@ -61,42 +63,38 @@ export const Filters: React.FC<FiltersProps> = ({
             />
           </div>
           <Select
-            value={filters.role || undefined}
-            onValueChange={(value) => onFiltersChange({ ...filters, role: value === "all" ? "" : value })}
+            value={filters.role}
+            onValueChange={(value) => onFiltersChange({ ...filters, role: value })}
           >
-            <SelectTrigger className="w-full sm:w-[200px]">
-              <SelectValue placeholder="Filtrar por cargo" />
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Cargo" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os cargos</SelectItem>
               <SelectItem value="Dentista">Dentista</SelectItem>
-              <SelectItem value="Assistente">Assistente</SelectItem>
-              <SelectItem value="Recepcionista">Recepcionista</SelectItem>
-              <SelectItem value="Gerente">Gerente</SelectItem>
               <SelectItem value="Auxiliar">Auxiliar</SelectItem>
+              <SelectItem value="Recepcionista">Recepcionista</SelectItem>
             </SelectContent>
           </Select>
           <Select
-            value={filters.specialty || undefined}
-            onValueChange={(value) => onFiltersChange({ ...filters, specialty: value === "all" ? "" : value })}
+            value={filters.specialty}
+            onValueChange={(value) => onFiltersChange({ ...filters, specialty: value })}
           >
-            <SelectTrigger className="w-full sm:w-[200px]">
-              <SelectValue placeholder="Filtrar por especialidade" />
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Especialidade" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas as especialidades</SelectItem>
+              <SelectItem value="all">Todas especialidades</SelectItem>
               <SelectItem value="Ortodontia">Ortodontia</SelectItem>
               <SelectItem value="Endodontia">Endodontia</SelectItem>
               <SelectItem value="Periodontia">Periodontia</SelectItem>
               <SelectItem value="Implantodontia">Implantodontia</SelectItem>
-              <SelectItem value="Cirurgia Oral">Cirurgia Oral</SelectItem>
-              <SelectItem value="Clínica Geral">Clínica Geral</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="flex items-center gap-2">
           <Button
-            variant="classic"
+            variant="outline"
             size="sm"
             onClick={onOpenFilters}
             className="flex items-center gap-2"
@@ -123,17 +121,17 @@ export const Filters: React.FC<FiltersProps> = ({
               <div className="flex items-center gap-2">
                 <span>Filtros ativos:</span>
                 {filters.search && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant={countBadge.variant} className={countBadge.className}>
                     Busca: {filters.search}
                   </Badge>
                 )}
-                {filters.role && (
-                  <Badge variant="secondary" className="text-xs">
+                {filters.role && filters.role !== "all" && (
+                  <Badge variant={countBadge.variant} className={countBadge.className}>
                     Cargo: {filters.role}
                   </Badge>
                 )}
-                {filters.specialty && (
-                  <Badge variant="secondary" className="text-xs">
+                {filters.specialty && filters.specialty !== "all" && (
+                  <Badge variant={countBadge.variant} className={countBadge.className}>
                     Especialidade: {filters.specialty}
                   </Badge>
                 )}

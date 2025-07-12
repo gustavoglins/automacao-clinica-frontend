@@ -352,9 +352,9 @@ class EmployeeService {
    */
   async deleteEmployeeWithRelations(id: number): Promise<void> {
     try {
-      // First, delete related schedules
+      // First, delete related work schedules
       const { error: scheduleError } = await supabase
-        .from('schedules')
+        .from('employee_work_schedules')
         .delete()
         .eq('employee_id', id);
 
