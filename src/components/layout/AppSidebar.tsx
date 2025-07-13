@@ -2,7 +2,7 @@ import {
   Calendar,
   FileText,
   Home,
-  Phone,
+  Briefcase,
   Settings,
   UserCheck,
   Users
@@ -27,6 +27,7 @@ const mainItems = [
   { title: "Agenda", url: "/agenda", icon: Calendar },
   { title: "Pacientes", url: "/pacientes", icon: Users },
   { title: "Funcionários", url: "/funcionarios", icon: UserCheck },
+  { title: "Serviços", url: "/servicos", icon: Briefcase },
 ]
 
 const businessItems = [
