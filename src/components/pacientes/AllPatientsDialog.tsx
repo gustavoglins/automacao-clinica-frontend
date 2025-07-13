@@ -74,8 +74,6 @@ export const AllPatientsDialog = ({
                       <PatientCard
                         key={patient.id}
                         patient={patient}
-                        onSchedule={onSchedule}
-                        onEdit={onEdit}
                         onViewRecord={onViewRecord}
                       />
                     ))}

@@ -1,26 +1,16 @@
-import { Phone, Mail, Calendar, Edit, MoreVertical } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem
-} from "@/components/ui/dropdown-menu";
 import { Patient } from "@/types/patient";
 import { getPatientStatusBadge, getPlanBadge } from "@/lib/badgeUtils";
 
 interface PatientCardProps {
   patient: Patient;
-  onSchedule?: (patient: Patient) => void;
-  onEdit?: (patient: Patient) => void;
   onViewRecord?: (patient: Patient) => void;
 }
 
 export const PatientCard = ({
   patient,
-  onSchedule,
-  onEdit,
   onViewRecord
 }: PatientCardProps) => {
   const getInitials = (name: string) => {
@@ -77,24 +67,6 @@ export const PatientCard = ({
         >
           Ver Prontuário
         </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="classic" className="px-2">
-              <span className="sr-only">Mais opções</span>
-              <MoreVertical className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onSchedule?.(patient)}>
-              <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
-              Agendar
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit?.(patient)}>
-              <Edit className="w-4 h-4 mr-2 text-muted-foreground" />
-              Editar
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
     </div>
   );

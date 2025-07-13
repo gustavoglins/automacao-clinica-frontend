@@ -52,8 +52,6 @@ export const PatientList = ({
             <PatientCard
               key={patient.id}
               patient={patient}
-              onSchedule={onSchedule}
-              onEdit={onEdit}
               onViewRecord={onViewRecord}
             />
           ))}
