@@ -124,7 +124,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDelete }) 
   const iconColorClass = getCategoryIconColor(service.category);
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
