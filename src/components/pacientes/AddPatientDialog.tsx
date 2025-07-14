@@ -3,7 +3,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -18,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserPlus } from "lucide-react";
+import { UserPlus, X, Check } from "lucide-react";
 import { Patient } from "@/types/patient";
 
 interface AddPatientDialogProps {
@@ -118,119 +117,160 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <UserPlus className="h-5 w-5" />
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="flex items-center gap-2 text-xl">
+            <UserPlus className="w-5 h-5 text-primary" />
             Novo Paciente
           </DialogTitle>
           <DialogDescription>
-            Preencha as informações do novo paciente
+            Preencha as informações para cadastrar um novo paciente
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          {/* Nome */}
-          <div className="grid gap-2">
-            <Label htmlFor="name">Nome Completo *</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
-              placeholder="Digite o nome completo do paciente"
-            />
-          </div>
-
-          {/* Idade e Telefone */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="age">Idade</Label>
-              <Input
-                id="age"
-                type="number"
-                value={formData.age}
-                onChange={(e) => handleInputChange("age", e.target.value)}
-                placeholder="Ex: 25"
-              />
+        <form onSubmit={handleSubmit} className="space-y-6 mt-6">
+          {/* Informações Pessoais */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-3">
+              <UserPlus className="w-4 h-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">Informações Pessoais</h3>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="phone">Telefone *</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
-                placeholder="(11) 99999-9999"
-              />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Nome Completo *</Label>
+                <Input
+                  id="name"
+                  placeholder="Digite o nome completo"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="age">Idade</Label>
+                <Input
+                  id="age"
+                  type="number"
+                  placeholder="Ex: 25"
+                  value={formData.age}
+                  onChange={(e) => handleInputChange("age", e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="phone">Telefone *</Label>
+                <Input
+                  id="phone"
+                  placeholder="(11) 99999-9999"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="email@exemplo.com"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Email */}
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange("email", e.target.value)}
-              placeholder="email@exemplo.com"
-            />
-          </div>
+          {/* Informações do Plano */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-3">
+              <UserPlus className="w-4 h-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">Plano de Saúde</h3>
+            </div>
 
-          {/* Plano de Saúde */}
-          <div className="grid gap-2">
-            <Label htmlFor="plan">Plano de Saúde</Label>
-            <Select
-              value={formData.plan}
-              onValueChange={(value) => handleInputChange("plan", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o plano de saúde" />
-              </SelectTrigger>
-              <SelectContent>
-                {healthPlans.map((plan) => (
-                  <SelectItem key={plan.value} value={plan.label}>
-                    {plan.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="plan">Plano de Saúde</Label>
+                <Select value={formData.plan} onValueChange={(value) => handleInputChange("plan", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o plano de saúde" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {healthPlans.map((plan) => (
+                      <SelectItem key={plan.value} value={plan.label}>
+                        {plan.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {/* Endereço */}
-          <div className="grid gap-2">
-            <Label htmlFor="address">Endereço</Label>
-            <Input
-              id="address"
-              value={formData.address}
-              onChange={(e) => handleInputChange("address", e.target.value)}
-              placeholder="Rua, número, bairro, cidade"
-            />
+              <div className="space-y-2">
+                <Label htmlFor="address">Endereço</Label>
+                <Input
+                  id="address"
+                  placeholder="Rua, número, bairro, cidade"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Observações */}
-          <div className="grid gap-2">
-            <Label htmlFor="notes">Observações</Label>
-            <Textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) => handleInputChange("notes", e.target.value)}
-              placeholder="Informações adicionais sobre o paciente..."
-              rows={3}
-            />
-          </div>
-        </div>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-3">
+              <UserPlus className="w-4 h-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">Observações</h3>
+            </div>
 
-        <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={handleCancel}>
-            Cancelar
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={loading || !formData.name || !formData.phone}
-          >
-            {loading ? "Salvando..." : "Salvar Paciente"}
-          </Button>
-        </DialogFooter>
+            <div className="space-y-2">
+              <Label htmlFor="notes">Observações Adicionais</Label>
+              <Textarea
+                id="notes"
+                placeholder="Informações adicionais sobre o paciente..."
+                value={formData.notes}
+                onChange={(e) => handleInputChange("notes", e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          {/* Botões */}
+          <div className="flex justify-end gap-3 pt-6 border-t">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              disabled={loading}
+              className="flex items-center gap-2"
+            >
+              <X className="w-4 h-4" />
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading || !formData.name || !formData.phone}
+              className="min-w-[120px] flex items-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  <Check className="w-4 h-4" />
+                  Salvar Paciente
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
