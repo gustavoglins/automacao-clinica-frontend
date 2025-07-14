@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { toast } from "sonner";
+import { StatsCard } from "@/components/dashboard/StatsCard";
+import { Settings, TrendingUp, DollarSign, Activity } from "lucide-react";
 import {
   ServiceFilters,
   ServiceList,
@@ -349,6 +351,26 @@ const Servicos = () => {
     advancedFilters.priceRange !== "" ||
     advancedFilters.duration !== "";
 
+  // Estatísticas dos serviços
+  const totalServices = services.length;
+
+  // Serviço mais realizado (simulado - seria baseado em dados reais de agendamentos)
+  const mostRequestedService = services.length > 0
+    ? services.reduce((prev, current) =>
+      // Simulando popularidade baseada no ID (menor ID = mais antigo = mais popular)
+      prev.id < current.id ? prev : current
+    ).name
+    : "N/A";
+
+  // Preço médio dos serviços
+  const averagePrice = services.length > 0
+    ? services.reduce((sum, service) => sum + service.price, 0) / services.length
+    : 0;
+
+  // Serviços ativos vs inativos
+  const activeServices = services.filter(service => service.isActive).length;
+  const inactiveServices = services.filter(service => !service.isActive).length;
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -356,6 +378,30 @@ const Servicos = () => {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Serviços da Clínica</h1>
           <p className="text-muted-foreground">Gerencie os serviços oferecidos pela clínica</p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <StatsCard
+            title="Total de Serviços Oferecidos"
+            value={totalServices}
+            icon={Settings}
+          />
+          <StatsCard
+            title="Serviço Mais Realizado"
+            value={mostRequestedService}
+            icon={TrendingUp}
+          />
+          <StatsCard
+            title="Preço Médio dos Serviços"
+            value={`R$ ${averagePrice.toFixed(2)}`}
+            icon={DollarSign}
+          />
+          <StatsCard
+            title="Serviços Ativos x Inativos"
+            value={`${activeServices} / ${inactiveServices}`}
+            icon={Activity}
+          />
         </div>
 
         {/* Main Content */}

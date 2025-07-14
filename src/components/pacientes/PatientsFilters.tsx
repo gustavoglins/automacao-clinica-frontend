@@ -84,9 +84,10 @@ export const PatientsFilters: React.FC<PatientsFiltersProps> = ({
             <Button
               onClick={onOpenAddPatient}
               className="flex items-center gap-2"
+              size="sm"
             >
               <Plus className="h-4 w-4" />
-              Adicionar Paciente
+              Novo Paciente
             </Button>
           )}
         </div>

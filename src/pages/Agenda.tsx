@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select } from "@/components/ui/select";
@@ -93,12 +94,36 @@ const Agenda = () => {
           </div>
         </div>
 
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <StatsCard
+            title="Consultas Hoje"
+            value={appointments.length}
+            icon={Calendar}
+          />
+          <StatsCard
+            title="Confirmadas"
+            value={appointments.filter(a => a.status === 'confirmada').length}
+            icon={CalendarCheck2}
+          />
+          <StatsCard
+            title="Pendentes"
+            value={appointments.filter(a => a.status === 'pendente').length}
+            icon={CalendarClock}
+          />
+          <StatsCard
+            title="Reagendadas"
+            value={appointments.filter(a => a.status === 'reagendada').length}
+            icon={CalendarSync}
+          />
+        </div>
+
         {/* Search and Filter Bar */}
-        <Card className="shadow-card">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-4 p-6 bg-card rounded-lg border shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar por paciente, serviço ou médico..."
                   className="pl-10"
@@ -116,8 +141,48 @@ const Agenda = () => {
                 Nova Consulta
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <span>Mostrando {filteredAppointments.length} de {appointments.length} consultas</span>
+              {(search || filterStatus || filterDoctor) && (
+                <>
+                  <Separator orientation="vertical" className="h-4" />
+                  <div className="flex items-center gap-2">
+                    <span>Filtros ativos:</span>
+                    {search && (
+                      <Badge variant="secondary">
+                        Busca: {search}
+                      </Badge>
+                    )}
+                    {filterStatus && (
+                      <Badge variant="secondary">
+                        Status: {filterStatus}
+                      </Badge>
+                    )}
+                    {filterDoctor && (
+                      <Badge variant="secondary">
+                        Médico: {filterDoctor}
+                      </Badge>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSearch("");
+                        setFilterStatus("");
+                        setFilterDoctor("");
+                      }}
+                      className="text-xs h-auto p-1"
+                    >
+                      Limpar
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
         {/* Dialog de Filtros */}
         <Dialog open={openFilterDialog} onOpenChange={setOpenFilterDialog}>
           <DialogContent className="max-w-sm w-full">
@@ -159,30 +224,6 @@ const Agenda = () => {
             </div>
           </DialogContent>
         </Dialog>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <StatsCard
-            title="Consultas Hoje"
-            value={appointments.length}
-            icon={Calendar}
-          />
-          <StatsCard
-            title="Confirmadas"
-            value={appointments.filter(a => a.status === 'confirmada').length}
-            icon={CalendarCheck2}
-          />
-          <StatsCard
-            title="Pendentes"
-            value={appointments.filter(a => a.status === 'pendente').length}
-            icon={CalendarClock}
-          />
-          <StatsCard
-            title="Reagendadas"
-            value={appointments.filter(a => a.status === 'reagendada').length}
-            icon={CalendarSync}
-          />
-        </div>
 
         {/* Today's Schedule */}
         <Card className="shadow-card">

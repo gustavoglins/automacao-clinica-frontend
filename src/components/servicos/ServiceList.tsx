@@ -33,14 +33,10 @@ const ServiceList: React.FC<ServiceListProps> = ({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Lista de Serviços</CardTitle>
-            <CardDescription>
-              {services.length} serviços encontrados
-            </CardDescription>
-          </div>
-        </div>
+        <CardTitle>Lista de Serviços</CardTitle>
+        <CardDescription>
+          {services.length} serviços registrados
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {services.length === 0 ? (

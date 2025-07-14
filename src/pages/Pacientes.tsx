@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useLocation } from "react-router-dom";
+import { toast } from "sonner";
 import {
   PatientsStats,
   PatientList,
   FilterDialog,
   AllPatientsDialog,
   PatientsFilters,
-  PatientProfileDialog
+  PatientProfileDialog,
+  AddPatientDialog
 } from "@/components/pacientes";
 import { Patient, PatientStatus } from "@/types/patient";
 import { searchPatients, filterPatientsByStatus } from "@/services/patientService";
@@ -18,12 +20,13 @@ const Pacientes = () => {
   const [filterStatus, setFilterStatus] = useState<PatientStatus>("");
   const [openAllPatientsDialog, setOpenAllPatientsDialog] = useState(false);
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
+  const [openAddPatientDialog, setOpenAddPatientDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const query = params.get("q") || search;
 
-  const patients: Patient[] = [
+  const [patients, setPatients] = useState<Patient[]>([
     {
       id: 1,
       name: "Maria Silva",
@@ -255,7 +258,7 @@ const Pacientes = () => {
       status: "ativo",
       plan: "Particular"
     }
-  ];
+  ]);
 
   // Aplicar filtros
   const searchFiltered = searchPatients(patients, query);
@@ -278,15 +281,26 @@ const Pacientes = () => {
     setOpenProfileDialog(true);
   };
 
+  const handleAddPatient = () => {
+    setOpenAddPatientDialog(true);
+  };
+
+  const handleSavePatient = (newPatient: Omit<Patient, "id">) => {
+    const patient: Patient = {
+      ...newPatient,
+      id: Math.max(...patients.map(p => p.id)) + 1
+    };
+    setPatients(prev => [...prev, patient]);
+    toast.success(`Paciente ${patient.name} adicionado com sucesso!`);
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Pacientes</h1>
-            <p className="text-muted-foreground">Gerencie o cadastro e histórico dos pacientes</p>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Pacientes</h1>
+          <p className="text-muted-foreground">Gerencie o cadastro e histórico dos pacientes</p>
         </div>
 
         {/* Stats Cards */}
@@ -299,6 +313,7 @@ const Pacientes = () => {
           filterStatus={filterStatus}
           onFilterStatusChange={setFilterStatus}
           onOpenFilters={() => setOpenFilterDialog(true)}
+          onOpenAddPatient={handleAddPatient}
           filteredPatientsCount={filteredPatients.length}
           totalPatientsCount={patients.length}
         />
@@ -338,6 +353,13 @@ const Pacientes = () => {
           onSchedule={handleSchedule}
           onEdit={handleEdit}
           onViewRecord={handleViewRecord}
+        />
+
+        {/* Add Patient Dialog */}
+        <AddPatientDialog
+          open={openAddPatientDialog}
+          onOpenChange={setOpenAddPatientDialog}
+          onAddPatient={handleSavePatient}
         />
       </div>
     </AppLayout>
