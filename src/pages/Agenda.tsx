@@ -16,14 +16,17 @@ import {
   DropdownMenuItem
 } from "@/components/ui/dropdown-menu";
 import { getAppointmentStatusBadge } from "@/lib/badgeUtils";
+import { AddAppointmentDialog } from "@/components/agenda";
+import { toast } from "sonner";
 
 const Agenda = () => {
   const [search, setSearch] = useState("");
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
+  const [openAddAppointmentDialog, setOpenAddAppointmentDialog] = useState(false);
   const [filterStatus, setFilterStatus] = useState("");
   const [filterDoctor, setFilterDoctor] = useState("");
 
-  const appointments = [
+  const [appointments, setAppointments] = useState([
     {
       id: 1,
       time: "09:00",
@@ -60,7 +63,7 @@ const Agenda = () => {
       status: "reagendada",
       duration: "1h30min"
     }
-  ];
+  ]);
 
   // Lista de médicos únicos
   const doctors = Array.from(new Set(appointments.map(a => a.doctor)));
@@ -82,6 +85,27 @@ const Agenda = () => {
     ...['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(() => Math.floor(Math.random() * 8) + 2)
   ];
   const totalWeekAppointments = weekTotals.reduce((acc, cur) => acc + cur, 0);
+
+  // Função para adicionar nova consulta
+  const handleAddAppointment = (newAppointment: {
+    patient: string;
+    phone: string;
+    service: string;
+    doctor: string;
+    date: Date;
+    time: string;
+    duration: string;
+    notes?: string;
+    status: string;
+  }) => {
+    const appointment = {
+      ...newAppointment,
+      id: Math.max(...appointments.map(a => a.id)) + 1,
+    };
+    setAppointments(prev => [...prev, appointment]);
+    setOpenAddAppointmentDialog(false);
+    toast.success(`Consulta agendada para ${appointment.patient} em ${appointment.date.toLocaleDateString('pt-BR')} às ${appointment.time}`);
+  };
 
   return (
     <AppLayout>
@@ -136,7 +160,7 @@ const Agenda = () => {
                 <Filter className="w-4 h-4" />
                 Filtros
               </Button>
-              <Button variant="primary" size="sm" className="gap-2">
+              <Button variant="primary" size="sm" className="gap-2" onClick={() => setOpenAddAppointmentDialog(true)}>
                 <Plus className="w-4 h-4" />
                 Nova Consulta
               </Button>
@@ -319,6 +343,13 @@ const Agenda = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Dialogs */}
+      <AddAppointmentDialog
+        open={openAddAppointmentDialog}
+        onOpenChange={setOpenAddAppointmentDialog}
+        onAddAppointment={handleAddAppointment}
+      />
     </AppLayout>
   );
 };

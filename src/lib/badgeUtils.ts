@@ -39,19 +39,28 @@ export const getEmployeeStatusBadge = (status: string): { variant: BadgeVariant;
 export const getAppointmentStatusBadge = (status: string): { variant: BadgeVariant; className?: string } => {
   switch (status.toLowerCase()) {
     case 'agendado':
-      return { variant: 'info' };
+    case 'agendada':
+      return { variant: 'info', className: 'bg-blue-100 text-blue-700 border-transparent' };
     case 'confirmado':
-      return { variant: 'success' };
+    case 'confirmada':
+      return { variant: 'success', className: 'bg-green-100 text-green-700 border-transparent' };
+    case 'pendente':
+      return { variant: 'warning', className: 'bg-yellow-100 text-yellow-700 border-transparent' };
+    case 'reagendado':
+    case 'reagendada':
+      return { variant: 'outline', className: 'bg-orange-100 text-orange-700 border-transparent' };
     case 'cancelado':
-      return { variant: 'destructive' };
+    case 'cancelada':
+      return { variant: 'destructive', className: 'bg-red-100 text-red-700 border-transparent' };
     case 'em_andamento':
-      return { variant: 'warning' };
+      return { variant: 'outline', className: 'bg-purple-100 text-purple-700 border-transparent' };
     case 'concluido':
-      return { variant: 'success' };
+    case 'concluida':
+      return { variant: 'success', className: 'bg-green-100 text-green-700 border-transparent' };
     case 'faltou':
-      return { variant: 'muted' };
+      return { variant: 'muted', className: 'bg-gray-100 text-gray-700 border-transparent' };
     default:
-      return { variant: 'outline' };
+      return { variant: 'outline', className: 'bg-gray-100 text-gray-700 border-transparent' };
   }
 };
 
