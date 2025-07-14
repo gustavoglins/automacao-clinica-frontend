@@ -19,7 +19,6 @@ import {
 import { employeeService } from "@/services/employeeService";
 import { toast } from "sonner";
 import { applyPhoneMask, onlyNumbers, isValidPhone, getPhoneInfo } from "@/lib/utils";
-import { RequiredFieldsNote } from "@/components/ui/required-fields-note";
 
 interface AddEmployeeDialogProps {
   isOpen: boolean;
@@ -133,14 +132,19 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Adicionar Funcionário</DialogTitle>
-          <RequiredFieldsNote />
+          <DialogTitle className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Novo Funcionário
+          </DialogTitle>
+          <p className="text-sm text-muted-foreground">Preencha as informações do novo funcionário da clínica</p>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nome Completo <span className="text-primary">*</span></Label>
+              <Label htmlFor="name">Nome Completo <span className="text-red-500">*</span></Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -150,7 +154,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="role">Cargo <span className="text-primary">*</span></Label>
+              <Label htmlFor="role">Cargo <span className="text-red-500">*</span></Label>
               <Select value={formData.role} onValueChange={(value) => handleChange("role", value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o cargo" />
@@ -189,7 +193,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="hireDate">Data de Contratação <span className="text-primary">*</span></Label>
+              <Label htmlFor="hireDate">Data de Contratação <span className="text-red-500">*</span></Label>
               <Input
                 id="hireDate"
                 type="date"
@@ -202,7 +206,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="phone">Telefone <span className="text-primary">*</span></Label>
+              <Label htmlFor="phone">Telefone <span className="text-red-500">*</span></Label>
               <Input
                 id="phone"
                 value={formData.phone}
@@ -213,7 +217,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email <span className="text-primary">*</span></Label>
+              <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
               <Input
                 id="email"
                 type="email"
@@ -290,7 +294,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
             <h3 className="text-lg font-medium">Horários de Trabalho</h3>
 
             <div className="space-y-2">
-              <Label>Dias de Trabalho <span className="text-primary">*</span></Label>
+              <Label>Dias de Trabalho <span className="text-red-500">*</span></Label>
               <div className="flex flex-wrap gap-2">
                 {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(day => {
                   const selected = formData.workDays.includes(day);
@@ -318,7 +322,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="startHour">Hora de Entrada <span className="text-primary">*</span></Label>
+                <Label htmlFor="startHour">Hora de Entrada <span className="text-red-500">*</span></Label>
                 <Input
                   id="startHour"
                   type="time"
@@ -329,7 +333,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="endHour">Hora de Saída <span className="text-primary">*</span></Label>
+                <Label htmlFor="endHour">Hora de Saída <span className="text-red-500">*</span></Label>
                 <Input
                   id="endHour"
                   type="time"
@@ -346,7 +350,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
               Cancelar
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Adicionando..." : "Adicionar Funcionário"}
+              {isLoading ? "Cadastrando..." : "Cadastrar Funcionário"}
             </Button>
           </div>
         </form>
