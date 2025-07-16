@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -29,6 +30,8 @@ import {
   FileText,
   Check,
   X,
+  Phone,
+  CalendarPlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -156,7 +159,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3">
           <DialogTitle className="flex items-center gap-2 text-xl">
-            <CalendarIcon className="w-5 h-5 text-primary" />
+            <CalendarPlus className="w-5 h-5 text-primary" />
             Nova Consulta
           </DialogTitle>
           <DialogDescription>
@@ -166,167 +169,178 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-6">
           {/* Informações do Paciente */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-3">
-              <User className="w-4 h-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Informações do Paciente</h3>
-            </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <User className="w-5 h-5 text-primary" />
+                Informações do Paciente
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="patient">Nome do Paciente *</Label>
+                  <Input
+                    id="patient"
+                    placeholder="Digite o nome completo"
+                    value={formData.patient}
+                    onChange={(e) => setFormData({ ...formData, patient: e.target.value })}
+                    required
+                  />
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="patient">Nome do Paciente *</Label>
-                <Input
-                  id="patient"
-                  placeholder="Digite o nome completo"
-                  value={formData.patient}
-                  onChange={(e) => setFormData({ ...formData, patient: e.target.value })}
-                  required
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Telefone *</Label>
+                  <Input
+                    id="phone"
+                    placeholder="(11) 99999-9999"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    required
+                  />
+                </div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone *</Label>
-                <Input
-                  id="phone"
-                  placeholder="(11) 99999-9999"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
+            </CardContent>
+          </Card>
           {/* Informações da Consulta */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Stethoscope className="w-4 h-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Detalhes da Consulta</h3>
-            </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Stethoscope className="w-5 h-5 text-primary" />
+                Detalhes da Consulta
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="service">Serviço *</Label>
+                  <Select value={formData.service} onValueChange={(value) => setFormData({ ...formData, service: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o serviço" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {services.map((service) => (
+                        <SelectItem key={service} value={service}>
+                          {service}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="service">Serviço *</Label>
-                <Select value={formData.service} onValueChange={(value) => setFormData({ ...formData, service: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o serviço" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {services.map((service) => (
-                      <SelectItem key={service} value={service}>
-                        {service}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="space-y-2">
+                  <Label htmlFor="doctor">Profissional *</Label>
+                  <Select value={formData.doctor} onValueChange={(value) => setFormData({ ...formData, doctor: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o profissional" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {doctors.map((doctor) => (
+                        <SelectItem key={doctor} value={doctor}>
+                          {doctor}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="doctor">Profissional *</Label>
-                <Select value={formData.doctor} onValueChange={(value) => setFormData({ ...formData, doctor: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o profissional" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {doctors.map((doctor) => (
-                      <SelectItem key={doctor} value={doctor}>
-                        {doctor}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Data e Horário */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Clock className="w-4 h-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Data e Horário</h3>
-            </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Clock className="w-5 h-5 text-primary" />
+                Data e Horário
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Data da Consulta *</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !formData.date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.date ? format(formData.date, "dd/MM/yyyy", { locale: ptBR }) : "Selecione a data"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={formData.date}
+                        onSelect={(date) => setFormData({ ...formData, date })}
+                        disabled={(date) => date < new Date()}
+                        initialFocus
+                        locale={ptBR}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Data da Consulta *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !formData.date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.date ? format(formData.date, "dd/MM/yyyy", { locale: ptBR }) : "Selecione a data"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={formData.date}
-                      onSelect={(date) => setFormData({ ...formData, date })}
-                      disabled={(date) => date < new Date()}
-                      initialFocus
-                      locale={ptBR}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="time">Horário *</Label>
+                  <Select value={formData.time} onValueChange={(value) => setFormData({ ...formData, time: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o horário" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timeSlots.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="time">Horário *</Label>
-                <Select value={formData.time} onValueChange={(value) => setFormData({ ...formData, time: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o horário" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {timeSlots.map((time) => (
-                      <SelectItem key={time} value={time}>
-                        {time}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="space-y-2">
+                  <Label htmlFor="duration">Duração *</Label>
+                  <Select value={formData.duration} onValueChange={(value) => setFormData({ ...formData, duration: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Duração" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {durations.map((duration) => (
+                        <SelectItem key={duration.value} value={duration.value}>
+                          {duration.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="duration">Duração *</Label>
-                <Select value={formData.duration} onValueChange={(value) => setFormData({ ...formData, duration: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Duração" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {durations.map((duration) => (
-                      <SelectItem key={duration.value} value={duration.value}>
-                        {duration.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Observações */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-3">
-              <FileText className="w-4 h-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Observações</h3>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="notes">Observações Adicionais</Label>
-              <Textarea
-                id="notes"
-                placeholder="Digite qualquer observação importante..."
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                rows={3}
-              />
-            </div>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <FileText className="w-5 h-5 text-primary" />
+                Observações
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Label htmlFor="notes">Observações Adicionais</Label>
+                <Textarea
+                  id="notes"
+                  placeholder="Digite qualquer observação importante..."
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  rows={3}
+                />
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Botões */}
           <div className="flex items-center justify-end gap-3 pt-6 border-t">

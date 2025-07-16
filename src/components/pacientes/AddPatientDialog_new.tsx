@@ -115,7 +115,7 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3">
           <DialogTitle className="flex items-center gap-2 text-xl">
-            <UserPlus className="w-5 h-5 text-primary" />
+            <UserPlus className="w-5 h-5" />
             Novo Paciente
           </DialogTitle>
           <DialogDescription>
@@ -128,7 +128,7 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <UserPlus className="w-5 h-5 text-primary" />
+                <UserPlus className="w-5 h-5" />
                 Informações Pessoais
               </CardTitle>
             </CardHeader>
@@ -163,7 +163,7 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Phone className="w-5 h-5 text-primary" />
+                <Phone className="w-5 h-5" />
                 Informações de Contato
               </CardTitle>
             </CardHeader>
@@ -198,7 +198,7 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <CreditCard className="w-5 h-5 text-primary" />
+                <CreditCard className="w-5 h-5" />
                 Plano de Saúde
               </CardTitle>
             </CardHeader>
@@ -225,7 +225,7 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <FileText className="w-5 h-5 text-primary" />
+                <FileText className="w-5 h-5" />
                 Observações
               </CardTitle>
             </CardHeader>
