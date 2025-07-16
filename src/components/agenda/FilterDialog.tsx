@@ -17,69 +17,67 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Filter, Stethoscope, DollarSign, Clock, Activity } from "lucide-react";
+import { Filter, Calendar, User, Clock, Activity } from "lucide-react";
 
 interface FilterDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onApplyFilters: (filters: {
-    dateRange: { start: Date | null; end: Date | null };
-    category: string;
     status: string;
-    priceRange: string;
-    duration: string;
+    doctor: string;
+    timeRange: string;
+    service: string;
   }) => void;
+  doctors: string[];
 }
 
-const serviceCategories = [
-  { value: "preventivo", label: "Preventivo" },
-  { value: "restaurador", label: "Restaurador" },
+const appointmentStatuses = [
+  { value: "confirmada", label: "Confirmada" },
+  { value: "pendente", label: "Pendente" },
+  { value: "reagendada", label: "Reagendada" },
+  { value: "cancelada", label: "Cancelada" },
+  { value: "concluida", label: "Concluída" }
+];
+
+const timeRanges = [
+  { value: "manha", label: "Manhã (6h - 12h)" },
+  { value: "tarde", label: "Tarde (12h - 18h)" },
+  { value: "noite", label: "Noite (18h - 22h)" }
+];
+
+const serviceTypes = [
+  { value: "limpeza", label: "Limpeza" },
+  { value: "avaliacao", label: "Avaliação" },
+  { value: "restauracao", label: "Restauração" },
   { value: "ortodontia", label: "Ortodontia" },
   { value: "cirurgia", label: "Cirurgia" },
-  { value: "estetico", label: "Estético" },
   { value: "emergencia", label: "Emergência" }
-];
-
-const priceRanges = [
-  { value: "0-100", label: "Até R$ 100" },
-  { value: "100-300", label: "R$ 100 - R$ 300" },
-  { value: "300-500", label: "R$ 300 - R$ 500" },
-  { value: "500-1000", label: "R$ 500 - R$ 1.000" },
-  { value: "1000+", label: "Acima de R$ 1.000" }
-];
-
-const durationRanges = [
-  { value: "0-30", label: "Até 30 min" },
-  { value: "30-60", label: "30 - 60 min" },
-  { value: "60-90", label: "1h - 1h30" },
-  { value: "90-120", label: "1h30 - 2h" },
-  { value: "120+", label: "Mais de 2h" }
 ];
 
 const FilterDialog: React.FC<FilterDialogProps> = ({
   isOpen,
   onClose,
-  onApplyFilters
+  onApplyFilters,
+  doctors
 }) => {
-  const [category, setCategory] = useState("all");
   const [status, setStatus] = useState("all");
-  const [priceRange, setPriceRange] = useState("all");
-  const [duration, setDuration] = useState("all");
+  const [doctor, setDoctor] = useState("all");
+  const [timeRange, setTimeRange] = useState("all");
+  const [service, setService] = useState("all");
 
   const handleReset = () => {
-    setCategory("all");
     setStatus("all");
-    setPriceRange("all");
-    setDuration("all");
+    setDoctor("all");
+    setTimeRange("all");
+    setService("all");
   };
 
   const handleApply = () => {
     onApplyFilters({
-      dateRange: { start: null, end: null },
-      category: category === "all" ? "" : category,
       status: status === "all" ? "" : status,
-      priceRange: priceRange === "all" ? "" : priceRange,
-      duration: duration === "all" ? "" : duration
+      doctor: doctor === "all" ? "" : doctor,
+      timeRange: timeRange === "all" ? "" : timeRange,
+      service: service === "all" ? "" : service
     });
     onClose();
   };
@@ -93,48 +91,50 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
             Filtros Avançados
           </DialogTitle>
           <DialogDescription>
-            Configure filtros avançados para refinar sua busca por serviços
+            Configure filtros avançados para refinar sua busca na agenda
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 mt-6">
-          {/* Categoria e Status */}
+          {/* Status e Profissional */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Stethoscope className="h-5 w-5" />
-                Categoria e Status
+                <Activity className="h-5 w-5" />
+                Status e Profissional
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Categoria</Label>
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todas as categorias" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todas as categorias</SelectItem>
-                      {serviceCategories.map(cat => (
-                        <SelectItem key={cat.value} value={cat.value}>
-                          {cat.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Status</Label>
+                  <Label>Status da Consulta</Label>
                   <Select value={status} onValueChange={setStatus}>
                     <SelectTrigger>
                       <SelectValue placeholder="Todos os status" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todos os status</SelectItem>
-                      <SelectItem value="ativo">Ativo</SelectItem>
-                      <SelectItem value="inativo">Inativo</SelectItem>
-                      <SelectItem value="em_manutencao">Em Manutenção</SelectItem>
+                      {appointmentStatuses.map(stat => (
+                        <SelectItem key={stat.value} value={stat.value}>
+                          {stat.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Profissional</Label>
+                  <Select value={doctor} onValueChange={setDoctor}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Todos os profissionais" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos os profissionais</SelectItem>
+                      {doctors.map(doc => (
+                        <SelectItem key={doc} value={doc}>
+                          {doc}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -142,25 +142,25 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
             </CardContent>
           </Card>
 
-          {/* Preço e Duração */}
+          {/* Horário e Tipo de Serviço */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <DollarSign className="h-5 w-5" />
-                Preço e Duração
+                <Clock className="h-5 w-5" />
+                Horário e Tipo de Serviço
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Faixa de Preço</Label>
-                  <Select value={priceRange} onValueChange={setPriceRange}>
+                  <Label>Período do Dia</Label>
+                  <Select value={timeRange} onValueChange={setTimeRange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Todas as faixas" />
+                      <SelectValue placeholder="Todos os períodos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todas as faixas</SelectItem>
-                      {priceRanges.map(range => (
+                      <SelectItem value="all">Todos os períodos</SelectItem>
+                      {timeRanges.map(range => (
                         <SelectItem key={range.value} value={range.value}>
                           {range.label}
                         </SelectItem>
@@ -169,16 +169,16 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Duração do Serviço</Label>
-                  <Select value={duration} onValueChange={setDuration}>
+                  <Label>Tipo de Serviço</Label>
+                  <Select value={service} onValueChange={setService}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Todas as durações" />
+                      <SelectValue placeholder="Todos os serviços" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todas as durações</SelectItem>
-                      {durationRanges.map(range => (
-                        <SelectItem key={range.value} value={range.value}>
-                          {range.label}
+                      <SelectItem value="all">Todos os serviços</SelectItem>
+                      {serviceTypes.map(serv => (
+                        <SelectItem key={serv.value} value={serv.value}>
+                          {serv.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

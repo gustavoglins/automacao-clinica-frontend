@@ -16,7 +16,7 @@ import {
   DropdownMenuItem
 } from "@/components/ui/dropdown-menu";
 import { getAppointmentStatusBadge } from "@/lib/badgeUtils";
-import { AddAppointmentDialog } from "@/components/agenda";
+import { AddAppointmentDialog, FilterDialog } from "@/components/agenda";
 import { toast } from "sonner";
 
 const Agenda = () => {
@@ -25,6 +25,8 @@ const Agenda = () => {
   const [openAddAppointmentDialog, setOpenAddAppointmentDialog] = useState(false);
   const [filterStatus, setFilterStatus] = useState("");
   const [filterDoctor, setFilterDoctor] = useState("");
+  const [filterTimeRange, setFilterTimeRange] = useState("");
+  const [filterService, setFilterService] = useState("");
 
   const [appointments, setAppointments] = useState([
     {
@@ -196,6 +198,8 @@ const Agenda = () => {
                         setSearch("");
                         setFilterStatus("");
                         setFilterDoctor("");
+                        setFilterTimeRange("");
+                        setFilterService("");
                       }}
                       className="text-xs h-auto p-1"
                     >
@@ -208,46 +212,17 @@ const Agenda = () => {
           </div>
         </div>
         {/* Dialog de Filtros */}
-        <Dialog open={openFilterDialog} onOpenChange={setOpenFilterDialog}>
-          <DialogContent className="max-w-sm w-full">
-            <DialogHeader>
-              <DialogTitle>Filtros</DialogTitle>
-              <DialogDescription>Filtre as consultas por status ou médico</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 mt-2">
-              <div>
-                <label className="block text-sm font-medium mb-1">Status</label>
-                <select
-                  className="w-full border rounded px-3 py-2"
-                  value={filterStatus}
-                  onChange={e => setFilterStatus(e.target.value)}
-                >
-                  <option value="">Todos</option>
-                  <option value="confirmada">Confirmada</option>
-                  <option value="pendente">Pendente</option>
-                  <option value="reagendada">Reagendada</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Médico</label>
-                <select
-                  className="w-full border rounded px-3 py-2"
-                  value={filterDoctor}
-                  onChange={e => setFilterDoctor(e.target.value)}
-                >
-                  <option value="">Todos</option>
-                  {doctors.map(doctor => (
-                    <option key={doctor} value={doctor}>{doctor}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex gap-2 justify-end">
-                <Button size="sm" variant="outline" onClick={() => { setFilterStatus(""); setFilterDoctor(""); }}>Limpar</Button>
-                <Button size="sm" variant="classic" onClick={() => setOpenFilterDialog(false)}>Aplicar Filtros</Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <FilterDialog
+          isOpen={openFilterDialog}
+          onClose={() => setOpenFilterDialog(false)}
+          onApplyFilters={(filters) => {
+            setFilterStatus(filters.status);
+            setFilterDoctor(filters.doctor);
+            setFilterTimeRange(filters.timeRange);
+            setFilterService(filters.service);
+          }}
+          doctors={doctors}
+        />
 
         {/* Today's Schedule */}
         <Card className="shadow-card">

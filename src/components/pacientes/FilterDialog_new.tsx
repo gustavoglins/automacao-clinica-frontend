@@ -88,8 +88,8 @@ export const FilterDialog = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Status</Label>
-                  <Select 
-                    value={filterStatus || "all"} 
+                  <Select
+                    value={filterStatus || "all"}
                     onValueChange={(value) => onFilterStatusChange(value === "all" ? "" : value as PatientStatus)}
                   >
                     <SelectTrigger>
