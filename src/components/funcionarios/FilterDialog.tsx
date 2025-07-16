@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -17,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, User, MapPin, TrendingUp } from "lucide-react";
+import { Calendar, User, MapPin, TrendingUp, Filter } from "lucide-react";
 
 interface FilterState {
   dateRange: {
@@ -75,11 +76,17 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Filtros Avançados</DialogTitle>
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="flex items-center gap-2 text-xl">
+            <Filter className="w-5 h-5" />
+            Filtros Avançados
+          </DialogTitle>
+          <DialogDescription>
+            Configure filtros avançados para refinar sua busca por funcionários
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 mt-6">
           {/* Data de Admissão */}
           <Card>
             <CardHeader>
