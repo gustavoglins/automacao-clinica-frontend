@@ -101,7 +101,7 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
     <>
       <header className="h-16 bg-white/95 backdrop-blur-md border-b border-gray-200/50 flex items-center justify-between px-6 shadow-sm sticky top-0 z-50">
         <div className="flex items-center gap-4">
-          <div className="relative w-80">
+          <div className="relative w-[500px]">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               ref={inputRef}
