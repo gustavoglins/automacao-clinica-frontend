@@ -71,7 +71,7 @@ const ServiceFormDialog: React.FC<ServiceFormDialogProps> = ({
   onSubmit,
   onCancel,
   loading = false,
-  submitLabel = "Salvar"
+  submitLabel = "Cadastrar Serviço"
 }) => {
   const updateFormData = (field: keyof ServiceFormData, value: string | boolean) => {
     onFormDataChange({

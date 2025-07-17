@@ -10,7 +10,6 @@ import {
   EmployeeStats,
   Filters,
   EmployeeList,
-  ProfileDialog,
   EmployeeProfileDialog,
   EditEmployeeDialog,
   DeleteEmployeeDialog,
@@ -51,7 +50,6 @@ function Funcionarios() {
 
   // Dialog states
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const [modernProfileDialogOpen, setModernProfileDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -119,14 +117,12 @@ function Funcionarios() {
   const handleOpenEdit = (employee: Employee) => {
     setSelectedEmployee(employee);
     setEditDialogOpen(true);
-    setProfileDialogOpen(false);
     setModernProfileDialogOpen(false);
   };
 
   const handleOpenDelete = (employee: Employee) => {
     setSelectedEmployee(employee);
     setDeleteDialogOpen(true);
-    setProfileDialogOpen(false);
     setModernProfileDialogOpen(false);
   };
 
@@ -251,14 +247,6 @@ function Funcionarios() {
         </div>
 
         {/* Dialogs */}
-        <ProfileDialog
-          employee={selectedEmployee}
-          isOpen={profileDialogOpen}
-          onClose={() => setProfileDialogOpen(false)}
-          onOpenEdit={handleOpenEdit}
-          onOpenDelete={handleOpenDelete}
-        />
-
         <EditEmployeeDialog
           employee={selectedEmployee}
           isOpen={editDialogOpen}
