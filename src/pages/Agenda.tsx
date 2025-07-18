@@ -352,92 +352,6 @@ const Agenda = () => {
           </div>
         </div>
 
-        {/* Controles de navegação e visualização */}
-        <div className="flex flex-col gap-4 p-6 bg-card rounded-lg border shadow-sm">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            {/* Seletor de modo de visualização - Esquerda */}
-            <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
-              <Button
-                variant={viewMode === 'day' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('day')}
-                className="flex items-center gap-2 h-9 px-4 rounded-lg transition-all"
-              >
-                <CalendarIcon className="w-4 h-4" />
-                Dia
-              </Button>
-              <Button
-                variant={viewMode === 'week' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('week')}
-                className="flex items-center gap-2 h-9 px-4 rounded-lg transition-all"
-              >
-                <CalendarDays className="w-4 h-4" />
-                Semana
-              </Button>
-              <Button
-                variant={viewMode === 'month' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('month')}
-                className="flex items-center gap-2 h-9 px-4 rounded-lg transition-all"
-              >
-                <CalendarRange className="w-4 h-4" />
-                Mês
-              </Button>
-            </div>
-
-            {/* Navegação de data - Direita */}
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigateDate('prev')}
-                className="h-9 w-9 p-0 rounded-full hover:scale-105 transition-all"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-
-              <div className={`text-center min-w-[280px] px-4 py-2 rounded-lg border transition-all ${(viewMode === 'day' && isToday(selectedDate)) ||
-                (viewMode === 'week' && getWeekDates(selectedDate).some(date => isToday(date))) ||
-                (viewMode === 'month' && selectedDate.getMonth() === new Date().getMonth() && selectedDate.getFullYear() === new Date().getFullYear())
-                ? 'border-primary/50 shadow-sm'
-                : ''
-                }`}>
-                <p className="font-semibold text-foreground">
-                  {viewMode === 'day' && selectedDate.toLocaleDateString('pt-BR', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                  {viewMode === 'week' && `Semana de ${getWeekDates(selectedDate)[0].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} a ${getWeekDates(selectedDate)[6].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}`}
-                  {viewMode === 'month' && selectedDate.toLocaleDateString('pt-BR', {
-                    month: 'long',
-                    year: 'numeric'
-                  })}
-                </p>
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigateDate('next')}
-                className="h-9 w-9 p-0 rounded-full hover:scale-105 transition-all"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-
-              <Button
-                variant="classic"
-                size="sm"
-                onClick={() => setSelectedDate(new Date())}
-                className="h-9 px-4"
-              >
-                Hoje
-              </Button>
-            </div>
-          </div>
-        </div>
         {/* Dialog de Filtros */}
         <FilterDialog
           isOpen={openFilterDialog}
@@ -451,126 +365,235 @@ const Agenda = () => {
           doctors={doctors}
         />
 
-        {/* Schedule View */}
-        <Card className="shadow-card">
-          <CardHeader>
-            <div className="flex items-center justify-between w-full">
-              <CardTitle className="flex items-center gap-2 m-0 p-0">
-                <Calendar className="w-5 h-5 text-primary" />
-                {viewMode === 'day' && (
-                  isToday(selectedDate)
-                    ? `Hoje - ${selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`
-                    : selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-                )}
-                {viewMode === 'week' && `Consultas da Semana`}
-                {viewMode === 'month' && `Consultas do Mês - ${selectedDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`}
-              </CardTitle>
-            </div>
-            <CardDescription>
-              {filteredAppointments.length} consulta{filteredAppointments.length !== 1 ? 's' : ''}
-              {viewMode === 'day' && ' agendada' + (filteredAppointments.length !== 1 ? 's' : '')}
-              {viewMode === 'week' && ' na semana'}
-              {viewMode === 'month' && ' no mês'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {filteredAppointments.length === 0 ? (
-              <div className="text-center py-12">
-                <CalendarIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-muted-foreground mb-2">
-                  Nenhuma consulta encontrada
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {viewMode === 'day' && 'Não há consultas agendadas para este dia.'}
-                  {viewMode === 'week' && 'Não há consultas agendadas para esta semana.'}
-                  {viewMode === 'month' && 'Não há consultas agendadas para este mês.'}
-                </p>
-              </div>
-            ) : (
-              filteredAppointments.map((appointment) => (
-                <div key={appointment.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full">
-                      <Clock className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-foreground">{appointment.patient}</h3>
-                        <Badge
-                          variant={getAppointmentStatusBadge(appointment.status).variant}
-                          className={getAppointmentStatusBadge(appointment.status).className}
-                        >
-                          {appointment.status}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{appointment.service}</p>
-                      <p className="text-xs text-muted-foreground">com {appointment.doctor}</p>
-                      {viewMode !== 'day' && (
-                        <p className="text-xs text-muted-foreground font-medium">
-                          {new Date(appointment.date + 'T00:00:00').toLocaleDateString('pt-BR', {
-                            weekday: 'short',
-                            day: '2-digit',
-                            month: '2-digit'
-                          })}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-right space-y-1">
-                    <p className="text-lg font-bold text-primary">{appointment.time}</p>
-                    <p className="text-sm text-muted-foreground">{appointment.duration}</p>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="primary">
-                        Confirmar
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button size="sm" variant="classic" className="px-2"><span className="sr-only">Mais opções</span><MoreVertical className="w-4 h-4" /></Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => {/* ação de editar */ }}>
-                            <Edit className="w-4 h-4 mr-2 text-muted-foreground" /> Editar
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
+        {/* Schedule View com Mini Calendário */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Card Principal de Consultas */}
+          <div className="lg:col-span-2">
+            <Card className="shadow-card">
+              <CardHeader>
+                <div className="flex items-center justify-between w-full">
+                  <CardTitle className="flex items-center gap-2 m-0 p-0">
+                    <Calendar className="w-5 h-5 text-primary" />
+                    {viewMode === 'day' && (
+                      isToday(selectedDate)
+                        ? `Hoje - ${selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`
+                        : selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                    )}
+                    {viewMode === 'week' && `Consultas da Semana`}
+                    {viewMode === 'month' && `Consultas do Mês - ${selectedDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`}
+                  </CardTitle>
                 </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Weekly View Preview */}
-        <Card className="shadow-card">
-          <CardHeader>
-            <div className="flex items-center justify-between w-full">
-              <div>
-                <CardTitle>Visão Semanal</CardTitle>
                 <CardDescription>
-                  Resumo da próxima semana
+                  {filteredAppointments.length} consulta{filteredAppointments.length !== 1 ? 's' : ''}
+                  {viewMode === 'day' && ' agendada' + (filteredAppointments.length !== 1 ? 's' : '')}
+                  {viewMode === 'week' && ' na semana'}
+                  {viewMode === 'month' && ' no mês'}
                 </CardDescription>
-              </div>
-              <div className="flex flex-col items-end">
-                <span className="text-xs text-muted-foreground">Total de Consultas na Semana</span>
-                <span className="text-2xl font-bold text-primary">{totalWeekAppointments}</span>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-7 gap-4">
-              {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((day, index) => (
-                <div key={day} className="text-center">
-                  <p className="text-sm font-medium text-muted-foreground mb-2">{day}</p>
-                  <div className="bg-card rounded-lg p-3">
-                    <p className="text-lg font-bold text-foreground">{index + 15}</p>
-                    <p className="text-sm text-primary">{weekTotals[index]} consultas</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {filteredAppointments.length === 0 ? (
+                  <div className="text-center py-12">
+                    <CalendarIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-muted-foreground mb-2">
+                      Nenhuma consulta encontrada
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {viewMode === 'day' && 'Não há consultas agendadas para este dia.'}
+                      {viewMode === 'week' && 'Não há consultas agendadas para esta semana.'}
+                      {viewMode === 'month' && 'Não há consultas agendadas para este mês.'}
+                    </p>
+                  </div>
+                ) : (
+                  filteredAppointments.map((appointment) => (
+                    <div key={appointment.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
+                          <Clock className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-gray-900">{appointment.patient}</h3>
+                            <Badge
+                              variant={getAppointmentStatusBadge(appointment.status).variant}
+                              className={getAppointmentStatusBadge(appointment.status).className}
+                            >
+                              {appointment.status}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <span>{appointment.time}</span>
+                            <span>•</span>
+                            <span>{appointment.duration}</span>
+                            <span>•</span>
+                            <span>{appointment.service}</span>
+                            <span>•</span>
+                            <span>com {appointment.doctor}</span>
+                          </div>
+                          {viewMode !== 'day' && (
+                            <p className="text-xs text-gray-500 font-medium">
+                              {new Date(appointment.date + 'T00:00:00').toLocaleDateString('pt-BR', {
+                                weekday: 'short',
+                                day: '2-digit',
+                                month: '2-digit'
+                              })}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="primary">
+                          Confirmar
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="classic" className="px-2">
+                              <span className="sr-only">Mais opções</span>
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => {/* ação de editar */ }}>
+                              <Edit className="w-4 h-4 mr-2 text-muted-foreground" /> Editar
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Mini Calendário */}
+          <div className="lg:col-span-1">
+            <Card className="shadow-card">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <CalendarIcon className="w-5 h-5 text-primary" />
+                      Calendário
+                    </CardTitle>
+                    <CardDescription>
+                      {selectedDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+                    <Button
+                      variant={viewMode === 'day' ? 'default' : 'ghost'}
+                      size="xs"
+                      onClick={() => setViewMode('day')}
+                      className="flex items-center gap-1 rounded-lg transition-all"
+                    >
+                      Dia
+                    </Button>
+                    <Button
+                      variant={viewMode === 'week' ? 'default' : 'ghost'}
+                      size="xs"
+                      onClick={() => setViewMode('week')}
+                      className="flex items-center gap-1 rounded-lg transition-all"
+                    >
+                      Semana
+                    </Button>
+                    <Button
+                      variant={viewMode === 'month' ? 'default' : 'ghost'}
+                      size="xs"
+                      onClick={() => setViewMode('month')}
+                      className="flex items-center gap-1 rounded-lg transition-all"
+                    >
+                      Mês
+                    </Button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-7 gap-1 text-sm">
+                  {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((day, index) => (
+                    <div key={index} className="text-center text-muted-foreground font-semibold p-2">
+                      {day}
+                    </div>
+                  ))}
+                  {(() => {
+                    const year = selectedDate.getFullYear();
+                    const month = selectedDate.getMonth();
+                    const firstDay = new Date(year, month, 1);
+                    const lastDay = new Date(year, month + 1, 0);
+                    const startOfWeek = firstDay.getDay();
+                    const daysInMonth = lastDay.getDate();
+
+                    const days = [];
+
+                    // Dias vazios no início
+                    for (let i = 0; i < startOfWeek; i++) {
+                      days.push(<div key={`empty-${i}`} className="p-2"></div>);
+                    }
+
+                    // Dias do mês
+                    for (let day = 1; day <= daysInMonth; day++) {
+                      const date = new Date(year, month, day);
+                      const isCurrentDay = isToday(date);
+                      const isSelected = isSameDate(date, selectedDate);
+                      const dayAppointments = appointments.filter(apt => apt.date === formatDate(date));
+
+                      days.push(
+                        <div
+                          key={day}
+                          className={`
+                            p-2 text-center cursor-pointer rounded-lg text-sm font-medium transition-all hover:scale-105 relative
+                            ${isCurrentDay ? 'bg-primary text-primary-foreground shadow-sm' : ''}
+                            ${isSelected && !isCurrentDay ? 'bg-primary/20 text-primary border border-primary/30' : ''}
+                            ${!isCurrentDay && !isSelected ? 'hover:bg-muted/50' : ''}
+                          `}
+                          onClick={() => {
+                            setSelectedDate(date);
+                            setViewMode('day');
+                          }}
+                        >
+                          {day}
+                          {dayAppointments.length > 0 && (
+                            <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-4 h-1 bg-primary rounded-full"></div>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    return days;
+                  })()}
+                </div>
+
+                {/* Navegação do Calendário */}
+                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const newDate = new Date(selectedDate);
+                      newDate.setMonth(newDate.getMonth() - 1);
+                      setSelectedDate(newDate);
+                    }}
+                    className="h-8 w-8 p-0"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const newDate = new Date(selectedDate);
+                      newDate.setMonth(newDate.getMonth() + 1);
+                      setSelectedDate(newDate);
+                    }}
+                    className="h-8 w-8 p-0"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
 
       {/* Dialogs */}
