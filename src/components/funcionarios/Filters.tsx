@@ -133,7 +133,7 @@ export const Filters: React.FC<FiltersProps> = ({
 
       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
-          <span>Mostrando {filteredEmployeesCount} de {totalEmployeesCount} funcionários</span>
+          <span>Mostrando <strong>{filteredEmployeesCount}</strong> de <strong>{totalEmployeesCount}</strong> funcionários</span>
           {hasActiveFilters && (
             <>
               <Separator orientation="vertical" className="h-4" />

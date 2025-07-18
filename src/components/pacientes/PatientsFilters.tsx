@@ -95,7 +95,7 @@ export const PatientsFilters: React.FC<PatientsFiltersProps> = ({
 
       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
-          <span>Mostrando {filteredPatientsCount} de {totalPatientsCount} pacientes</span>
+          <span>Mostrando <strong>{filteredPatientsCount}</strong> de <strong>{totalPatientsCount}</strong> pacientes</span>
           {hasActiveFilters && (
             <>
               <Separator orientation="vertical" className="h-4" />

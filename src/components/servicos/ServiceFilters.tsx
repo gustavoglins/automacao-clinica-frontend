@@ -130,7 +130,7 @@ const ServiceFilters: React.FC<ServiceFiltersProps> = ({
 
       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
-          <span>Mostrando {filteredServicesCount} de {totalServicesCount} serviços</span>
+          <span>Mostrando <strong>{filteredServicesCount}</strong> de <strong>{totalServicesCount}</strong> serviços</span>
           {hasActiveFilters && (
             <>
               <Separator orientation="vertical" className="h-4" />
