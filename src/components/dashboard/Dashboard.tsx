@@ -137,28 +137,28 @@ export function Dashboard() {
               style={{ minHeight: "260px" }} // Altura para 5 itens de consulta
             >
               {paginatedAppointments.map((appointment, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <div key={index} className="flex items-center justify-between p-3 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full">
-                      <Clock className="w-4 h-4 text-primary" />
+                    <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
+                      <Clock className="w-4 h-4 text-blue-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-foreground">{appointment.patient}</p>
-                      <p className="text-sm text-muted-foreground">{appointment.type}</p>
+                      <p className="font-medium text-gray-900">{appointment.patient}</p>
+                      <p className="text-sm text-gray-600">{appointment.type}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-primary">{appointment.time}</p>
-                    <p className="text-sm text-muted-foreground">{appointment.doctor}</p>
+                    <p className="font-medium text-blue-600">{appointment.time}</p>
+                    <p className="text-sm text-gray-600">{appointment.doctor}</p>
                   </div>
                 </div>
               ))}
               {/* Preenche com placeholders invisíveis para manter altura e espaçamento */}
               {Array.from({ length: APPOINTMENTS_PER_PAGE - paginatedAppointments.length }).map((_, idx) => (
                 <div key={"placeholder-appointment-" + idx} className="opacity-0 select-none pointer-events-none">
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                  <div className="flex items-center justify-between p-3 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl">
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full" />
+                      <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg" />
                       <div>
                         <p className="font-medium">&nbsp;</p>
                         <p className="text-sm">&nbsp;</p>
@@ -229,12 +229,12 @@ export function Dashboard() {
               style={{ minHeight: "364px" }} // Altura para 7 itens de tarefa
             >
               {paginatedTasks.map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <div key={index} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl">
                   <div className="flex items-center gap-3">
                     <div className={`w-2 h-2 rounded-full ${item.priority === 'high' ? 'bg-destructive' :
                       item.priority === 'medium' ? 'bg-warning' : 'bg-muted-foreground'
                       }`} />
-                    <p className="text-sm text-foreground">{item.task}</p>
+                    <p className="text-sm text-gray-900">{item.task}</p>
                   </div>
                   <span className={`text-xs font-medium ${getPriorityColor(item.priority)}`}>
                     {item.priority === 'high' ? 'ALTA' :
@@ -245,7 +245,7 @@ export function Dashboard() {
               {/* Preenche com placeholders invisíveis para manter altura e espaçamento */}
               {Array.from({ length: TASKS_PER_PAGE - paginatedTasks.length }).map((_, idx) => (
                 <div key={"placeholder-task-" + idx} className="opacity-0 select-none pointer-events-none">
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                  <div className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl">
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 rounded-full" />
                       <p className="text-sm">&nbsp;</p>
@@ -331,19 +331,19 @@ export function Dashboard() {
           </DialogHeader>
           <div className="max-h-96 overflow-y-auto space-y-3 mt-2">
             {sortedAppointments.map((appointment, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+              <div key={index} className="flex items-center justify-between p-3 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl">
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full">
-                    <Clock className="w-4 h-4 text-primary" />
+                  <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
+                    <Clock className="w-4 h-4 text-blue-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-foreground">{appointment.patient}</p>
-                    <p className="text-sm text-muted-foreground">{appointment.type}</p>
+                    <p className="font-medium text-gray-900">{appointment.patient}</p>
+                    <p className="text-sm text-gray-600">{appointment.type}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium text-primary">{appointment.time}</p>
-                  <p className="text-sm text-muted-foreground">{appointment.doctor}</p>
+                  <p className="font-medium text-blue-600">{appointment.time}</p>
+                  <p className="text-sm text-gray-600">{appointment.doctor}</p>
                 </div>
               </div>
             ))}
@@ -360,12 +360,12 @@ export function Dashboard() {
           </DialogHeader>
           <div className="max-h-96 overflow-y-auto space-y-3 mt-2">
             {registeredTasks.map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+              <div key={index} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl">
                 <div className="flex items-center gap-3">
                   <div className={`w-2 h-2 rounded-full ${item.priority === 'high' ? 'bg-destructive' :
                     item.priority === 'medium' ? 'bg-warning' : 'bg-muted-foreground'
                     }`} />
-                  <p className="text-sm text-foreground">{item.task}</p>
+                  <p className="text-sm text-gray-900">{item.task}</p>
                 </div>
                 <span className={`text-xs font-medium ${getPriorityColor(item.priority)}`}>
                   {item.priority === 'high' ? 'ALTA' :

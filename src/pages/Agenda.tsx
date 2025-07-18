@@ -407,7 +407,7 @@ const Agenda = () => {
                   filteredAppointments.map((appointment) => (
                     <div key={appointment.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl">
                       <div className="flex items-center gap-4">
-                        <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
+                        <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
                           <Clock className="w-5 h-5 text-blue-600" />
                         </div>
                         <div className="space-y-1">
