@@ -373,11 +373,10 @@ const Agenda = () => {
               <CardHeader>
                 <div className="flex items-center justify-between w-full">
                   <CardTitle className="flex items-center gap-2 m-0 p-0">
-                    <Calendar className="w-5 h-5 text-primary" />
                     {viewMode === 'day' && (
                       isToday(selectedDate)
-                        ? `Hoje - ${selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`
-                        : selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                        ? `Consultas de Hoje - ${selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).replace(/^\w/, c => c.toUpperCase())}`
+                        : selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).replace(/^\w/, c => c.toUpperCase())
                     )}
                     {viewMode === 'week' && `Consultas da Semana`}
                     {viewMode === 'month' && `Consultas do Mês - ${selectedDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`}
@@ -473,11 +472,11 @@ const Agenda = () => {
                   <div>
                     <CardTitle className="flex items-center gap-2 text-lg">
                       <CalendarIcon className="w-5 h-5 text-primary" />
-                      Calendário
+                      {(() => {
+                        const mesAno = selectedDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                        return mesAno.charAt(0).toUpperCase() + mesAno.slice(1);
+                      })()}
                     </CardTitle>
-                    <CardDescription>
-                      {selectedDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
-                    </CardDescription>
                   </div>
                   <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
                     <Button

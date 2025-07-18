@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { AddEmployeeDialog } from "@/components/funcionarios/AddEmployeeDialog"
 import ServiceFormDialog from "@/components/servicos/ServiceFormDialog"
+import { AddAppointmentDialog } from "@/components/agenda"
 
 export function Dashboard() {
   const todayStats = [
@@ -89,6 +90,7 @@ export function Dashboard() {
   const [openTasksDialog, setOpenTasksDialog] = useState(false)
   const [openAddEmployeeDialog, setOpenAddEmployeeDialog] = useState(false)
   const [openServiceFormDialog, setOpenServiceFormDialog] = useState(false)
+  const [openAddAppointmentDialog, setOpenAddAppointmentDialog] = useState(false)
 
   // Ordena as consultas do mais cedo para o mais tarde
   const sortedAppointments = [...todayAppointments].sort((a, b) => a.time.localeCompare(b.time))
@@ -314,10 +316,21 @@ export function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button size="sm" className="h-auto p-4 flex-col gap-2" variant="primary">
+            <Button
+              size="sm"
+              className="h-auto p-4 flex-col gap-2"
+              variant="primary"
+              onClick={() => setOpenAddAppointmentDialog(true)}
+            >
               <Calendar className="w-6 h-6" />
               <span>Agendar Consulta</span>
             </Button>
+            {/* Dialog: Nova Consulta */}
+            <AddAppointmentDialog
+              open={openAddAppointmentDialog}
+              onOpenChange={setOpenAddAppointmentDialog}
+              onAddAppointment={() => setOpenAddAppointmentDialog(false)}
+            />
             <Button
               size="sm"
               className="h-auto p-4 flex-col gap-2"
