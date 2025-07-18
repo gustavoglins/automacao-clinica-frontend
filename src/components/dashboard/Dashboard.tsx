@@ -7,7 +7,8 @@ import {
   Clock,
   TrendingUp,
   AlertCircle,
-  CheckCheck
+  CheckCheck,
+  Briefcase
 } from "lucide-react"
 import { StatsCard } from "./StatsCard"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -303,20 +304,23 @@ export function Dashboard() {
             <TrendingUp className="w-5 h-5 text-accent" />
             Ações Rápidas
           </CardTitle>
+          <CardDescription>
+            Acesse rapidamente as principais funcionalidades
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button size="sm" className="h-auto p-4 flex-col gap-2" variant="outline-primary">
-              <Users className="w-6 h-6" />
-              <span>Novo Paciente</span>
+            <Button size="sm" className="h-auto p-4 flex-col gap-2" variant="primary">
+              <UserCheck className="w-6 h-6" />
+              <span>Novo Funcionário</span>
             </Button>
-            <Button size="sm" className="h-auto p-4 flex-col gap-2" variant="outline-success">
+            <Button size="sm" className="h-auto p-4 flex-col gap-2" variant="primary">
               <Calendar className="w-6 h-6" />
               <span>Agendar Consulta</span>
             </Button>
-            <Button size="sm" className="h-auto p-4 flex-col gap-2" variant="outline-warning">
-              <DollarSign className="w-6 h-6" />
-              <span>Registrar Pagamento</span>
+            <Button size="sm" className="h-auto p-4 flex-col gap-2" variant="primary">
+              <Briefcase className="w-6 h-6" />
+              <span>Novo Serviço</span>
             </Button>
           </div>
         </CardContent>
