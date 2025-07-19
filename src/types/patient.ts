@@ -9,6 +9,11 @@ export interface Patient {
   address: string | null;
   createdAt: string;
   updatedAt: string;
+  // Campos opcionais para compatibilidade com UI
+  plan?: string;
+  status?: string;
+  lastVisit?: string;
+  nextVisit?: string;
 }
 
 // Dados para criar um novo paciente

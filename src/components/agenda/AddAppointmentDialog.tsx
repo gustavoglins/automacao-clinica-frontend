@@ -21,7 +21,7 @@ import {
   Phone,
   CalendarPlus,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatPhone, onlyNumbers } from "@/lib/utils";
 import { CreateAppointmentData } from "@/types/appointment";
 
 interface AddAppointmentDialogProps {
@@ -169,8 +169,13 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                   <Input
                     id="phone"
                     placeholder="(11) 99999-9999"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    value={formatPhone(formData.phone)}
+                    onChange={(e) => {
+                      // Permite apenas números, mas exibe formatado
+                      const raw = onlyNumbers(e.target.value);
+                      setFormData({ ...formData, phone: raw });
+                    }}
+                    maxLength={15}
                     required
                   />
                 </div>

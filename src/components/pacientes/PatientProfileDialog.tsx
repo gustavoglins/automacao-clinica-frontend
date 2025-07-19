@@ -54,13 +54,14 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
     return phone;
   };
 
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').slice(0, 2);
+  const getInitials = (fullName: string) => {
+    return fullName.split(' ').map(n => n[0]).join('').slice(0, 2);
   };
 
   const calculateAge = (birthDate?: string) => {
-    if (!birthDate) return patient.age;
-    const birth = new Date(birthDate);
+    const date = birthDate || patient.birthDate;
+    if (!date) return "-";
+    const birth = new Date(date);
     const today = new Date();
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
@@ -70,7 +71,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
     return age;
   };
 
-  const statusBadge = getPatientStatusBadge(patient.status);
+  const statusBadge = getPatientStatusBadge(patient.status || "");
   const planBadge = getPlanBadge();
 
   return (
@@ -98,28 +99,28 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
           <div className="flex items-start gap-6">
             <div className="relative">
               <div className="w-20 h-20 bg-gradient-to-br from-green-600 to-emerald-700 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                {getInitials(patient.name)}
+                {getInitials(patient.fullName)}
               </div>
               <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-sm"></div>
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2 truncate">{patient.name}</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2 truncate">{patient.fullName}</h2>
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
                   {calculateAge()} anos
                 </Badge>
                 <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                  {patient.plan}
+                  {patient.plan || "-"}
                 </Badge>
               </div>
               <div className="flex items-center gap-3">
                 <Badge variant="success" className="bg-green-100 text-green-800 border-green-200">
                   <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                  {patient.status}
+                  {patient.status || "-"}
                 </Badge>
                 <Badge variant="info" className="bg-blue-100 text-blue-800 border-blue-200">
                   <Clock className="w-3 h-3 mr-1" />
-                  Última visita: {formatDate(patient.lastVisit)}
+                  Última visita: {formatDate(patient.lastVisit || "")}
                 </Badge>
               </div>
             </div>
@@ -245,7 +246,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500 mb-1">Plano de Saúde</p>
-                  <p className="text-gray-900 font-medium">{patient.plan}</p>
+                  <p className="text-gray-900 font-medium">{patient.plan || "-"}</p>
                 </div>
               </div>
             </div>
@@ -261,12 +262,12 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-gray-500 mb-1">Última Visita</p>
-                  <p className="text-gray-900 font-medium">{formatDate(patient.lastVisit)}</p>
+                  <p className="text-gray-900 font-medium">{formatDate(patient.lastVisit || "")}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500 mb-1">Status</p>
                   <Badge variant="success" className="bg-green-100 text-green-800 border-green-200">
-                    {patient.status}
+                    {patient.status || "-"}
                   </Badge>
                 </div>
               </div>
@@ -279,7 +280,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500 mb-1">Convênio</p>
-                  <p className="text-gray-900 font-medium">{patient.plan}</p>
+                  <p className="text-gray-900 font-medium">{patient.plan || "-"}</p>
                 </div>
               </div>
             </div>
