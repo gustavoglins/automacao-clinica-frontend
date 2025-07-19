@@ -23,19 +23,21 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
   const displayedEmployees = showAll ? employees : employees.slice(0, 5);
 
   return (
-    <div className="space-y-4">
-      {displayedEmployees.map((employee) => (
-        <EmployeeCard
-          key={employee.id}
-          employee={employee}
-          onOpenProfile={onOpenProfile}
-          onOpenEdit={onOpenEdit}
-          onOpenDelete={onOpenDelete}
-        />
-      ))}
+    <div className="h-[600px] space-y-4 flex flex-col">
+      <div className="flex-1 space-y-4 overflow-y-auto">
+        {displayedEmployees.map((employee) => (
+          <EmployeeCard
+            key={employee.id}
+            employee={employee}
+            onOpenProfile={onOpenProfile}
+            onOpenEdit={onOpenEdit}
+            onOpenDelete={onOpenDelete}
+          />
+        ))}
+      </div>
 
       {employees.length > 5 && (
-        <div className="flex justify-center pt-4">
+        <div className="flex justify-center pt-4 flex-shrink-0">
           <Button
             variant="outline"
             onClick={onToggleShowAll}

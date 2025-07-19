@@ -59,7 +59,7 @@ export const PatientList = ({
           </div>
         ) : (
           <>
-            <div className="h-[524px] space-y-4 flex flex-col">
+            <div className="h-[600px] space-y-4 flex flex-col">
               {paginatedPatients.map((patient) => (
                 <PatientCard
                   key={patient.id}

@@ -224,8 +224,7 @@ export function Dashboard() {
           </CardHeader>
           <CardContent className="flex-1 flex flex-col">
             <div
-              className="space-y-4 flex-1 min-h-[320px]"
-              style={{ minHeight: "260px" }} // Altura para 5 itens de consulta
+              className="space-y-4 flex-1 h-[600px] overflow-y-auto"
             >
               {paginatedAppointments.map((appointment, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl">

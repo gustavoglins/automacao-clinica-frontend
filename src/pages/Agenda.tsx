@@ -288,7 +288,7 @@ const Agenda = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Card Principal de Consultas */}
           <div className="lg:col-span-2">
-            <Card className="shadow-card">
+            <Card className="shadow-card h-[600px] flex flex-col">
               <CardHeader>
                 <div className="flex items-center justify-between w-full">
                   <CardTitle className="flex items-center gap-2 m-0 p-0">
@@ -308,77 +308,81 @@ const Agenda = () => {
                   {viewMode === 'month' && ' no mês'}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {filteredAppointments.length === 0 ? (
-                  <div className="text-center py-12">
-                    <CalendarIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-muted-foreground mb-2">
-                      Nenhuma consulta encontrada
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {viewMode === 'day' && 'Não há consultas agendadas para este dia.'}
-                      {viewMode === 'week' && 'Não há consultas agendadas para esta semana.'}
-                      {viewMode === 'month' && 'Não há consultas agendadas para este mês.'}
-                    </p>
-                  </div>
-                ) : (
-                  filteredAppointments.map((appointment) => (
-                    <div key={appointment.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
-                          <Clock className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-gray-900">{appointment.patient?.fullName || 'Paciente não encontrado'}</h3>
-                            <Badge
-                              variant={getAppointmentStatusBadge(appointment.status).variant}
-                              className={getAppointmentStatusBadge(appointment.status).className}
-                            >
-                              {appointment.status}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <span>{new Date(appointment.appointmentAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
-                            <span>•</span>
-                            <span>{appointment.service?.durationMinutes || 30}min</span>
-                            <span>•</span>
-                            <span>{appointment.service?.name || 'Serviço não encontrado'}</span>
-                            <span>•</span>
-                            <span>com {appointment.employee?.fullName || 'Funcionário não encontrado'}</span>
-                          </div>
-                          {viewMode !== 'day' && (
-                            <p className="text-xs text-gray-500 font-medium">
-                              {new Date(appointment.appointmentAt).toLocaleDateString('pt-BR', {
-                                weekday: 'short',
-                                day: '2-digit',
-                                month: '2-digit'
-                              })}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button size="sm" variant="primary">
-                          Confirmar
-                        </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="classic" className="px-2">
-                              <span className="sr-only">Mais opções</span>
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => {/* ação de editar */ }}>
-                              <Edit className="w-4 h-4 mr-2 text-muted-foreground" /> Editar
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
+              <CardContent className="flex-1 flex flex-col">
+                <div className="flex-1 overflow-y-auto">
+                  {filteredAppointments.length === 0 ? (
+                    <div className="text-center py-12">
+                      <CalendarIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-muted-foreground mb-2">
+                        Nenhuma consulta encontrada
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {viewMode === 'day' && 'Não há consultas agendadas para este dia.'}
+                        {viewMode === 'week' && 'Não há consultas agendadas para esta semana.'}
+                        {viewMode === 'month' && 'Não há consultas agendadas para este mês.'}
+                      </p>
                     </div>
-                  ))
-                )}
+                  ) : (
+                    <div className="space-y-4">
+                      {filteredAppointments.map((appointment) => (
+                        <div key={appointment.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl">
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
+                              <Clock className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-gray-900">{appointment.patient?.fullName || 'Paciente não encontrado'}</h3>
+                                <Badge
+                                  variant={getAppointmentStatusBadge(appointment.status).variant}
+                                  className={getAppointmentStatusBadge(appointment.status).className}
+                                >
+                                  {appointment.status}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm text-gray-600">
+                                <span>{new Date(appointment.appointmentAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                <span>•</span>
+                                <span>{appointment.service?.durationMinutes || 30}min</span>
+                                <span>•</span>
+                                <span>{appointment.service?.name || 'Serviço não encontrado'}</span>
+                                <span>•</span>
+                                <span>com {appointment.employee?.fullName || 'Funcionário não encontrado'}</span>
+                              </div>
+                              {viewMode !== 'day' && (
+                                <p className="text-xs text-gray-500 font-medium">
+                                  {new Date(appointment.appointmentAt).toLocaleDateString('pt-BR', {
+                                    weekday: 'short',
+                                    day: '2-digit',
+                                    month: '2-digit'
+                                  })}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button size="sm" variant="primary">
+                              Confirmar
+                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button size="sm" variant="classic" className="px-2">
+                                  <span className="sr-only">Mais opções</span>
+                                  <MoreVertical className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => {/* ação de editar */ }}>
+                                  <Edit className="w-4 h-4 mr-2 text-muted-foreground" /> Editar
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>
