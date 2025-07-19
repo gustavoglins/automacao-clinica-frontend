@@ -18,6 +18,8 @@ import { AddEmployeeDialog } from "@/components/funcionarios/AddEmployeeDialog"
 import ServiceFormDialog from "@/components/servicos/ServiceFormDialog"
 import { AddAppointmentDialog } from "@/components/agenda"
 import { dashboardService, DashboardStats, TodayAppointment, NextAppointment } from "@/services/dashboardService"
+import { employeeService } from "@/services/employeeService"
+import { serviceService } from "@/services/servicesService"
 
 export function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>({
@@ -26,6 +28,8 @@ export function Dashboard() {
     monthlyRevenue: 0,
     attendanceRate: 0
   });
+  const [activeEmployees, setActiveEmployees] = useState<number>(0);
+  const [activeServices, setActiveServices] = useState<number>(0);
   const [todayAppointments, setTodayAppointments] = useState<TodayAppointment[]>([]);
   const [nextAppointment, setNextAppointment] = useState<NextAppointment | null>(null);
   const [loading, setLoading] = useState(true);
@@ -34,15 +38,18 @@ export function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-                const [statsData, appointmentsData, nextAppointmentData] = await Promise.all([
+        const [statsData, appointmentsData, nextAppointmentData, employees, serviceStats] = await Promise.all([
           dashboardService.getDashboardStats(),
           dashboardService.getTodayAppointments(),
-          dashboardService.getNextAppointment()
+          dashboardService.getNextAppointment(),
+          employeeService.getAllEmployees(),
+          serviceService.getServiceStats()
         ]);
-        
         setStats(statsData);
         setTodayAppointments(appointmentsData);
         setNextAppointment(nextAppointmentData);
+        setActiveEmployees(employees.filter(e => e.status === 'ativo').length);
+        setActiveServices(serviceStats.active);
       } catch (error) {
         console.error('Erro ao carregar dados do dashboard:', error);
       } finally {
@@ -58,27 +65,27 @@ export function Dashboard() {
       title: "Consultas Hoje",
       value: stats.todayAppointments,
       icon: Calendar,
-      change: { value: "+2", type: "increase" as const }
+      change: { value: "", type: "increase" as const }
     },
     {
       title: "Pacientes Ativos",
       value: stats.totalPatients,
       icon: Users,
-      change: { value: "+45", type: "increase" as const }
+      change: { value: "", type: "increase" as const }
     },
     {
-      title: "Receita Mensal",
-      value: `R$ ${stats.monthlyRevenue.toLocaleString('pt-BR')}`,
-      icon: DollarSign,
-      change: { value: "+12%", type: "increase" as const }
-    },
-    {
-      title: "Taxa de Comparecimento",
-      value: `${stats.attendanceRate}%`,
+      title: "Funcionários Ativos",
+      value: activeEmployees,
       icon: UserCheck,
-      change: { value: "+3%", type: "increase" as const }
+      change: { value: "", type: "increase" as const }
+    },
+    {
+      title: "Serviços Ativos",
+      value: activeServices,
+      icon: Briefcase,
+      change: { value: "", type: "increase" as const }
     }
-  ]
+  ];
 
 
 
@@ -154,9 +161,9 @@ export function Dashboard() {
                       </p>
                       <div className="flex items-center gap-2">
                         <span className="text-lg font-bold text-blue-600">
-                          {new Date(nextAppointment.appointmentAt).toLocaleTimeString('pt-BR', { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
+                          {new Date(nextAppointment.appointmentAt).toLocaleTimeString('pt-BR', {
+                            hour: '2-digit',
+                            minute: '2-digit'
                           })}
                         </span>
                         <span className="text-sm text-gray-500">
@@ -192,9 +199,9 @@ export function Dashboard() {
                 <p className="text-sm text-gray-600 mb-4">
                   Não há consultas futuras no momento
                 </p>
-                <Button 
-                  size="sm" 
-                  variant="outline-primary" 
+                <Button
+                  size="sm"
+                  variant="outline-primary"
                   onClick={() => setOpenAddAppointmentDialog(true)}
                 >
                   Agendar Consulta
