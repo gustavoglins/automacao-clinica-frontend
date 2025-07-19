@@ -222,12 +222,22 @@ const Servicos = () => {
     }
   };
 
-  const handleDeleteService = () => {
+  const handleDeleteService = async () => {
     if (selectedService) {
-      setServices(prev => prev.filter(service => service.id !== selectedService.id));
-      setIsDeleteDialogOpen(false);
-      setSelectedService(null);
-      toast.success("Serviço removido com sucesso!");
+      try {
+        setLoading(true);
+        await serviceService.deleteService(selectedService.id);
+        
+        // Atualizar o estado local após deletar do banco
+        setServices(prev => prev.filter(service => service.id !== selectedService.id));
+        setIsDeleteDialogOpen(false);
+        setSelectedService(null);
+      } catch (error) {
+        console.error('Erro ao deletar serviço:', error);
+        // Não mostrar toast de sucesso aqui pois o service já mostra
+      } finally {
+        setLoading(false);
+      }
     }
   };
 

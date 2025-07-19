@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import { useClinic } from "@/context/ClinicContext";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
+import { TestCRUD } from "@/components/TestCRUD";
 
 // Interface para os horários da clínica
 interface ClinicHour {
@@ -362,6 +363,9 @@ const Configuracoes = () => {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Seção de Teste CRUD */}
+        <TestCRUD />
       </div>
     </AppLayout>
   );

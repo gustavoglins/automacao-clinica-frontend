@@ -180,16 +180,23 @@ class ServiceService {
    */
   async deleteService(id: number): Promise<void> {
     try {
-      const { error } = await supabase
+      console.log('🔄 Tentando deletar serviço com ID:', id);
+
+      const { data, error } = await supabase
         .from('services')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select(); // Adicionar select para verificar se algo foi deletado
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro do Supabase ao deletar serviço:', error);
+        throw error;
+      }
 
+      console.log('✅ Serviço deletado com sucesso. Dados retornados:', data);
       toast.success('Serviço removido com sucesso!');
     } catch (error) {
-      console.error('Error deleting service:', error);
+      console.error('❌ Erro ao deletar serviço:', error);
       toast.error('Erro ao remover serviço');
       throw error;
     }

@@ -43,7 +43,7 @@ export interface CreateEmployeeData {
 
 // Data for updating an existing employee (all fields optional except id)
 export interface UpdateEmployeeData extends Partial<CreateEmployeeData> {
-  id: number;
+  id: string;
 }
 
 // Raw employee data from Supabase database
@@ -66,7 +66,7 @@ export interface SupabaseEmployee {
 // Employee work schedule data from Supabase
 export interface SupabaseEmployeeWorkSchedule {
   id: number;
-  employee_id: number;
+  employee_id: string;
   weekday: number; // 0=Dom, 1=Seg, 2=Ter, 3=Qua, 4=Qui, 5=Sex, 6=Sáb
   start_time: string;
   end_time: string;
