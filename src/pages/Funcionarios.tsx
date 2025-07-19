@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { employeeService } from "@/services/employeeService";
 import type { Employee } from "@/types/employee";
 import { onlyNumbers } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   EmployeeStats,
   Filters,
@@ -77,7 +78,7 @@ function Funcionarios() {
     const searchLower = filters.search.toLowerCase();
     const searchNumbers = onlyNumbers(filters.search);
 
-    const matchesSearch = employee.name.toLowerCase().includes(searchLower) ||
+    const matchesSearch = employee.fullName.toLowerCase().includes(searchLower) ||
       employee.email.toLowerCase().includes(searchLower) ||
       employee.phone.includes(searchNumbers) || // Busca apenas pelos números
       employee.phone.includes(filters.search); // Busca pelo texto formatado também
@@ -91,7 +92,7 @@ function Funcionarios() {
     // Filtro de data de admissão
     let matchesDateRange = true;
     if (filters.dateRange && (filters.dateRange.start || filters.dateRange.end)) {
-      const hireDate = new Date(employee.hireDate);
+      const hireDate = new Date(employee.hiredAt);
       if (filters.dateRange.start && hireDate < filters.dateRange.start) {
         matchesDateRange = false;
       }
@@ -224,13 +225,21 @@ function Funcionarios() {
             <CardContent>
               {filteredEmployees.length === 0 ? (
                 <div className="text-center py-12">
-                  <UserX className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Nenhum funcionário encontrado</h3>
-                  <p className="text-muted-foreground">
+                  <UserX className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhum funcionário encontrado</h3>
+                  <p className="text-gray-600 mb-4">
                     {filters.search || (filters.role && filters.role !== "all") || (filters.specialty && filters.specialty !== "all")
-                      ? "Tente ajustar os filtros para ver mais resultados"
-                      : "Comece adicionando seu primeiro funcionário"}
+                      ? "Tente ajustar os filtros ou buscar por outros termos"
+                      : "Comece adicionando o primeiro funcionário da clínica"}
                   </p>
+                  {!(filters.search || (filters.role && filters.role !== "all") || (filters.specialty && filters.specialty !== "all")) && (
+                    <Button
+                      onClick={handleOpenAddEmployee}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <span className="mr-2 text-lg font-bold">+</span> Adicionar Primeiro Funcionário
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <EmployeeList
