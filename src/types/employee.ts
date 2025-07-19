@@ -4,46 +4,38 @@
 
 // Base Employee interface - represents the complete employee object
 export interface Employee {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  cpf: string | null;
+  id: string; // UUID
+  fullName: string;
+  cpf: string;
   role: string;
-  specialty: string | null;
-  registrationNumber: string | null;
-  hireDate: string;
-  salary: number | null;
   status: string;
-  visibleOnSchedule: boolean;
-  acceptsOnlineBooking: boolean;
-  showContact: boolean;
-  avatarUrl: string | null;
-  notes: string | null;
+  specialty: string | null;
+  crmNumber: string | null;
+  salary: number | null;
+  phone: string | null;
+  email: string | null;
+  hiredAt: string; // DATE
+  createdAt: string;
+  updatedAt: string;
+
+  // Dados de horário de trabalho (opcional)
   workDays?: string[]; // Dias de trabalho: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex']
   startHour?: string; // Hora de entrada: "08:00"
   endHour?: string; // Hora de saída: "18:00"
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 // Data required to create a new employee
 export interface CreateEmployeeData {
-  name: string;
-  email: string;
-  phone: string;
-  cpf?: string;
+  fullName: string;
+  cpf: string;
   role: string;
-  specialty?: string;
-  registrationNumber?: string;
-  hireDate: string;
-  salary?: number;
   status?: string;
-  visibleOnSchedule?: boolean;
-  acceptsOnlineBooking?: boolean;
-  showContact?: boolean;
-  avatarUrl?: string;
-  notes?: string;
+  specialty?: string;
+  crmNumber?: string;
+  salary?: number;
+  phone?: string;
+  email?: string;
+  hiredAt: string;
   workDays?: string[]; // Dias de trabalho: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex']
   startHour?: string; // Hora de entrada: "08:00"
   endHour?: string; // Hora de saída: "18:00"
@@ -56,22 +48,17 @@ export interface UpdateEmployeeData extends Partial<CreateEmployeeData> {
 
 // Raw employee data from Supabase database
 export interface SupabaseEmployee {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  cpf: string | null;
+  id: string;
+  full_name: string;
+  cpf: string;
   role: string;
-  specialty: string | null;
-  registration_number: string | null;
-  hire_date: string;
-  salary: number | null;
   status: string;
-  visible_on_schedule: boolean;
-  accepts_online_booking: boolean;
-  show_contact: boolean;
-  avatar_url: string | null;
-  notes: string | null;
+  specialty: string | null;
+  crm_number: string | null;
+  salary: number | null;
+  phone: string | null;
+  email: string | null;
+  hired_at: string;
   created_at: string;
   updated_at: string;
 }
@@ -87,7 +74,7 @@ export interface SupabaseEmployeeWorkSchedule {
 
 // Employee work schedule data for inserting
 export interface SupabaseEmployeeWorkScheduleInsert {
-  employee_id: number;
+  employee_id: string;
   weekday: number;
   start_time: string;
   end_time: string;
@@ -95,40 +82,30 @@ export interface SupabaseEmployeeWorkScheduleInsert {
 
 // Data structure for updating employee in Supabase
 export interface SupabaseEmployeeUpdate {
-  name?: string;
-  email?: string;
-  phone?: string;
-  cpf?: string | null;
+  full_name?: string;
+  cpf?: string;
   role?: string;
-  specialty?: string | null;
-  registration_number?: string | null;
-  hire_date?: string;
-  salary?: number | null;
   status?: string;
-  visible_on_schedule?: boolean;
-  accepts_online_booking?: boolean;
-  show_contact?: boolean;
-  avatar_url?: string | null;
-  notes?: string | null;
+  specialty?: string | null;
+  crm_number?: string | null;
+  salary?: number | null;
+  phone?: string | null;
+  email?: string | null;
+  hired_at?: string;
 }
 
 // Data structure for creating employee in Supabase
 export interface SupabaseEmployeeInsert {
-  name: string;
-  email: string;
-  phone: string;
-  cpf: string | null;
+  full_name: string;
+  cpf: string;
   role: string;
-  specialty: string | null;
-  registration_number: string | null;
-  hire_date: string;
-  salary: number | null;
   status: string;
-  visible_on_schedule: boolean;
-  accepts_online_booking: boolean;
-  show_contact: boolean;
-  avatar_url: string | null;
-  notes: string | null;
+  specialty: string | null;
+  crm_number: string | null;
+  salary: number | null;
+  phone: string | null;
+  email: string | null;
+  hired_at: string;
 }
 
 // Appointment interfaces based on database structure

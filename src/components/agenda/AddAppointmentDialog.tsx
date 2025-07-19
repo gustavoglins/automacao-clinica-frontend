@@ -22,24 +22,12 @@ import {
   CalendarPlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface Appointment {
-  id?: number;
-  patient: string;
-  phone: string;
-  service: string;
-  doctor: string;
-  date: Date;
-  time: string;
-  duration: string;
-  notes?: string;
-  status: string;
-}
+import { CreateAppointmentData } from "@/types/appointment";
 
 interface AddAppointmentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddAppointment: (appointment: Omit<Appointment, "id">) => void;
+  onAddAppointment: (appointment: CreateAppointmentData) => void;
 }
 
 const services = [
@@ -105,16 +93,15 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
     setIsLoading(true);
 
     try {
-      const appointment: Omit<Appointment, "id"> = {
-        patient: formData.patient,
-        phone: formData.phone,
-        service: formData.service,
-        doctor: formData.doctor,
-        date: formData.date,
-        time: formData.time,
-        duration: formData.duration,
-        notes: formData.notes,
-        status: "agendada",
+      // Por enquanto, vamos criar um mock do CreateAppointmentData
+      // Em uma implementação real, você precisaria buscar os IDs reais
+      const appointment: CreateAppointmentData = {
+        patientId: "mock-patient-id", // Deveria ser o ID real do paciente
+        employeeId: "mock-employee-id", // Deveria ser o ID real do funcionário
+        serviceId: 1, // Deveria ser o ID real do serviço
+        appointmentAt: formData.date!.toISOString(),
+        appointmentEnd: new Date(formData.date!.getTime() + 30 * 60 * 1000).toISOString(), // 30 min depois
+        status: "agendada"
       };
 
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simula delay da API

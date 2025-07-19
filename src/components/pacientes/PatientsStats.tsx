@@ -7,7 +7,6 @@ interface PatientsStatsProps {
 }
 
 export const PatientsStats = ({ patients }: PatientsStatsProps) => {
-  const activePatients = patients.filter(p => p.status === 'ativo').length;
   const totalPatients = patients.length;
 
   // Mock data for now - these would come from actual data/API
@@ -23,7 +22,7 @@ export const PatientsStats = ({ patients }: PatientsStatsProps) => {
       />
       <StatsCard
         title="Pacientes Ativos"
-        value={activePatients}
+        value={totalPatients}
         icon={Users}
       />
       <StatsCard

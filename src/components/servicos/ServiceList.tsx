@@ -3,17 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Plus, Stethoscope } from "lucide-react";
 import ServiceCard from "./ServiceCard";
-
-interface Service {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  duration: number;
-  category: string;
-  isActive: boolean;
-  createdAt: string;
-}
+import { Service } from "@/types/service";
 
 interface ServiceListProps {
   services: Service[];

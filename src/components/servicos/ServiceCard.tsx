@@ -22,17 +22,7 @@ import {
   Star,
   Stethoscope
 } from "lucide-react";
-
-interface Service {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  duration: number;
-  category: string;
-  isActive: boolean;
-  createdAt: string;
-}
+import { Service } from "@/types/service";
 
 interface ServiceCardProps {
   service: Service;
@@ -119,7 +109,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDelete }) 
 
   const categoryInfo = getCategoryInfo(service.category);
   const CategoryIcon = categoryInfo.icon;
-  const statusBadge = getServiceStatusBadge(service.isActive);
+  const statusBadge = getServiceStatusBadge(service.active);
   const categoryBadge = getCategoryBadge(service.category);
   const iconColorClass = getCategoryIconColor(service.category);
 
@@ -139,7 +129,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDelete }) 
                 variant={statusBadge.variant}
                 className="mt-1"
               >
-                {service.isActive ? "Ativo" : "Inativo"}
+                {service.active ? "Ativo" : "Inativo"}
               </Badge>
             </div>
           </div>
@@ -189,7 +179,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDelete }) 
               <span>Duração:</span>
             </div>
             <span className="font-medium">
-              {formatDuration(service.duration)}
+              {formatDuration(service.durationMinutes)}
             </span>
           </div>
 

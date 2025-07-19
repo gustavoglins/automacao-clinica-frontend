@@ -20,17 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { X, Check, Stethoscope, DollarSign, Clock, FileText } from "lucide-react";
-
-interface Service {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  duration: number;
-  category: string;
-  isActive: boolean;
-  createdAt: string;
-}
+import { Service } from "@/types/service";
 
 interface ServiceFormData {
   name: string;

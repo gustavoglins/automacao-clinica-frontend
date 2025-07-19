@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { applyPhoneMask, onlyNumbers } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -19,32 +20,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UserPlus, X, Check, Phone, MapPin, CreditCard, FileText } from "lucide-react";
-import { Patient } from "@/types/patient";
+import { Patient, CreatePatientData } from "@/types/patient";
 
 interface AddPatientDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddPatient: (patient: Omit<Patient, "id">) => void;
+  onAddPatient: (patient: CreatePatientData) => void;
 }
 
 interface PatientFormData {
-  name: string;
-  age: string;
+  fullName: string;
+  cpf: string;
+  birthDate: string;
   phone: string;
   email: string;
-  plan: string;
-  notes: string;
+  address: string;
 }
 
-const healthPlans = [
-  { value: "particular", label: "Particular" },
-  { value: "unimed", label: "Unimed" },
-  { value: "amil", label: "Amil" },
-  { value: "bradesco", label: "Bradesco" },
-  { value: "sulamerica", label: "SulAmérica" },
-  { value: "hapvida", label: "Hapvida" },
-  { value: "outros", label: "Outros" }
-];
+
 
 const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
   open,
@@ -52,30 +45,37 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
   onAddPatient
 }) => {
   const [formData, setFormData] = useState<PatientFormData>({
-    name: "",
-    age: "",
+    fullName: "",
+    cpf: "",
+    birthDate: "",
     phone: "",
     email: "",
-    plan: "",
-    notes: ""
+    address: ""
   });
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (field: keyof PatientFormData, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    if (field === "phone") {
+      setFormData(prev => ({
+        ...prev,
+        [field]: applyPhoneMask(value)
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
   };
 
   const resetForm = () => {
     setFormData({
-      name: "",
-      age: "",
+      fullName: "",
+      cpf: "",
+      birthDate: "",
       phone: "",
       email: "",
-      plan: "",
-      notes: ""
+      address: ""
     });
   };
 
@@ -84,15 +84,13 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
     setLoading(true);
 
     try {
-      const newPatient: Omit<Patient, "id"> = {
-        name: formData.name,
-        age: parseInt(formData.age) || 0,
-        phone: formData.phone,
+      const newPatient: CreatePatientData = {
+        fullName: formData.fullName,
+        cpf: formData.cpf,
+        birthDate: formData.birthDate,
+        phone: onlyNumbers(formData.phone),
         email: formData.email,
-        plan: formData.plan,
-        status: "ativo",
-        lastVisit: new Date().toISOString().split('T')[0],
-        nextVisit: null
+        address: formData.address
       };
 
       await onAddPatient(newPatient);
@@ -135,24 +133,35 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nome Completo *</Label>
+                  <Label htmlFor="fullName">Nome Completo *</Label>
                   <Input
-                    id="name"
+                    id="fullName"
                     placeholder="Digite o nome completo"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    value={formData.fullName}
+                    onChange={(e) => handleInputChange("fullName", e.target.value)}
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="age">Idade</Label>
+                  <Label htmlFor="cpf">CPF *</Label>
                   <Input
-                    id="age"
-                    type="number"
-                    placeholder="Ex: 25"
-                    value={formData.age}
-                    onChange={(e) => handleInputChange("age", e.target.value)}
+                    id="cpf"
+                    placeholder="000.000.000-00"
+                    value={formData.cpf}
+                    onChange={(e) => handleInputChange("cpf", e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="birthDate">Data de Nascimento *</Label>
+                  <Input
+                    id="birthDate"
+                    type="date"
+                    value={formData.birthDate}
+                    onChange={(e) => handleInputChange("birthDate", e.target.value)}
+                    required
                   />
                 </div>
               </div>
@@ -194,50 +203,23 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
             </CardContent>
           </Card>
 
-          {/* Plano de Saúde */}
+          {/* Endereço */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <CreditCard className="w-5 h-5 text-primary" />
-                Plano de Saúde
+                <MapPin className="w-5 h-5 text-primary" />
+                Endereço
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <Label htmlFor="plan">Plano de Saúde</Label>
-                <Select value={formData.plan} onValueChange={(value) => handleInputChange("plan", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um plano" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {healthPlans.map((plan) => (
-                      <SelectItem key={plan.value} value={plan.value}>
-                        {plan.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Observações */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <FileText className="w-5 h-5 text-primary" />
-                Observações
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Label htmlFor="notes">Observações Adicionais</Label>
+                <Label htmlFor="address">Endereço</Label>
                 <Textarea
-                  id="notes"
-                  placeholder="Informações médicas relevantes, alergias, etc."
+                  id="address"
+                  placeholder="Digite o endereço completo"
                   rows={3}
-                  value={formData.notes}
-                  onChange={(e) => handleInputChange("notes", e.target.value)}
+                  value={formData.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
                 />
               </div>
             </CardContent>
@@ -257,7 +239,7 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
             </Button>
             <Button
               type="submit"
-              disabled={loading || !formData.name || !formData.phone}
+              disabled={loading || !formData.fullName || !formData.phone}
               className="min-w-[120px] flex items-center gap-2"
             >
               {loading ? (

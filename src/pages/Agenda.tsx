@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Calendar, Clock, Plus, Filter, Search, CalendarSync, CalendarCheck2, CalendarClock, Edit, MoreVertical, ChevronLeft, ChevronRight, CalendarDays, CalendarRange, CalendarIcon } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,8 @@ import {
 import { getAppointmentStatusBadge } from "@/lib/badgeUtils";
 import { AddAppointmentDialog, FilterDialog } from "@/components/agenda";
 import { toast } from "sonner";
+import { appointmentService } from "@/services/appointmentService";
+import { Appointment, CreateAppointmentData } from "@/types/appointment";
 
 const Agenda = () => {
   const [search, setSearch] = useState("");
@@ -33,102 +35,28 @@ const Agenda = () => {
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  const [appointments, setAppointments] = useState([
-    // Hoje
-    {
-      id: 1,
-      time: "09:00",
-      patient: "Maria Silva",
-      service: "Limpeza",
-      doctor: "Dr. João",
-      status: "confirmada",
-      duration: "1h",
-      date: new Date().toISOString().split('T')[0],
-      phone: "(11) 99999-9999"
-    },
-    {
-      id: 2,
-      time: "10:30",
-      patient: "Carlos Santos",
-      service: "Avaliação",
-      doctor: "Dra. Ana",
-      status: "pendente",
-      duration: "30min",
-      date: new Date().toISOString().split('T')[0],
-      phone: "(11) 98888-8888"
-    },
-    {
-      id: 3,
-      time: "14:00",
-      patient: "Ana Costa",
-      service: "Tratamento Canal",
-      doctor: "Dr. João",
-      status: "confirmada",
-      duration: "2h",
-      date: new Date().toISOString().split('T')[0],
-      phone: "(11) 97777-7777"
-    },
-    {
-      id: 4,
-      time: "15:30",
-      patient: "Pedro Lima",
-      service: "Implante",
-      doctor: "Dr. Roberto",
-      status: "reagendada",
-      duration: "1h30min",
-      date: new Date().toISOString().split('T')[0],
-      phone: "(11) 96666-6666"
-    },
-    // Amanhã
-    {
-      id: 5,
-      time: "08:00",
-      patient: "Julia Ferreira",
-      service: "Ortodontia",
-      doctor: "Dra. Ana",
-      status: "confirmada",
-      duration: "45min",
-      date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      phone: "(11) 95555-5555"
-    },
-    {
-      id: 6,
-      time: "11:00",
-      patient: "Roberto Oliveira",
-      service: "Extração",
-      doctor: "Dr. Roberto",
-      status: "pendente",
-      duration: "1h",
-      date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      phone: "(11) 94444-4444"
-    },
-    // Próxima semana
-    {
-      id: 7,
-      time: "13:30",
-      patient: "Fernanda Costa",
-      service: "Clareamento",
-      doctor: "Dra. Ana",
-      status: "confirmada",
-      duration: "2h",
-      date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      phone: "(11) 93333-3333"
-    },
-    {
-      id: 8,
-      time: "16:00",
-      patient: "Marcos Pereira",
-      service: "Prótese",
-      doctor: "Dr. João",
-      status: "pendente",
-      duration: "1h30min",
-      date: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      phone: "(11) 92222-2222"
-    }
-  ]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        setLoading(true);
+        const data = await appointmentService.getAllAppointments();
+        setAppointments(data);
+      } catch (error) {
+        console.error('Erro ao carregar agendamentos:', error);
+        toast.error('Erro ao carregar agendamentos');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
 
   // Lista de médicos únicos
-  const doctors = Array.from(new Set(appointments.map(a => a.doctor)));
+  const doctors = Array.from(new Set(appointments.map(a => a.employee?.fullName || 'Funcionário não encontrado')));
 
   // Funções utilitárias para navegação de data
   const formatDate = (date: Date) => {
@@ -191,19 +119,19 @@ const Agenda = () => {
 
     if (viewMode === 'day') {
       dateFilteredAppointments = appointments.filter(appointment =>
-        appointment.date === formatDate(selectedDate)
+        formatDate(new Date(appointment.appointmentAt)) === formatDate(selectedDate)
       );
     } else if (viewMode === 'week') {
       const weekDates = getWeekDates(selectedDate);
       const weekDatesStr = weekDates.map(d => formatDate(d));
       dateFilteredAppointments = appointments.filter(appointment =>
-        weekDatesStr.includes(appointment.date)
+        weekDatesStr.includes(formatDate(new Date(appointment.appointmentAt)))
       );
     } else if (viewMode === 'month') {
       const monthDates = getMonthDates(selectedDate);
       const monthDatesStr = monthDates.map(d => formatDate(d));
       dateFilteredAppointments = appointments.filter(appointment =>
-        monthDatesStr.includes(appointment.date)
+        monthDatesStr.includes(formatDate(new Date(appointment.appointmentAt)))
       );
     }
 
@@ -211,11 +139,11 @@ const Agenda = () => {
     return dateFilteredAppointments.filter((appointment) => {
       const term = search.toLowerCase();
       const matchesSearch =
-        appointment.patient.toLowerCase().includes(term) ||
-        appointment.service.toLowerCase().includes(term) ||
-        appointment.doctor.toLowerCase().includes(term);
+        appointment.patient?.fullName.toLowerCase().includes(term) ||
+        appointment.service?.name.toLowerCase().includes(term) ||
+        appointment.employee?.fullName.toLowerCase().includes(term);
       const matchesStatus = filterStatus ? appointment.status === filterStatus : true;
-      const matchesDoctor = filterDoctor ? appointment.doctor === filterDoctor : true;
+      const matchesDoctor = filterDoctor ? appointment.employee?.fullName === filterDoctor : true;
       return matchesSearch && matchesStatus && matchesDoctor;
     });
   };
@@ -229,25 +157,16 @@ const Agenda = () => {
   const totalWeekAppointments = weekTotals.reduce((acc, cur) => acc + cur, 0);
 
   // Função para adicionar nova consulta
-  const handleAddAppointment = (newAppointment: {
-    patient: string;
-    phone: string;
-    service: string;
-    doctor: string;
-    date: Date;
-    time: string;
-    duration: string;
-    notes?: string;
-    status: string;
-  }) => {
-    const appointment = {
-      ...newAppointment,
-      id: Math.max(...appointments.map(a => a.id)) + 1,
-      date: newAppointment.date.toISOString().split('T')[0], // Converter Date para string
-    };
-    setAppointments(prev => [...prev, appointment]);
-    setOpenAddAppointmentDialog(false);
-    toast.success(`Consulta agendada para ${appointment.patient} em ${appointment.date} às ${appointment.time}`);
+  const handleAddAppointment = async (newAppointment: CreateAppointmentData) => {
+    try {
+      const appointment = await appointmentService.createAppointment(newAppointment);
+      setAppointments(prev => [...prev, appointment]);
+      setOpenAddAppointmentDialog(false);
+      toast.success(`Consulta agendada com sucesso!`);
+    } catch (error) {
+      console.error('Erro ao agendar consulta:', error);
+      toast.error('Erro ao agendar consulta');
+    }
   };
 
   return (
@@ -411,7 +330,7 @@ const Agenda = () => {
                         </div>
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-gray-900">{appointment.patient}</h3>
+                            <h3 className="font-semibold text-gray-900">{appointment.patient?.fullName || 'Paciente não encontrado'}</h3>
                             <Badge
                               variant={getAppointmentStatusBadge(appointment.status).variant}
                               className={getAppointmentStatusBadge(appointment.status).className}
@@ -420,17 +339,17 @@ const Agenda = () => {
                             </Badge>
                           </div>
                           <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <span>{appointment.time}</span>
+                            <span>{new Date(appointment.appointmentAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
                             <span>•</span>
-                            <span>{appointment.duration}</span>
+                            <span>{appointment.service?.durationMinutes || 30}min</span>
                             <span>•</span>
-                            <span>{appointment.service}</span>
+                            <span>{appointment.service?.name || 'Serviço não encontrado'}</span>
                             <span>•</span>
-                            <span>com {appointment.doctor}</span>
+                            <span>com {appointment.employee?.fullName || 'Funcionário não encontrado'}</span>
                           </div>
                           {viewMode !== 'day' && (
                             <p className="text-xs text-gray-500 font-medium">
-                              {new Date(appointment.date + 'T00:00:00').toLocaleDateString('pt-BR', {
+                              {new Date(appointment.appointmentAt).toLocaleDateString('pt-BR', {
                                 weekday: 'short',
                                 day: '2-digit',
                                 month: '2-digit'
@@ -533,7 +452,7 @@ const Agenda = () => {
                       const date = new Date(year, month, day);
                       const isCurrentDay = isToday(date);
                       const isSelected = isSameDate(date, selectedDate);
-                      const dayAppointments = appointments.filter(apt => apt.date === formatDate(date));
+                      const dayAppointments = appointments.filter(apt => formatDate(new Date(apt.appointmentAt)) === formatDate(date));
 
                       days.push(
                         <div

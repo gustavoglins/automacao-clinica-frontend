@@ -36,21 +36,16 @@ class EmployeeTransformer {
   static fromSupabase(supabaseEmployee: SupabaseEmployee, workSchedules?: SupabaseEmployeeWorkSchedule[]): Employee {
     const employee: Employee = {
       id: supabaseEmployee.id,
-      name: supabaseEmployee.name,
-      email: supabaseEmployee.email,
-      phone: supabaseEmployee.phone,
+      fullName: supabaseEmployee.full_name,
       cpf: supabaseEmployee.cpf,
       role: supabaseEmployee.role,
-      specialty: supabaseEmployee.specialty,
-      registrationNumber: supabaseEmployee.registration_number,
-      hireDate: supabaseEmployee.hire_date,
-      salary: supabaseEmployee.salary,
       status: supabaseEmployee.status,
-      visibleOnSchedule: supabaseEmployee.visible_on_schedule,
-      acceptsOnlineBooking: supabaseEmployee.accepts_online_booking,
-      showContact: supabaseEmployee.show_contact,
-      avatarUrl: supabaseEmployee.avatar_url,
-      notes: supabaseEmployee.notes,
+      specialty: supabaseEmployee.specialty,
+      crmNumber: supabaseEmployee.crm_number,
+      salary: supabaseEmployee.salary,
+      phone: supabaseEmployee.phone,
+      email: supabaseEmployee.email,
+      hiredAt: supabaseEmployee.hired_at,
       createdAt: supabaseEmployee.created_at,
       updatedAt: supabaseEmployee.updated_at
     };
@@ -78,21 +73,16 @@ class EmployeeTransformer {
    */
   static toSupabaseInsert(employeeData: CreateEmployeeData): SupabaseEmployeeInsert {
     return {
-      name: employeeData.name,
-      email: employeeData.email,
-      phone: employeeData.phone,
-      cpf: employeeData.cpf || null,
+      full_name: employeeData.fullName,
+      cpf: employeeData.cpf,
       role: employeeData.role,
-      specialty: employeeData.specialty || null,
-      registration_number: employeeData.registrationNumber || null,
-      hire_date: employeeData.hireDate,
-      salary: employeeData.salary || null,
       status: employeeData.status || 'ativo',
-      visible_on_schedule: employeeData.visibleOnSchedule ?? true,
-      accepts_online_booking: employeeData.acceptsOnlineBooking ?? true,
-      show_contact: employeeData.showContact ?? false,
-      avatar_url: employeeData.avatarUrl || null,
-      notes: employeeData.notes || null
+      specialty: employeeData.specialty || null,
+      crm_number: employeeData.crmNumber || null,
+      salary: employeeData.salary || null,
+      phone: employeeData.phone || null,
+      email: employeeData.email || null,
+      hired_at: employeeData.hiredAt
     };
   }
 
@@ -100,7 +90,7 @@ class EmployeeTransformer {
    * Transform work schedule data to Supabase insert format
    */
   static toSupabaseWorkScheduleInsert(
-    employeeId: number,
+    employeeId: string,
     workDays: string[],
     startHour: string,
     endHour: string
@@ -120,21 +110,16 @@ class EmployeeTransformer {
     const updateData: SupabaseEmployeeUpdate = {};
 
     // Only include fields that are provided
-    if (employeeData.name !== undefined) updateData.name = employeeData.name;
-    if (employeeData.email !== undefined) updateData.email = employeeData.email;
-    if (employeeData.phone !== undefined) updateData.phone = employeeData.phone;
-    if (employeeData.cpf !== undefined) updateData.cpf = employeeData.cpf || null;
+    if (employeeData.fullName !== undefined) updateData.full_name = employeeData.fullName;
+    if (employeeData.cpf !== undefined) updateData.cpf = employeeData.cpf;
     if (employeeData.role !== undefined) updateData.role = employeeData.role;
-    if (employeeData.specialty !== undefined) updateData.specialty = employeeData.specialty || null;
-    if (employeeData.registrationNumber !== undefined) updateData.registration_number = employeeData.registrationNumber || null;
-    if (employeeData.hireDate !== undefined) updateData.hire_date = employeeData.hireDate;
-    if (employeeData.salary !== undefined) updateData.salary = employeeData.salary || null;
     if (employeeData.status !== undefined) updateData.status = employeeData.status;
-    if (employeeData.visibleOnSchedule !== undefined) updateData.visible_on_schedule = employeeData.visibleOnSchedule;
-    if (employeeData.acceptsOnlineBooking !== undefined) updateData.accepts_online_booking = employeeData.acceptsOnlineBooking;
-    if (employeeData.showContact !== undefined) updateData.show_contact = employeeData.showContact;
-    if (employeeData.avatarUrl !== undefined) updateData.avatar_url = employeeData.avatarUrl || null;
-    if (employeeData.notes !== undefined) updateData.notes = employeeData.notes || null;
+    if (employeeData.specialty !== undefined) updateData.specialty = employeeData.specialty || null;
+    if (employeeData.crmNumber !== undefined) updateData.crm_number = employeeData.crmNumber || null;
+    if (employeeData.salary !== undefined) updateData.salary = employeeData.salary || null;
+    if (employeeData.phone !== undefined) updateData.phone = employeeData.phone || null;
+    if (employeeData.email !== undefined) updateData.email = employeeData.email || null;
+    if (employeeData.hiredAt !== undefined) updateData.hired_at = employeeData.hiredAt;
 
     return updateData;
   }
@@ -149,7 +134,7 @@ class EmployeeService {
       const { data, error } = await supabase
         .from('employees')
         .select('*')
-        .order('name');
+        .order('full_name');
 
       if (error) throw error;
 
@@ -164,7 +149,7 @@ class EmployeeService {
   /**
    * Get employee by ID
    */
-  async getEmployeeById(id: number): Promise<Employee | null> {
+  async getEmployeeById(id: string): Promise<Employee | null> {
     try {
       const { data, error } = await supabase
         .from('employees')
@@ -304,7 +289,7 @@ class EmployeeService {
 
         // Then, insert new schedules
         const schedules = EmployeeTransformer.toSupabaseWorkScheduleInsert(
-          employeeData.id,
+          employeeData.id.toString(),
           employeeData.workDays,
           employeeData.startHour,
           employeeData.endHour
@@ -330,7 +315,7 @@ class EmployeeService {
   /**
    * Delete an employee
    */
-  async deleteEmployee(id: number): Promise<void> {
+  async deleteEmployee(id: string): Promise<void> {
     try {
       const { error } = await supabase
         .from('employees')
@@ -350,7 +335,7 @@ class EmployeeService {
   /**
    * Delete an employee with related data
    */
-  async deleteEmployeeWithRelations(id: number): Promise<void> {
+  async deleteEmployeeWithRelations(id: string): Promise<void> {
     try {
       // First, delete related work schedules
       const { error: scheduleError } = await supabase
@@ -377,8 +362,8 @@ class EmployeeService {
       const { data, error } = await supabase
         .from('employees')
         .select('*')
-        .or(`name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`)
-        .order('name');
+        .or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`)
+        .order('full_name');
 
       if (error) throw error;
 
@@ -406,10 +391,10 @@ class EmployeeService {
       }
 
       if (filters.search && filters.search.trim() !== '') {
-        query = query.or(`name.ilike.%${filters.search}%,email.ilike.%${filters.search}%,phone.ilike.%${filters.search}%`);
+        query = query.or(`full_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%,phone.ilike.%${filters.search}%`);
       }
 
-      const { data, error } = await query.order('name');
+      const { data, error } = await query.order('full_name');
 
       if (error) throw error;
 
@@ -448,7 +433,7 @@ class EmployeeService {
         }
 
         // Count recent additions
-        const hireDate = new Date(emp.hireDate);
+        const hireDate = new Date(emp.hiredAt);
         if (hireDate >= thirtyDaysAgo) {
           stats.recent++;
         }
@@ -467,7 +452,7 @@ class EmployeeService {
   validateEmployeeData(data: CreateEmployeeData | UpdateEmployeeData): ValidationResult {
     const errors: string[] = [];
 
-    if ('name' in data && (!data.name || data.name.trim().length < 2)) {
+    if ('fullName' in data && (!data.fullName || data.fullName.trim().length < 2)) {
       errors.push('Nome deve ter pelo menos 2 caracteres');
     }
 

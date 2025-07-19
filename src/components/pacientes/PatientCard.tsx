@@ -13,11 +13,22 @@ export const PatientCard = ({
   patient,
   onViewRecord
 }: PatientCardProps) => {
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').slice(0, 2);
+  const getInitials = (fullName: string) => {
+    return fullName.split(' ').map(n => n[0]).join('').slice(0, 2);
   };
 
-  const statusBadge = getPatientStatusBadge(patient.status);
+  const calculateAge = (birthDate: string) => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const statusBadge = getPatientStatusBadge('ativo');
   const planBadge = getPlanBadge();
 
   return (
@@ -25,35 +36,39 @@ export const PatientCard = ({
       <div className="flex items-center gap-4">
         <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
           <span className="font-semibold text-blue-600">
-            {getInitials(patient.name)}
+            {getInitials(patient.fullName)}
           </span>
         </div>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-gray-900">{patient.name}</h3>
+            <h3 className="font-semibold text-gray-900">{patient.fullName}</h3>
             <Badge variant={statusBadge.variant} className={statusBadge.className}>
-              {patient.status}
+              Ativo
             </Badge>
             <Badge variant={planBadge.variant} className={planBadge.className}>
-              {patient.plan}
+              Particular
             </Badge>
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-600">
-            <span>{patient.age} anos</span>
-            <div className="flex items-center gap-1">
-              <Phone className="w-3 h-3" />
-              {patient.phone}
-            </div>
-            <div className="flex items-center gap-1">
-              <Mail className="w-3 h-3" />
-              {patient.email}
-            </div>
+            <span>{calculateAge(patient.birthDate)} anos</span>
+            {patient.phone && (
+              <div className="flex items-center gap-1">
+                <Phone className="w-3 h-3" />
+                {patient.phone}
+              </div>
+            )}
+            {patient.email && (
+              <div className="flex items-center gap-1">
+                <Mail className="w-3 h-3" />
+                {patient.email}
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-4 text-xs text-gray-500">
-            <span>Última: {new Date(patient.lastVisit).toLocaleDateString('pt-BR')}</span>
-            {patient.nextVisit && (
-              <span className="text-blue-600">
-                Próxima: {new Date(patient.nextVisit).toLocaleDateString('pt-BR')}
+            <span>CPF: {patient.cpf}</span>
+            {patient.address && (
+              <span className="text-gray-500">
+                {patient.address}
               </span>
             )}
           </div>

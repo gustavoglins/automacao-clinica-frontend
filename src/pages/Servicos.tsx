@@ -10,19 +10,10 @@ import {
   DeleteServiceDialog,
   FilterDialog
 } from "@/components/servicos";
+import { Service, CreateServiceData } from "@/types/service";
+import { serviceService } from "@/services/servicesService";
 
-// Interface para os serviços
-interface Service {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  duration: number; // em minutos
-  category: string;
-  isActive: boolean;
-  createdAt: string;
-}
-
+// Interface para o formulário de serviço
 interface ServiceFormData {
   name: string;
   description: string;
@@ -63,72 +54,20 @@ const Servicos = () => {
   });
 
   useEffect(() => {
-    // Simula carregamento dos dados
-    const loadedServices = [
-      {
-        id: 1,
-        name: "Consulta de Rotina",
-        description: "Exame clínico completo para prevenção e diagnóstico precoce",
-        price: 120.00,
-        duration: 30,
-        category: "preventivo",
-        isActive: true,
-        createdAt: "2024-01-15"
-      },
-      {
-        id: 2,
-        name: "Limpeza Dental",
-        description: "Profilaxia com remoção de tártaro e polimento dos dentes",
-        price: 80.00,
-        duration: 45,
-        category: "preventivo",
-        isActive: true,
-        createdAt: "2024-01-15"
-      },
-      {
-        id: 3,
-        name: "Restauração em Resina",
-        description: "Tratamento de cáries com material estético",
-        price: 180.00,
-        duration: 60,
-        category: "restaurador",
-        isActive: true,
-        createdAt: "2024-01-15"
-      },
-      {
-        id: 4,
-        name: "Aparelho Ortodôntico",
-        description: "Instalação e acompanhamento de aparelho fixo",
-        price: 2500.00,
-        duration: 90,
-        category: "ortodontia",
-        isActive: true,
-        createdAt: "2024-01-15"
-      },
-      {
-        id: 5,
-        name: "Clareamento Dental",
-        description: "Procedimento estético para branqueamento dos dentes",
-        price: 450.00,
-        duration: 120,
-        category: "estetico",
-        isActive: true,
-        createdAt: "2024-01-15"
-      },
-      {
-        id: 6,
-        name: "Extração Simples",
-        description: "Remoção de dente sem complicações",
-        price: 200.00,
-        duration: 30,
-        category: "cirurgia",
-        isActive: false,
-        createdAt: "2024-01-15"
+    const fetchServices = async () => {
+      try {
+        setLoading(true);
+        const data = await serviceService.getAllServices();
+        setServices(data);
+        setFilteredServices(data);
+      } catch (error) {
+        console.error('Erro ao carregar serviços:', error);
+      } finally {
+        setLoading(false);
       }
-    ];
+    };
 
-    setServices(loadedServices);
-    setFilteredServices(loadedServices);
+    fetchServices();
   }, []);
 
   // Filtrar serviços
@@ -151,7 +90,7 @@ const Servicos = () => {
     // Filtro por status
     if (statusFilter !== "all") {
       filtered = filtered.filter(service =>
-        statusFilter === "active" ? service.isActive : !service.isActive
+        statusFilter === "active" ? service.active : !service.active
       );
     }
 
@@ -194,7 +133,7 @@ const Servicos = () => {
     // Filtro por duração
     if (advancedFilters.duration) {
       filtered = filtered.filter(service => {
-        const duration = service.duration;
+        const duration = service.durationMinutes;
         switch (advancedFilters.duration) {
           case "0-30":
             return duration <= 30;
@@ -227,52 +166,60 @@ const Servicos = () => {
     });
   };
 
-  const handleAddService = () => {
+  const handleAddService = async () => {
     if (!formData.name || !formData.category || !formData.price) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
 
-    const newService: Service = {
-      id: Date.now(),
-      name: formData.name,
-      description: formData.description,
-      price: parseFloat(formData.price),
-      duration: parseInt(formData.duration) || 30,
-      category: formData.category,
-      isActive: formData.isActive,
-      createdAt: new Date().toISOString().split('T')[0]
-    };
+    try {
+      const newServiceData: CreateServiceData = {
+        name: formData.name,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        durationMinutes: parseInt(formData.duration) || 30,
+        category: formData.category,
+        active: formData.isActive
+      };
 
-    setServices(prev => [...prev, newService]);
-    setIsAddDialogOpen(false);
-    resetForm();
-    toast.success("Serviço adicionado com sucesso!");
+      const newService = await serviceService.createService(newServiceData);
+      setServices(prev => [...prev, newService]);
+      setIsAddDialogOpen(false);
+      resetForm();
+      toast.success("Serviço adicionado com sucesso!");
+    } catch (error) {
+      console.error('Erro ao adicionar serviço:', error);
+    }
   };
 
-  const handleEditService = () => {
+  const handleEditService = async () => {
     if (!selectedService || !formData.name || !formData.category || !formData.price) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
 
-    const updatedService = {
-      ...selectedService,
-      name: formData.name,
-      description: formData.description,
-      price: parseFloat(formData.price),
-      duration: parseInt(formData.duration) || 30,
-      category: formData.category,
-      isActive: formData.isActive
-    };
+    try {
+      const updatedServiceData = {
+        id: selectedService.id,
+        name: formData.name,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        durationMinutes: parseInt(formData.duration) || 30,
+        category: formData.category,
+        active: formData.isActive
+      };
 
-    setServices(prev => prev.map(service =>
-      service.id === selectedService.id ? updatedService : service
-    ));
-    setIsEditDialogOpen(false);
-    setSelectedService(null);
-    resetForm();
-    toast.success("Serviço atualizado com sucesso!");
+      const updatedService = await serviceService.updateService(updatedServiceData);
+      setServices(prev => prev.map(service =>
+        service.id === selectedService.id ? updatedService : service
+      ));
+      setIsEditDialogOpen(false);
+      setSelectedService(null);
+      resetForm();
+      toast.success("Serviço atualizado com sucesso!");
+    } catch (error) {
+      console.error('Erro ao atualizar serviço:', error);
+    }
   };
 
   const handleDeleteService = () => {
@@ -288,11 +235,11 @@ const Servicos = () => {
     setSelectedService(service);
     setFormData({
       name: service.name,
-      description: service.description,
+      description: service.description || "",
       price: service.price.toString(),
-      duration: service.duration.toString(),
+      duration: service.durationMinutes.toString(),
       category: service.category,
-      isActive: service.isActive
+      isActive: service.active
     });
     setIsEditDialogOpen(true);
   };
@@ -368,8 +315,8 @@ const Servicos = () => {
     : 0;
 
   // Serviços ativos vs inativos
-  const activeServices = services.filter(service => service.isActive).length;
-  const inactiveServices = services.filter(service => !service.isActive).length;
+  const activeServices = services.filter(service => service.active).length;
+  const inactiveServices = services.filter(service => !service.active).length;
 
   return (
     <AppLayout>
