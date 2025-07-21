@@ -72,12 +72,66 @@ class EmployeeTransformer {
    * Transform CreateEmployeeData to Supabase insert format
    */
   static toSupabaseInsert(employeeData: CreateEmployeeData): SupabaseEmployeeInsert {
+    // Mapear valores do frontend para os ENUMs do banco
+    const mapRoleToEnum = (role: string): string => {
+      const roleMap: Record<string, string> = {
+        'Dentista': 'dentista',
+        'Assistente': 'auxiliar_saude_bucal',
+        'Recepcionista': 'recepcionista',
+        'Gerente': 'gerente',
+        'Auxiliar': 'auxiliar_saude_bucal',
+        'Ortodontista': 'ortodontista',
+        'Endodontista': 'endodontista',
+        'Periodontista': 'periodontista',
+        'Implantodontista': 'implantodontista',
+        'Cirurgião': 'cirurgiao_buco_maxilo',
+        'Higienista': 'higienista',
+        'Técnico': 'tecnico_saude_bucal'
+      };
+      return roleMap[role] || 'dentista';
+    };
+
+    const mapSpecialtyToEnum = (specialty: string): string | null => {
+      if (!specialty) return null;
+
+      const specialtyMap: Record<string, string> = {
+        'Ortodontia': 'ortodontista',
+        'Endodontia': 'endodontista',
+        'Periodontia': 'periodontista',
+        'Implantodontia': 'implantodontista',
+        'Cirurgia Oral': 'cirurgiao_buco_maxilo',
+        'Clínica Geral': 'clinico_geral',
+        'Odontopediatria': 'odontopediatra',
+        'Prótese': 'protesista',
+        'Radiologia': 'radiologista',
+        'Estética': 'odontologia_estetica'
+      };
+      return specialtyMap[specialty] || null;
+    };
+
+    const mapStatusToEnum = (status: string): string => {
+      const statusMap: Record<string, string> = {
+        'ativo': 'ativo',
+        'inativo': 'demitido',
+        'suspenso': 'afastado'
+      };
+      return statusMap[status] || 'ativo';
+    };
+
+    // Limpar CPF - remover pontos e traços
+    const cleanCpf = employeeData.cpf ? employeeData.cpf.replace(/\D/g, '') : '';
+
+    // Validar se o CPF tem 11 dígitos
+    if (cleanCpf && cleanCpf.length !== 11) {
+      throw new Error(`CPF deve ter 11 dígitos. Recebido: ${cleanCpf.length} dígitos`);
+    }
+
     return {
       full_name: employeeData.fullName,
-      cpf: employeeData.cpf,
-      role: employeeData.role,
-      status: employeeData.status || 'ativo',
-      specialty: employeeData.specialty || null,
+      cpf: cleanCpf,
+      role: mapRoleToEnum(employeeData.role),
+      status: mapStatusToEnum(employeeData.status || 'ativo'),
+      specialty: mapSpecialtyToEnum(employeeData.specialty || ''),
       crm_number: employeeData.crmNumber || null,
       salary: employeeData.salary || null,
       phone: employeeData.phone || null,
@@ -94,7 +148,12 @@ class EmployeeTransformer {
     workDays: string[],
     startHour: string,
     endHour: string
-  ): SupabaseEmployeeWorkScheduleInsert[] {
+  ): Array<{
+    employee_id: string;
+    weekday: number;
+    start_time: string;
+    end_time: string;
+  }> {
     return workDays.map(day => ({
       employee_id: employeeId,
       weekday: WEEKDAY_MAP[day],
@@ -131,16 +190,26 @@ class EmployeeService {
    */
   async getAllEmployees(): Promise<Employee[]> {
     try {
+      console.log('🔄 Buscando funcionários...');
+
       const { data, error } = await supabase
         .from('employees')
         .select('*')
         .order('full_name');
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao buscar funcionários:', error);
+        throw error;
+      }
 
-      return data.map(EmployeeTransformer.fromSupabaseSimple);
+      console.log('📊 Dados brutos do Supabase:', data);
+
+      const employees = data.map(EmployeeTransformer.fromSupabaseSimple);
+      console.log('👥 Funcionários processados:', employees);
+
+      return employees;
     } catch (error) {
-      console.error('Error fetching employees:', error);
+      console.error('❌ Erro ao carregar funcionários:', error);
       toast.error('Erro ao carregar funcionários');
       throw error;
     }
@@ -199,7 +268,10 @@ class EmployeeService {
    */
   async createEmployeeWithSchedule(employeeData: CreateEmployeeData): Promise<Employee> {
     try {
+      console.log('🔄 Tentando criar funcionário com dados:', employeeData);
+
       const insertData = EmployeeTransformer.toSupabaseInsert(employeeData);
+      console.log('📝 Dados para inserção:', insertData);
 
       const { data, error } = await supabase
         .from('employees')
@@ -207,10 +279,17 @@ class EmployeeService {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao criar funcionário:', error);
+        throw error;
+      }
+
+      console.log('✅ Funcionário criado com sucesso:', data);
 
       // Add work schedules if provided
       if (employeeData.workDays && employeeData.workDays.length > 0 && employeeData.startHour && employeeData.endHour) {
+        console.log('🕐 Criando horários de trabalho...');
+
         const schedules = EmployeeTransformer.toSupabaseWorkScheduleInsert(
           data.id,
           employeeData.workDays,
@@ -218,18 +297,25 @@ class EmployeeService {
           employeeData.endHour
         );
 
+        console.log('📅 Horários para inserir:', schedules);
+
         const { error: scheduleError } = await supabase
-          .from('employee_work_schedules')
+          .from('work_hours')
           .insert(schedules);
 
-        if (scheduleError) throw scheduleError;
+        if (scheduleError) {
+          console.error('❌ Erro ao criar horários:', scheduleError);
+          throw scheduleError;
+        }
+
+        console.log('✅ Horários criados com sucesso');
       }
 
       toast.success('Funcionário adicionado com sucesso!');
 
       return EmployeeTransformer.fromSupabase(data);
     } catch (error) {
-      console.error('Error creating employee:', error);
+      console.error('❌ Erro ao criar funcionário:', error);
       toast.error('Erro ao adicionar funcionário');
       throw error;
     }
@@ -471,9 +557,12 @@ class EmployeeService {
     }
 
     if ('cpf' in data && data.cpf) {
-      const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
-      if (!cpfRegex.test(data.cpf)) {
-        errors.push('CPF deve estar no formato XXX.XXX.XXX-XX');
+      // CPF deve ter exatamente 11 dígitos numéricos
+      const cleanCpf = data.cpf.replace(/\D/g, '');
+      if (cleanCpf.length !== 11) {
+        errors.push('CPF deve ter exatamente 11 dígitos');
+      } else if (!/^\d{11}$/.test(cleanCpf)) {
+        errors.push('CPF deve conter apenas números');
       }
     }
 

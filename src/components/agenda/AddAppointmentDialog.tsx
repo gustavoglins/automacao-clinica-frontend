@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,9 @@ import {
   CalendarPlus,
 } from "lucide-react";
 import { cn, formatPhone, onlyNumbers } from "@/lib/utils";
+import { patientService } from "@/services/patientService";
+import { employeeService } from "@/services/employeeService";
+import { serviceService } from "@/services/servicesService";
 import { CreateAppointmentData } from "@/types/appointment";
 
 interface AddAppointmentDialogProps {
@@ -30,26 +33,7 @@ interface AddAppointmentDialogProps {
   onAddAppointment: (appointment: CreateAppointmentData) => void;
 }
 
-const services = [
-  "Consulta de Rotina",
-  "Limpeza Dental",
-  "Restauração",
-  "Tratamento de Canal",
-  "Extração",
-  "Implante",
-  "Aparelho Ortodôntico",
-  "Clareamento Dental",
-  "Cirurgia",
-  "Emergência",
-];
 
-const doctors = [
-  "Dr. João Silva",
-  "Dra. Ana Costa",
-  "Dr. Roberto Santos",
-  "Dra. Maria Oliveira",
-  "Dr. Carlos Lima",
-];
 
 const timeSlots = [
   "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
@@ -70,37 +54,63 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
   onAddAppointment,
 }) => {
   const [formData, setFormData] = useState({
-    patient: "",
+    patientId: "",
+    employeeId: "",
+    serviceId: "",
     phone: "",
-    service: "",
-    doctor: "",
     date: undefined as Date | undefined,
     time: "",
     duration: "",
     notes: "",
   });
 
+  const [patients, setPatients] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [services, setServices] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const [patientsData, employeesData, servicesData] = await Promise.all([
+        patientService.getAllPatients(),
+        employeeService.getAllEmployees(),
+        serviceService.getAllServices(),
+      ]);
+      setPatients(patientsData);
+      setEmployees(employeesData);
+      setServices(servicesData);
+    }
+    fetchData();
+  }, []);
+
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.patient || !formData.phone || !formData.service ||
-      !formData.doctor || !formData.date || !formData.time || !formData.duration) {
+    if (!formData.patientId || !formData.employeeId || !formData.serviceId ||
+      !formData.phone || !formData.date || !formData.time || !formData.duration) {
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Por enquanto, vamos criar um mock do CreateAppointmentData
-      // Em uma implementação real, você precisaria buscar os IDs reais
+      // Monta appointmentAt e appointmentEnd
+      const [hour, minute] = formData.time.split(":");
+      const startDate = new Date(formData.date!);
+      startDate.setHours(Number(hour), Number(minute), 0, 0);
+      let durationMinutes = 30;
+      if (formData.duration === "1h") durationMinutes = 60;
+      else if (formData.duration === "1h30min") durationMinutes = 90;
+      else if (formData.duration === "2h") durationMinutes = 120;
+      const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
+
       const appointment: CreateAppointmentData = {
-        patientId: "mock-patient-id", // Deveria ser o ID real do paciente
-        employeeId: "mock-employee-id", // Deveria ser o ID real do funcionário
-        serviceId: 1, // Deveria ser o ID real do serviço
-        appointmentAt: formData.date!.toISOString(),
-        appointmentEnd: new Date(formData.date!.getTime() + 30 * 60 * 1000).toISOString(), // 30 min depois
+        patientId: formData.patientId,
+        employeeId: formData.employeeId,
+        serviceId: Number(formData.serviceId),
+        appointmentAt: startDate.toISOString(),
+        appointmentEnd: endDate.toISOString(),
         status: "agendada"
       };
 
@@ -114,10 +124,10 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
 
   const handleClose = () => {
     setFormData({
-      patient: "",
+      patientId: "",
+      employeeId: "",
+      serviceId: "",
       phone: "",
-      service: "",
-      doctor: "",
       date: undefined,
       time: "",
       duration: "",
@@ -126,8 +136,8 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
     onOpenChange(false);
   };
 
-  const isFormValid = formData.patient && formData.phone && formData.service &&
-    formData.doctor && formData.date && formData.time && formData.duration;
+  const isFormValid = formData.patientId && formData.employeeId && formData.serviceId &&
+    formData.phone && formData.date && formData.time && formData.duration;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -154,14 +164,22 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="patient">Nome do Paciente *</Label>
-                  <Input
-                    id="patient"
-                    placeholder="Digite o nome completo"
-                    value={formData.patient}
-                    onChange={(e) => setFormData({ ...formData, patient: e.target.value })}
-                    required
-                  />
+                  <Label htmlFor="patientId">Paciente *</Label>
+                  <Select value={formData.patientId} onValueChange={async (value) => {
+                    const selected = patients.find((p) => p.id === value);
+                    setFormData({ ...formData, patientId: value, phone: selected?.phone || "" });
+                  }}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o paciente" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {patients.map((patient) => (
+                        <SelectItem key={patient.id} value={patient.id}>
+                          {patient.fullName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
@@ -193,15 +211,15 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="service">Serviço *</Label>
-                  <Select value={formData.service} onValueChange={(value) => setFormData({ ...formData, service: value })}>
+                  <Label htmlFor="serviceId">Serviço *</Label>
+                  <Select value={formData.serviceId} onValueChange={(value) => setFormData({ ...formData, serviceId: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o serviço" />
                     </SelectTrigger>
                     <SelectContent>
                       {services.map((service) => (
-                        <SelectItem key={service} value={service}>
-                          {service}
+                        <SelectItem key={service.id} value={service.id.toString()}>
+                          {service.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -209,15 +227,15 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="doctor">Profissional *</Label>
-                  <Select value={formData.doctor} onValueChange={(value) => setFormData({ ...formData, doctor: value })}>
+                  <Label htmlFor="employeeId">Profissional *</Label>
+                  <Select value={formData.employeeId} onValueChange={(value) => setFormData({ ...formData, employeeId: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o profissional" />
                     </SelectTrigger>
                     <SelectContent>
-                      {doctors.map((doctor) => (
-                        <SelectItem key={doctor} value={doctor}>
-                          {doctor}
+                      {employees.map((employee) => (
+                        <SelectItem key={employee.id} value={employee.id}>
+                          {employee.fullName}
                         </SelectItem>
                       ))}
                     </SelectContent>

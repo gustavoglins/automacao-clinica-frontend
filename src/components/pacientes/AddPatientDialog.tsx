@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { applyPhoneMask, onlyNumbers } from "@/lib/utils";
+import { applyPhoneMask, onlyNumbers, applyCpfMask } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -60,6 +60,13 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
         ...prev,
         [field]: applyPhoneMask(value)
       }));
+    } else if (field === "cpf") {
+      // Aceita apenas números, limita a 11 dígitos e aplica máscara visual
+      const onlyNums = onlyNumbers(value).slice(0, 11);
+      setFormData(prev => ({
+        ...prev,
+        cpf: applyCpfMask(onlyNums)
+      }));
     } else {
       setFormData(prev => ({
         ...prev,
@@ -86,7 +93,7 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
     try {
       const newPatient: CreatePatientData = {
         fullName: formData.fullName,
-        cpf: formData.cpf,
+        cpf: onlyNumbers(formData.cpf), // Envia apenas números
         birthDate: formData.birthDate,
         phone: onlyNumbers(formData.phone),
         email: formData.email,
@@ -148,6 +155,8 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
                   <Input
                     id="cpf"
                     placeholder="000.000.000-00"
+                    inputMode="numeric"
+                    maxLength={14} // 11 números + máscara
                     value={formData.cpf}
                     onChange={(e) => handleInputChange("cpf", e.target.value)}
                     required

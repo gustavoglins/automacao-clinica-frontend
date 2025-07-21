@@ -9,6 +9,7 @@ export interface Service {
   active: boolean;
   createdAt: string;
   updatedAt: string;
+  times_used: number;
 }
 
 // Dados para criar um novo serviço
@@ -37,6 +38,7 @@ export interface SupabaseService {
   active: boolean;
   created_at: string;
   updated_at: string;
+  times_used: number;
 }
 
 // Dados para inserir no Supabase

@@ -5,6 +5,7 @@ export interface DashboardStats {
   totalPatients: number;
   monthlyRevenue: number;
   attendanceRate: number;
+  totalAppointments: number;
 }
 
 export interface TodayAppointment {
@@ -62,12 +63,10 @@ export const dashboardService = {
 
       const monthlyRevenue = monthlyPayments?.reduce((sum, payment) => sum + (payment.amount_paid || 0), 0) || 0;
 
-      // Taxa de comparecimento (consultas realizadas vs agendadas no mês)
+      // Total de consultas agendadas (todas)
       const { count: totalAppointments } = await supabase
         .from('appointments')
-        .select('*', { count: 'exact', head: true })
-        .gte('appointment_at', startOfMonth.toISOString())
-        .lte('appointment_at', endOfMonth.toISOString());
+        .select('*', { count: 'exact', head: true });
 
       const { count: completedAppointments } = await supabase
         .from('appointments')
@@ -82,7 +81,8 @@ export const dashboardService = {
         todayAppointments: todayAppointments || 0,
         totalPatients: totalPatients || 0,
         monthlyRevenue,
-        attendanceRate
+        attendanceRate,
+        totalAppointments: totalAppointments || 0
       };
     } catch (error) {
       console.error('Erro ao buscar estatísticas do dashboard:', error);
@@ -90,7 +90,8 @@ export const dashboardService = {
         todayAppointments: 0,
         totalPatients: 0,
         monthlyRevenue: 0,
-        attendanceRate: 0
+        attendanceRate: 0,
+        totalAppointments: 0
       };
     }
   },

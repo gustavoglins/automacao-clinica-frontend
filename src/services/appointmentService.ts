@@ -155,6 +155,27 @@ class AppointmentService {
 
       if (error) throw error;
 
+      // Incrementa o times_used do serviço relacionado
+      if (appointmentData.serviceId) {
+        try {
+          // Buscar o valor atual de times_used
+          const { data: serviceData, error: serviceError } = await supabase
+            .from('services')
+            .select('times_used')
+            .eq('id', appointmentData.serviceId)
+            .single();
+          if (!serviceError && serviceData) {
+            await supabase
+              .from('services')
+              .update({ times_used: (serviceData.times_used || 0) + 1 })
+              .eq('id', appointmentData.serviceId);
+          }
+        } catch (e) {
+          // Não bloqueia o agendamento se falhar
+          console.error('Erro ao incrementar times_used do serviço:', e);
+        }
+      }
+
       toast.success('Agendamento criado com sucesso!');
 
       return this.transformWithRelations(data);

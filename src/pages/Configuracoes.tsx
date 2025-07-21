@@ -1,17 +1,14 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { Clock, Calendar, Settings } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useClinic } from "@/context/ClinicContext";
 import { supabase } from "@/lib/supabaseClient";
+import { Clock, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { TestCRUD } from "@/components/TestCRUD";
 
 // Interface para os horários da clínica
 interface ClinicHour {
@@ -363,9 +360,6 @@ const Configuracoes = () => {
             </Button>
           </CardContent>
         </Card>
-
-        {/* Seção de Teste CRUD */}
-        <TestCRUD />
       </div>
     </AppLayout>
   );

@@ -227,7 +227,7 @@ const Servicos = () => {
       try {
         setLoading(true);
         await serviceService.deleteService(selectedService.id);
-        
+
         // Atualizar o estado local após deletar do banco
         setServices(prev => prev.filter(service => service.id !== selectedService.id));
         setIsDeleteDialogOpen(false);
@@ -311,11 +311,10 @@ const Servicos = () => {
   // Estatísticas dos serviços
   const totalServices = services.length;
 
-  // Serviço mais realizado (simulado - seria baseado em dados reais de agendamentos)
+  // Serviço mais realizado (baseado em times_used)
   const mostRequestedService = services.length > 0
     ? services.reduce((prev, current) =>
-      // Simulando popularidade baseada no ID (menor ID = mais antigo = mais popular)
-      prev.id < current.id ? prev : current
+      (current.times_used ?? 0) > (prev.times_used ?? 0) ? current : prev
     ).name
     : "N/A";
 

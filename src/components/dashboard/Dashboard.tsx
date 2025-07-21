@@ -26,7 +26,8 @@ export function Dashboard() {
     todayAppointments: 0,
     totalPatients: 0,
     monthlyRevenue: 0,
-    attendanceRate: 0
+    attendanceRate: 0,
+    totalAppointments: 0
   });
   const [activeEmployees, setActiveEmployees] = useState<number>(0);
   const [activeServices, setActiveServices] = useState<number>(0);
@@ -62,8 +63,8 @@ export function Dashboard() {
 
   const todayStats = [
     {
-      title: "Consultas Hoje",
-      value: stats.todayAppointments,
+      title: "Consultas Agendadas",
+      value: stats.totalAppointments,
       icon: Calendar,
       change: { value: "", type: "increase" as const }
     },

@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Phone, Mail, Calendar, User } from "lucide-react";
 import type { Employee } from "@/types/employee";
-import { formatPhone } from "@/lib/utils";
+import { formatPhone, formatRole, formatSpecialty, formatStatus } from "@/lib/utils";
 import { getEmployeeStatusBadge } from "@/lib/badgeUtils";
 
 interface EmployeeCardProps {
@@ -20,27 +20,37 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
   onOpenDelete
 }) => {
   const calculateWorkTime = (startDate: string) => {
-    const start = new Date(startDate);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    try {
+      const start = new Date(startDate);
+      const now = new Date();
 
-    if (diffDays < 30) {
-      return `${diffDays} dias`;
-    } else if (diffDays < 365) {
-      const months = Math.floor(diffDays / 30);
-      return `${months} ${months === 1 ? 'mês' : 'meses'}`;
-    } else {
-      const years = Math.floor(diffDays / 365);
-      const remainingMonths = Math.floor((diffDays % 365) / 30);
-      if (remainingMonths === 0) {
-        return `${years} ${years === 1 ? 'ano' : 'anos'}`;
+      // Verificar se a data é válida
+      if (isNaN(start.getTime())) {
+        return 'Data inválida';
       }
-      return `${years} ${years === 1 ? 'ano' : 'anos'} e ${remainingMonths} ${remainingMonths === 1 ? 'mês' : 'meses'}`;
+
+      const diffTime = Math.abs(now.getTime() - start.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays < 30) {
+        return `${diffDays} dias`;
+      } else if (diffDays < 365) {
+        const months = Math.floor(diffDays / 30);
+        return `${months} ${months === 1 ? 'mês' : 'meses'}`;
+      } else {
+        const years = Math.floor(diffDays / 365);
+        const remainingMonths = Math.floor((diffDays % 365) / 30);
+        if (remainingMonths === 0) {
+          return `${years} ${years === 1 ? 'ano' : 'anos'}`;
+        }
+        return `${years} ${years === 1 ? 'ano' : 'anos'} e ${remainingMonths} ${remainingMonths === 1 ? 'mês' : 'meses'}`;
+      }
+    } catch (error) {
+      return 'Data inválida';
     }
   };
 
-  const statusBadge = getEmployeeStatusBadge('ativo');
+  const statusBadge = getEmployeeStatusBadge(employee.status);
 
   return (
     <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl">
@@ -50,32 +60,32 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
         </div>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-gray-900">{employee.name}</h3>
+            <h3 className="font-semibold text-gray-900">{employee.fullName}</h3>
             <Badge variant={statusBadge.variant} className={statusBadge.className}>
-              Ativo
+              {formatStatus(employee.status)}
             </Badge>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <span>{employee.role}</span>
+            <span>{formatRole(employee.role)}</span>
             {employee.specialty && (
               <>
                 <span>•</span>
-                <span>{employee.specialty}</span>
+                <span>{formatSpecialty(employee.specialty)}</span>
               </>
             )}
           </div>
           <div className="flex items-center gap-4 mt-1">
             <div className="flex items-center gap-1 text-xs text-gray-500">
               <Phone className="w-3 h-3" />
-              <span>{formatPhone(employee.phone)}</span>
+              <span>{employee.phone ? formatPhone(employee.phone) : 'Não informado'}</span>
             </div>
             <div className="flex items-center gap-1 text-xs text-gray-500">
               <Mail className="w-3 h-3" />
-              <span>{employee.email}</span>
+              <span>{employee.email || 'Não informado'}</span>
             </div>
             <div className="flex items-center gap-1 text-xs text-gray-500">
               <Calendar className="w-3 h-3" />
-              <span>{calculateWorkTime(employee.hireDate)}</span>
+              <span>{calculateWorkTime(employee.hiredAt)}</span>
             </div>
           </div>
         </div>

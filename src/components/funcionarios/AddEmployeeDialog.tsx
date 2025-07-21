@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { employeeService } from "@/services/employeeService";
 import { toast } from "sonner";
-import { applyPhoneMask, onlyNumbers, isValidPhone, getPhoneInfo } from "@/lib/utils";
+import { applyPhoneMask, applyCpfMask, onlyNumbers, isValidPhone, isValidCpf, getPhoneInfo } from "@/lib/utils";
 import { X, Check } from "lucide-react";
 
 interface AddEmployeeDialogProps {
@@ -89,32 +89,53 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
       return;
     }
 
+    // Validar CPF se fornecido
+    if (formData.cpf && !isValidCpf(formData.cpf)) {
+      toast.error('CPF inválido');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
+      console.log('📝 Dados do formulário:', formData);
+      
       // Convert salary to number
       const employeeData = {
-        ...formData,
-        phone: onlyNumbers(formData.phone), // Salvar apenas os números
+        fullName: formData.name,
+        cpf: formData.cpf ? formData.cpf.replace(/\D/g, '') : '', // Limpar CPF
+        role: formData.role,
+        status: formData.status,
+        specialty: formData.specialty || undefined,
+        crmNumber: formData.registrationNumber || undefined,
         salary: formData.salary ? parseFloat(formData.salary) : undefined,
-        cpf: formData.cpf || undefined,
-        registrationNumber: formData.registrationNumber || undefined,
-        avatarUrl: formData.avatarUrl || undefined,
-        notes: formData.notes || undefined,
+        phone: onlyNumbers(formData.phone), // Salvar apenas os números
+        email: formData.email,
+        hiredAt: formData.hireDate,
+        workDays: formData.workDays,
+        startHour: formData.startHour,
+        endHour: formData.endHour
       };
+
+      console.log('🔧 Dados processados para o serviço:', employeeData);
 
       // Validate form data
       const validation = employeeService.validateEmployeeData(employeeData);
       if (!validation.isValid) {
+        console.error('❌ Validação falhou:', validation.errors);
         toast.error(validation.errors[0]);
         return;
       }
 
+      console.log('✅ Validação passou, criando funcionário...');
       await employeeService.createEmployeeWithSchedule(employeeData);
+      console.log('✅ Funcionário criado com sucesso!');
+      
       onEmployeeAdded();
       resetForm();
       onClose();
     } catch (error) {
+      console.error('❌ Erro no formulário:', error);
       // Error handling is already done in the service
     } finally {
       setIsLoading(false);
@@ -125,6 +146,10 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     if (field === "phone") {
       // Aplicar máscara de telefone
       const maskedValue = applyPhoneMask(value as string);
+      setFormData(prev => ({ ...prev, [field]: maskedValue }));
+    } else if (field === "cpf") {
+      // Aplicar máscara de CPF
+      const maskedValue = applyCpfMask(value as string);
       setFormData(prev => ({ ...prev, [field]: maskedValue }));
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
@@ -262,9 +287,11 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                   <Label htmlFor="cpf">CPF</Label>
                   <Input
                     id="cpf"
+                    type="text"
                     value={formData.cpf}
                     onChange={(e) => handleChange("cpf", e.target.value)}
                     placeholder="000.000.000-00"
+                    maxLength={14}
                   />
                 </div>
 

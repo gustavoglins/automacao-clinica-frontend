@@ -121,3 +121,153 @@ export function applyPhoneMask(value: string): string {
     return numbers.replace(/(\d{2})(\d{5})(\d{4}).*/, "($1) $2-$3");
   }
 }
+
+// Função para aplicar máscara de CPF em tempo real
+export function applyCpfMask(value: string): string {
+  const numbers = onlyNumbers(value);
+
+  // Aplicar máscara progressivamente conforme o usuário digita
+  if (numbers.length <= 3) {
+    return numbers;
+  } else if (numbers.length <= 6) {
+    return numbers.replace(/(\d{3})(\d*)/, "$1.$2");
+  } else if (numbers.length <= 9) {
+    return numbers.replace(/(\d{3})(\d{3})(\d*)/, "$1.$2.$3");
+  } else {
+    return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2}).*/, "$1.$2.$3-$4");
+  }
+}
+
+// Função para validar CPF
+export function isValidCpf(value: string): boolean {
+  const numbers = onlyNumbers(value);
+
+  // Deve ter exatamente 11 dígitos
+  if (numbers.length !== 11) return false;
+
+  // Deve conter apenas números
+  if (!/^\d{11}$/.test(numbers)) return false;
+
+  // Verificar se não são todos os mesmos dígitos
+  if (/^(\d)\1{10}$/.test(numbers)) return false;
+
+  // Algoritmo de validação do CPF
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += parseInt(numbers[i]) * (10 - i);
+  }
+  let remainder = (sum * 10) % 11;
+  if (remainder === 10 || remainder === 11) remainder = 0;
+  if (remainder !== parseInt(numbers[9])) return false;
+
+  sum = 0;
+  for (let i = 0; i < 10; i++) {
+    sum += parseInt(numbers[i]) * (11 - i);
+  }
+  remainder = (sum * 10) % 11;
+  if (remainder === 10 || remainder === 11) remainder = 0;
+  if (remainder !== parseInt(numbers[10])) return false;
+
+  return true;
+}
+
+// ===== FUNÇÕES DE TRANSFORMAÇÃO DE DADOS =====
+
+/**
+ * Transforma texto com underscores para formato legível
+ * Ex: "auxiliar_saude_bucal" -> "Auxiliar Saude Bucal"
+ */
+export function formatUnderscoreText(text: string): string {
+  if (!text) return '';
+
+  return text
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
+/**
+ * Transforma cargo do banco para formato legível
+ * Ex: "auxiliar_saude_bucal" -> "Auxiliar de Saúde Bucal"
+ */
+export function formatRole(role: string): string {
+  if (!role) return 'Cargo não informado';
+
+  const roleMap: Record<string, string> = {
+    'dentista': 'Dentista',
+    'auxiliar_saude_bucal': 'Auxiliar de Saúde Bucal',
+    'recepcionista': 'Recepcionista',
+    'gerente': 'Gerente',
+    'ortodontista': 'Ortodontista',
+    'endodontista': 'Endodontista',
+    'periodontista': 'Periodontista',
+    'implantodontista': 'Implantodontista',
+    'cirurgiao_buco_maxilo': 'Cirurgião Bucomaxilofacial',
+    'higienista': 'Higienista',
+    'tecnico_saude_bucal': 'Técnico em Saúde Bucal'
+  };
+
+  return roleMap[role.toLowerCase()] || formatUnderscoreText(role);
+}
+
+/**
+ * Transforma especialidade do banco para formato legível
+ * Ex: "ortodontista" -> "Ortodontia"
+ */
+export function formatSpecialty(specialty: string): string {
+  if (!specialty) return '';
+
+  const specialtyMap: Record<string, string> = {
+    'ortodontista': 'Ortodontia',
+    'endodontista': 'Endodontia',
+    'periodontista': 'Periodontia',
+    'implantodontista': 'Implantodontia',
+    'cirurgiao_buco_maxilo': 'Cirurgia Oral',
+    'clinico_geral': 'Clínica Geral',
+    'odontopediatra': 'Odontopediatria',
+    'protesista': 'Prótese',
+    'radiologista': 'Radiologia',
+    'odontologia_estetica': 'Odontologia Estética'
+  };
+
+  return specialtyMap[specialty.toLowerCase()] || formatUnderscoreText(specialty);
+}
+
+/**
+ * Transforma status do banco para formato legível
+ * Ex: "em_ferias" -> "Em Férias"
+ */
+export function formatStatus(status: string): string {
+  if (!status) return 'Status não informado';
+
+  const statusMap: Record<string, string> = {
+    'ativo': 'Ativo',
+    'inativo': 'Inativo',
+    'demitido': 'Demitido',
+    'em_ferias': 'Em Férias',
+    'licenca': 'Licença',
+    'afastado': 'Afastado',
+    'suspenso': 'Suspenso'
+  };
+
+  return statusMap[status.toLowerCase()] || formatUnderscoreText(status);
+}
+
+/**
+ * Transforma qualquer valor do banco para formato legível
+ * Usa as funções específicas quando disponível, senão usa formatUnderscoreText
+ */
+export function formatDatabaseValue(value: string, type: 'role' | 'specialty' | 'status' | 'general' = 'general'): string {
+  if (!value) return '';
+
+  switch (type) {
+    case 'role':
+      return formatRole(value);
+    case 'specialty':
+      return formatSpecialty(value);
+    case 'status':
+      return formatStatus(value);
+    default:
+      return formatUnderscoreText(value);
+  }
+}

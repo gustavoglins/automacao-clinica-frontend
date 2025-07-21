@@ -44,7 +44,8 @@ class ServiceTransformer {
       price: supabaseService.price,
       active: supabaseService.active,
       createdAt: supabaseService.created_at,
-      updatedAt: supabaseService.updated_at
+      updatedAt: supabaseService.updated_at,
+      times_used: supabaseService.times_used ?? 0
     };
   }
 

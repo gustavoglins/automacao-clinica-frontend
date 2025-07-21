@@ -16,10 +16,16 @@ import {
   DropdownMenuItem
 } from "@/components/ui/dropdown-menu";
 import { getAppointmentStatusBadge } from "@/lib/badgeUtils";
-import { AddAppointmentDialog, FilterDialog } from "@/components/agenda";
+import { AddAppointmentDialog, FilterDialog, AppointmentProfileDialog } from "@/components/agenda";
 import { toast } from "sonner";
 import { appointmentService } from "@/services/appointmentService";
-import { Appointment, CreateAppointmentData } from "@/types/appointment";
+import { Appointment, CreateAppointmentData, UpdateAppointmentData } from "@/types/appointment";
+import { Patient } from "@/types/patient";
+import { Employee } from "@/types/employee";
+import { Service } from "@/types/service";
+import { patientService } from "@/services/patientService";
+import { employeeService } from "@/services/employeeService";
+import { serviceService } from "@/services/servicesService";
 
 const Agenda = () => {
   const [search, setSearch] = useState("");
@@ -37,6 +43,34 @@ const Agenda = () => {
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [openViewEditDialog, setOpenViewEditDialog] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+
+  // Fetch patients, employees, services for dialog
+  useEffect(() => {
+    if (openViewEditDialog) {
+      (async () => {
+        setPatients(await patientService.getAllPatients());
+        setEmployees(await employeeService.getAllEmployees());
+        setServices(await serviceService.getAllServices());
+      })();
+    }
+  }, [openViewEditDialog]);
+
+  const handleUpdateAppointment = async (data: UpdateAppointmentData) => {
+    try {
+      const updated = await appointmentService.updateAppointment(data);
+      setAppointments((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
+      setOpenViewEditDialog(false);
+      toast.success("Consulta atualizada com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao atualizar consulta");
+    }
+  };
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -181,8 +215,8 @@ const Agenda = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <StatsCard
-            title={`Consultas ${viewMode === 'day' ? 'Hoje' : viewMode === 'week' ? 'na Semana' : 'no Mês'}`}
-            value={filteredAppointments.length}
+            title="Consultas Agendadas"
+            value={appointments.length}
             icon={Calendar}
           />
           <StatsCard
@@ -361,22 +395,9 @@ const Agenda = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Button size="sm" variant="primary">
-                              Confirmar
+                            <Button size="sm" variant="classic" onClick={() => { setSelectedAppointment(appointment); setOpenViewEditDialog(true); }}>
+                              Ver Mais
                             </Button>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button size="sm" variant="classic" className="px-2">
-                                  <span className="sr-only">Mais opções</span>
-                                  <MoreVertical className="w-4 h-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => {/* ação de editar */ }}>
-                                  <Edit className="w-4 h-4 mr-2 text-muted-foreground" /> Editar
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
                           </div>
                         </div>
                       ))}
@@ -523,6 +544,15 @@ const Agenda = () => {
         open={openAddAppointmentDialog}
         onOpenChange={setOpenAddAppointmentDialog}
         onAddAppointment={handleAddAppointment}
+      />
+      <AppointmentProfileDialog
+        open={openViewEditDialog}
+        onClose={() => setOpenViewEditDialog(false)}
+        appointment={selectedAppointment}
+        patients={patients}
+        employees={employees}
+        services={services}
+        onSave={handleUpdateAppointment}
       />
     </AppLayout>
   );

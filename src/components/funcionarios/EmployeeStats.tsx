@@ -2,6 +2,7 @@ import React from "react";
 import { Users, UserCheck, UserX, Calendar } from "lucide-react";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import type { Employee } from "@/types/employee";
+import { formatStatus } from "@/lib/utils";
 
 interface EmployeeStatsProps {
   employees: Employee[];

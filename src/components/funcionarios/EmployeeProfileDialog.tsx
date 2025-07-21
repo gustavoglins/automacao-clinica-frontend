@@ -27,7 +27,7 @@ import {
   X
 } from "lucide-react";
 import type { Employee } from "@/types/employee";
-import { formatPhone } from "@/lib/utils";
+import { formatPhone, formatRole, formatSpecialty, formatStatus } from "@/lib/utils";
 import { getEmployeeStatusBadge, getSpecialtyBadge } from "@/lib/badgeUtils";
 
 interface EmployeeProfileDialogProps {
@@ -163,19 +163,19 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
             <div className="flex items-start gap-6">
               <div className="relative">
                 <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                  {getInitials(employee.name)}
+                  {getInitials(employee.fullName)}
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-sm"></div>
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="text-3xl font-bold text-gray-900 mb-2 truncate">{employee.name}</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2 truncate">{employee.fullName}</h2>
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                   <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
-                    {employee.role}
+                    {formatRole(employee.role)}
                   </Badge>
                   {employee.specialty && (
                     <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                      {employee.specialty}
+                      {formatSpecialty(employee.specialty)}
                     </Badge>
                   )}
                 </div>
@@ -186,7 +186,7 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                   </Badge>
                   <Badge variant="info" className="bg-blue-100 text-blue-800 border-blue-200">
                     <Clock className="w-3 h-3 mr-1" />
-                    {calculateWorkTime(employee.hireDate)}
+                    {calculateWorkTime(employee.hiredAt)}
                   </Badge>
                 </div>
               </div>
