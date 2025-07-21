@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { AppLayout } from '@/components/layout/AppLayout';
 import { UserX } from "lucide-react";
@@ -18,6 +18,7 @@ import {
   FilterDialog
 } from "@/components/funcionarios";
 import { toast } from "sonner";
+import { useEmployees } from "@/context/EmployeeContext";
 
 interface FilterState {
   search: string;
@@ -36,8 +37,8 @@ interface FilterState {
 
 function Funcionarios() {
   const location = useLocation();
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Usar contexto global de funcionários
+  const { employees, setEmployees, loading, fetchEmployees } = useEmployees();
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     role: "all",
@@ -57,31 +58,15 @@ function Funcionarios() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
-  // Fetch employees from service
-  const fetchEmployees = async () => {
-    try {
-      const employees = await employeeService.getAllEmployees();
-      setEmployees(employees);
-    } catch (error) {
-      // Error handling is already done in the service
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchEmployees();
-  }, []);
-
   // Filter employees based on current filters
   const filteredEmployees = employees.filter(employee => {
     const searchLower = filters.search.toLowerCase();
     const searchNumbers = onlyNumbers(filters.search);
 
     const matchesSearch = employee.fullName.toLowerCase().includes(searchLower) ||
-      employee.email.toLowerCase().includes(searchLower) ||
-      employee.phone.includes(searchNumbers) || // Busca apenas pelos números
-      employee.phone.includes(filters.search); // Busca pelo texto formatado também
+      (employee.email && employee.email.toLowerCase().includes(searchLower)) ||
+      (employee.phone && employee.phone.includes(searchNumbers)) ||
+      (employee.phone && employee.phone.includes(filters.search));
 
     const matchesRole = !filters.role || filters.role === "all" || employee.role === filters.role;
     const matchesSpecialty = !filters.specialty || filters.specialty === "all" || employee.specialty === filters.specialty;
@@ -256,38 +241,34 @@ function Funcionarios() {
         </div>
 
         {/* Dialogs */}
-        <EditEmployeeDialog
-          employee={selectedEmployee}
-          isOpen={editDialogOpen}
-          onClose={() => setEditDialogOpen(false)}
-          onEmployeeUpdated={handleEmployeeUpdated}
-        />
-
-        <DeleteEmployeeDialog
-          employee={selectedEmployee}
-          isOpen={deleteDialogOpen}
-          onClose={() => setDeleteDialogOpen(false)}
-          onEmployeeDeleted={handleEmployeeDeleted}
-        />
-
-        <AddEmployeeDialog
-          isOpen={addDialogOpen}
-          onClose={() => setAddDialogOpen(false)}
-          onEmployeeAdded={handleEmployeeAdded}
-        />
-
-        <FilterDialog
-          isOpen={filterDialogOpen}
-          onClose={() => setFilterDialogOpen(false)}
-          onApplyFilters={handleApplyAdvancedFilters}
-        />
-
         <EmployeeProfileDialog
           employee={selectedEmployee}
           isOpen={modernProfileDialogOpen}
           onClose={() => setModernProfileDialogOpen(false)}
           onOpenEdit={handleOpenEdit}
           onOpenDelete={handleOpenDelete}
+        />
+        <EditEmployeeDialog
+          employee={selectedEmployee}
+          isOpen={editDialogOpen}
+          onClose={() => setEditDialogOpen(false)}
+          onEmployeeUpdated={handleEmployeeUpdated}
+        />
+        <DeleteEmployeeDialog
+          employee={selectedEmployee}
+          isOpen={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
+          onEmployeeDeleted={handleEmployeeDeleted}
+        />
+        <AddEmployeeDialog
+          isOpen={addDialogOpen}
+          onClose={() => setAddDialogOpen(false)}
+          onEmployeeAdded={handleEmployeeAdded}
+        />
+        <FilterDialog
+          isOpen={filterDialogOpen}
+          onClose={() => setFilterDialogOpen(false)}
+          onApplyFilters={handleApplyAdvancedFilters}
         />
       </div>
     </AppLayout>

@@ -25,7 +25,7 @@ const ServiceList: React.FC<ServiceListProps> = ({
       <CardHeader>
         <CardTitle>Lista de Serviços</CardTitle>
         <CardDescription>
-          {services.length} serviços registrados
+          Visualize e gerencie todos os serviços da clínica
         </CardDescription>
       </CardHeader>
       <CardContent>

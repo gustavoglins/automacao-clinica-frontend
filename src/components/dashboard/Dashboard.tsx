@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import {
   Calendar,
   Users,
@@ -20,46 +20,10 @@ import { AddAppointmentDialog } from "@/components/agenda"
 import { dashboardService, DashboardStats, TodayAppointment, NextAppointment } from "@/services/dashboardService"
 import { employeeService } from "@/services/employeeService"
 import { serviceService } from "@/services/servicesService"
+import { useDashboard } from "@/context/DashboardContext";
 
 export function Dashboard() {
-  const [stats, setStats] = useState<DashboardStats>({
-    todayAppointments: 0,
-    totalPatients: 0,
-    monthlyRevenue: 0,
-    attendanceRate: 0,
-    totalAppointments: 0
-  });
-  const [activeEmployees, setActiveEmployees] = useState<number>(0);
-  const [activeServices, setActiveServices] = useState<number>(0);
-  const [todayAppointments, setTodayAppointments] = useState<TodayAppointment[]>([]);
-  const [nextAppointment, setNextAppointment] = useState<NextAppointment | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        const [statsData, appointmentsData, nextAppointmentData, employees, serviceStats] = await Promise.all([
-          dashboardService.getDashboardStats(),
-          dashboardService.getTodayAppointments(),
-          dashboardService.getNextAppointment(),
-          employeeService.getAllEmployees(),
-          serviceService.getServiceStats()
-        ]);
-        setStats(statsData);
-        setTodayAppointments(appointmentsData);
-        setNextAppointment(nextAppointmentData);
-        setActiveEmployees(employees.filter(e => e.status === 'ativo').length);
-        setActiveServices(serviceStats.active);
-      } catch (error) {
-        console.error('Erro ao carregar dados do dashboard:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
-  }, []);
+  const { stats, todayAppointments, nextAppointment, activeEmployees, activeServices, loading, fetchDashboardData } = useDashboard();
 
   const todayStats = [
     {

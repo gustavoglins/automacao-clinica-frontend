@@ -12,6 +12,7 @@ import {
 } from "@/components/servicos";
 import { Service, CreateServiceData } from "@/types/service";
 import { serviceService } from "@/services/servicesService";
+import { useServices } from "@/context/ServiceContext";
 
 // Interface para o formulário de serviço
 interface ServiceFormData {
@@ -24,7 +25,7 @@ interface ServiceFormData {
 }
 
 const Servicos = () => {
-  const [services, setServices] = useState<Service[]>([]);
+  const { services, setServices, loading, fetchServices } = useServices();
   const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -34,7 +35,6 @@ const Servicos = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [loading, setLoading] = useState(false);
 
   // Estados para filtros avançados
   const [advancedFilters, setAdvancedFilters] = useState({
@@ -54,21 +54,8 @@ const Servicos = () => {
   });
 
   useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        setLoading(true);
-        const data = await serviceService.getAllServices();
-        setServices(data);
-        setFilteredServices(data);
-      } catch (error) {
-        console.error('Erro ao carregar serviços:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchServices();
-  }, []);
+    setFilteredServices(services);
+  }, [services]);
 
   // Filtrar serviços
   useEffect(() => {
@@ -225,7 +212,6 @@ const Servicos = () => {
   const handleDeleteService = async () => {
     if (selectedService) {
       try {
-        setLoading(true);
         await serviceService.deleteService(selectedService.id);
 
         // Atualizar o estado local após deletar do banco
@@ -235,8 +221,6 @@ const Servicos = () => {
       } catch (error) {
         console.error('Erro ao deletar serviço:', error);
         // Não mostrar toast de sucesso aqui pois o service já mostra
-      } finally {
-        setLoading(false);
       }
     }
   };

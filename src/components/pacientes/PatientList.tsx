@@ -45,7 +45,7 @@ export const PatientList = ({
       <CardHeader>
         <CardTitle>Lista de Pacientes</CardTitle>
         <CardDescription>
-          {patients.length} pacientes cadastrados
+          Visualize e gerencie todos os pacientes da clínica
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

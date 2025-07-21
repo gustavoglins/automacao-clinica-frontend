@@ -26,6 +26,7 @@ import { Service } from "@/types/service";
 import { patientService } from "@/services/patientService";
 import { employeeService } from "@/services/employeeService";
 import { serviceService } from "@/services/servicesService";
+import { useAppointments } from "@/context/AppointmentContext";
 
 const Agenda = () => {
   const [search, setSearch] = useState("");
@@ -41,8 +42,7 @@ const Agenda = () => {
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { appointments, setAppointments, loading, fetchAppointments } = useAppointments();
 
   const [openViewEditDialog, setOpenViewEditDialog] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
@@ -71,23 +71,6 @@ const Agenda = () => {
       toast.error("Erro ao atualizar consulta");
     }
   };
-
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        setLoading(true);
-        const data = await appointmentService.getAllAppointments();
-        setAppointments(data);
-      } catch (error) {
-        console.error('Erro ao carregar agendamentos:', error);
-        toast.error('Erro ao carregar agendamentos');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAppointments();
-  }, []);
 
   // Lista de médicos únicos
   const doctors = Array.from(new Set(appointments.map(a => a.employee?.fullName || 'Funcionário não encontrado')));

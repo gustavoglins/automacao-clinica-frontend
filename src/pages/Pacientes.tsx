@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import {
 } from "@/components/pacientes";
 import { Patient, PatientStatus } from "@/types/patient";
 import { patientService } from "@/services/patientService";
+import { usePatients } from "@/context/PatientContext";
 
 const Pacientes = () => {
   const [search, setSearch] = useState("");
@@ -26,28 +27,11 @@ const Pacientes = () => {
   const params = new URLSearchParams(location.search);
   const query = params.get("q") || search;
 
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Carregar pacientes do banco de dados
-  useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        setLoading(true);
-        const data = await patientService.getAllPatients();
-        setPatients(data);
-      } catch (error) {
-        console.error('Erro ao carregar pacientes:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPatients();
-  }, []);
+  // Usar contexto global de pacientes
+  const { patients, setPatients, loading, fetchPatients } = usePatients();
 
   // Aplicar filtros
-  const searchFiltered = patients.filter(patient => 
+  const searchFiltered = patients.filter(patient =>
     patient.fullName.toLowerCase().includes(query.toLowerCase()) ||
     (patient.email && patient.email.toLowerCase().includes(query.toLowerCase())) ||
     (patient.phone && patient.phone.includes(query))
@@ -150,7 +134,15 @@ const Pacientes = () => {
         <AddPatientDialog
           open={openAddPatientDialog}
           onOpenChange={setOpenAddPatientDialog}
-          onAddPatient={handleSavePatient}
+          onAddPatient={async (newPatient) => {
+            try {
+              const patient = await patientService.createPatient(newPatient);
+              setPatients((prev: Patient[]) => [...prev, patient]);
+              toast.success(`Paciente ${patient.fullName} adicionado com sucesso!`);
+            } catch (error) {
+              console.error('Erro ao adicionar paciente:', error);
+            }
+          }}
         />
       </div>
     </AppLayout>
