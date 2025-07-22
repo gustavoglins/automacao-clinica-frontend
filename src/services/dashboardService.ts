@@ -27,6 +27,7 @@ export interface NextAppointment {
   status: string;
   durationMinutes: number;
   timeUntil: string; // "em 2 horas", "em 30 minutos", "amanhã às 10:00", etc.
+  formattedDate: string; // data formatada para exibição
 }
 
 export const dashboardService = {
@@ -146,9 +147,12 @@ export const dashboardService = {
           id,
           appointment_at,
           status,
+          patient_id,
+          employee_id,
           patients(full_name),
           services(name, duration_minutes),
-          employees(full_name)
+          employees(full_name),
+          service_id
         `)
         .gte('appointment_at', now.toISOString())
         .order('appointment_at', { ascending: true })
@@ -164,18 +168,63 @@ export const dashboardService = {
       const appointmentDate = new Date(appointment.appointment_at);
       const timeDiff = appointmentDate.getTime() - now.getTime();
 
+      // Buscar paciente pelo id
+      let patientName = 'Paciente não encontrado';
+      if (appointment.patient_id) {
+        const { data: patientData } = await supabase
+          .from('patients')
+          .select('full_name')
+          .eq('id', appointment.patient_id)
+          .single();
+        if (patientData && patientData.full_name) patientName = patientData.full_name;
+      }
+
+      // Buscar funcionário pelo id
+      let employeeName = 'Funcionário não encontrado';
+      if (appointment.employee_id) {
+        const { data: employeeData } = await supabase
+          .from('employees')
+          .select('full_name')
+          .eq('id', appointment.employee_id)
+          .single();
+        if (employeeData && employeeData.full_name) employeeName = employeeData.full_name;
+      }
+
+      // Buscar serviço pelo id
+      let serviceName = 'Serviço não encontrado';
+      let durationMinutes = 30;
+      if (appointment.service_id) {
+        const { data: serviceData } = await supabase
+          .from('services')
+          .select('name, duration_minutes')
+          .eq('id', appointment.service_id)
+          .single();
+        if (serviceData && serviceData.name) serviceName = serviceData.name;
+        if (serviceData && serviceData.duration_minutes) durationMinutes = serviceData.duration_minutes;
+      }
+
       // Calcular tempo até a consulta
       const timeUntil = this.calculateTimeUntil(timeDiff);
+
+      // Format the appointment date for display (e.g., "dd/MM/yyyy HH:mm")
+      const formattedDate = appointmentDate.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
 
       return {
         id: appointment.id,
         appointmentAt: appointment.appointment_at,
-        patientName: appointment.patients?.[0]?.full_name || 'Paciente não encontrado',
-        serviceName: appointment.services?.[0]?.name || 'Serviço não encontrado',
-        employeeName: appointment.employees?.[0]?.full_name || 'Funcionário não encontrado',
+        patientName,
+        serviceName,
+        employeeName,
         status: appointment.status,
-        durationMinutes: appointment.services?.[0]?.duration_minutes || 30,
-        timeUntil
+        durationMinutes,
+        timeUntil,
+        formattedDate
       };
     } catch (error) {
       console.error('Erro ao buscar próxima consulta:', error);

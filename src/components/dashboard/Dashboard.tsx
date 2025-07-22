@@ -1,4 +1,8 @@
 import React, { useState } from "react"
+// Helper para capitalizar a primeira letra
+function capitalizeFirstLetter(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 import {
   Calendar,
   Users,
@@ -8,7 +12,8 @@ import {
   TrendingUp,
   AlertCircle,
   CheckCheck,
-  Briefcase
+  Briefcase,
+  User
 } from "lucide-react"
 import { StatsCard } from "./StatsCard"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -109,46 +114,31 @@ export function Dashboard() {
           <CardContent className="flex-1 flex flex-col">
             {nextAppointment ? (
               <div className="flex-1 flex flex-col justify-center">
-                <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full">
-                      <Calendar className="w-8 h-8 text-blue-600" />
+                <div className="flex flex-col h-full w-full p-8 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl shadow-md">
+                  <div className="flex items-center gap-6 mb-6">
+                    <div className="flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full">
+                      <User className="w-10 h-10 text-blue-600" />
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                        {nextAppointment.patientName}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-2">
-                        {nextAppointment.serviceName} • {nextAppointment.durationMinutes}min
-                      </p>
-                      <p className="text-sm text-gray-600 mb-3">
-                        com {nextAppointment.employeeName}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-blue-600">
-                          {new Date(nextAppointment.appointmentAt).toLocaleTimeString('pt-BR', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </span>
-                        <span className="text-sm text-gray-500">
-                          {new Date(nextAppointment.appointmentAt).toLocaleDateString('pt-BR', {
-                            weekday: 'long',
-                            day: '2-digit',
-                            month: 'long'
-                          })}
-                        </span>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-3xl font-bold text-gray-900 mb-1 truncate">{nextAppointment.patientName}</h3>
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">{nextAppointment.serviceName}</span>
+                        <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">{nextAppointment.durationMinutes} min</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700 text-base mb-1">
+                        <UserCheck className="w-5 h-5 text-blue-500" />
+                        <span>{nextAppointment.employeeName}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="mt-4 pt-4 border-t border-blue-200">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
-                        Status: <span className="font-medium text-gray-900">{nextAppointment.status}</span>
-                      </span>
-                      <Button size="sm" variant="outline" className="text-blue-600 border-blue-300 hover:bg-blue-50">
-                        Ver Detalhes
-                      </Button>
+                  <div className="flex flex-col gap-2 mb-4">
+                    <div className="flex items-center gap-2 text-gray-700 text-base">
+                      <Clock className="w-5 h-5 text-blue-500" />
+                      <span>{capitalizeFirstLetter(new Date(nextAppointment.appointmentAt).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }))} às {new Date(nextAppointment.appointmentAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-700 text-base">
+                      <span className="inline-block px-3 py-1 bg-blue-200 text-blue-900 rounded-full text-xs font-semibold capitalize">{nextAppointment.status}</span>
+                      <span className="text-xs text-gray-500">{nextAppointment.timeUntil}</span>
                     </div>
                   </div>
                 </div>
@@ -164,13 +154,6 @@ export function Dashboard() {
                 <p className="text-sm text-gray-600 mb-4">
                   Não há consultas futuras no momento
                 </p>
-                <Button
-                  size="sm"
-                  variant="outline-primary"
-                  onClick={() => setOpenAddAppointmentDialog(true)}
-                >
-                  Agendar Consulta
-                </Button>
               </div>
             )}
           </CardContent>
