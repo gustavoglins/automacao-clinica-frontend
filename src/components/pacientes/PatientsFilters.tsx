@@ -56,30 +56,10 @@ export const PatientsFilters: React.FC<PatientsFiltersProps> = ({
               className="pl-10"
             />
           </div>
-          <Select
-            value={filterStatus || undefined}
-            onValueChange={(value) => onFilterStatusChange(value === "all" ? "" : value as PatientStatus)}
-          >
-            <SelectTrigger className="w-full sm:w-[200px]">
-              <SelectValue placeholder="Filtrar por status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os status</SelectItem>
-              <SelectItem value="ativo">Ativo</SelectItem>
-              <SelectItem value="inativo">Inativo</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* Select de status removido */}
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="classic"
-            size="sm"
-            onClick={onOpenFilters}
-            className="flex items-center gap-2"
-          >
-            <Filter className="h-4 w-4" />
-            Filtros
-          </Button>
+          {/* Botão de filtros removido */}
           {onOpenAddPatient && (
             <Button
               onClick={onOpenAddPatient}

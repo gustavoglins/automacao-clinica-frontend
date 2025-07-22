@@ -64,7 +64,7 @@ export const getAppointmentStatusBadge = (status: string): { variant: BadgeVaria
   }
 };
 
-// Badge para planos/convênios
+// Badge para planos/convênios removido
 export const getPlanBadge = (): { variant: BadgeVariant; className?: string } => {
   return { variant: 'outline' };
 };

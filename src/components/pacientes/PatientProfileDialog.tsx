@@ -264,12 +264,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                   <p className="text-sm font-medium text-gray-500 mb-1">Última Visita</p>
                   <p className="text-gray-900 font-medium">{formatDate(patient.lastVisit || "")}</p>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">Status</p>
-                  <Badge variant="success" className="bg-green-100 text-green-800 border-green-200">
-                    {patient.status || "-"}
-                  </Badge>
-                </div>
+                {/* Plano de Saúde removido */}
               </div>
               <div className="space-y-4">
                 <div>
@@ -278,15 +273,11 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                     {patient.nextVisit ? formatDate(patient.nextVisit) : "Não agendada"}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">Convênio</p>
-                  <p className="text-gray-900 font-medium">{patient.plan || "-"}</p>
-                </div>
+                {/* Convênio removido */}
               </div>
             </div>
           </div>
-
-          <Separator />
+          {/* Convênio removido */}
         </div>
       </DialogContent>
     </Dialog>

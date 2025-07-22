@@ -46,7 +46,7 @@ export const PatientCard = ({
               Ativo
             </Badge>
             <Badge variant={planBadge.variant} className={planBadge.className}>
-              Particular
+              {/* Plano removido */}
             </Badge>
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-600">

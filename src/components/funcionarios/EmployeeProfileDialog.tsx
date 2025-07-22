@@ -50,8 +50,9 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
 
   if (!employee) return null;
 
-  const calculateWorkTime = (startDate: string) => {
-    const start = new Date(startDate);
+  // Corrigir para usar hiredAt (não hireDate)
+  const calculateWorkTime = (hiredAt: string) => {
+    const start = new Date(hiredAt);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -71,6 +72,7 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
     }
   };
 
+  // Corrigir para usar hiredAt (não hireDate)
   const formatDate = (dateString: string) => {
     if (!dateString) return "Não informado";
     return new Date(dateString).toLocaleDateString('pt-BR');
@@ -86,8 +88,9 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
     return formatPhone(phone);
   };
 
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').slice(0, 2);
+  // Corrigir para usar fullName
+  const getInitials = (fullName: string) => {
+    return fullName.split(' ').map(n => n[0]).join('').slice(0, 2);
   };
 
   const handleViewSchedule = () => {
@@ -212,22 +215,6 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
 
             <Separator />
 
-            {/* Agenda do Funcionário */}
-            <div className="bg-white border border-gray-100 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-5 flex items-center gap-2">
-                <CalendarIcon className="w-5 h-5 text-blue-600" />
-                Agenda do Funcionário
-              </h3>
-              <Button
-                variant="outline"
-                onClick={handleViewSchedule}
-                className="w-full h-12 text-gray-700 border-gray-200 hover:bg-gray-50 justify-start"
-              >
-                <CalendarIcon className="w-4 h-4 mr-2" />
-                Ver Agendamentos do Funcionário
-              </Button>
-            </div>
-
             {/* Contact Details */}
             <div className="bg-white border border-gray-100 rounded-xl p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-5 flex items-center gap-2">
@@ -245,20 +232,10 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                     <p className="text-gray-900 font-medium">{formatPhoneDisplay(employee.phone)}</p>
                   </div>
                 </div>
-                {(employee.cpf || employee.registrationNumber) && (
-                  <div className="space-y-4">
-                    {employee.cpf && (
-                      <div>
-                        <p className="text-sm font-medium text-gray-500 mb-1">CPF</p>
-                        <p className="text-gray-900 font-mono font-medium">{formatCPF(employee.cpf)}</p>
-                      </div>
-                    )}
-                    {employee.registrationNumber && (
-                      <div>
-                        <p className="text-sm font-medium text-gray-500 mb-1">Registro Profissional</p>
-                        <p className="text-gray-900 font-mono font-medium">{employee.registrationNumber}</p>
-                      </div>
-                    )}
+                {employee.cpf && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-1">CPF</p>
+                    <p className="text-gray-900 font-medium break-all">{formatCPF(employee.cpf)}</p>
                   </div>
                 )}
               </div>
@@ -274,36 +251,21 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                 <div className="space-y-4">
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-1">Data de Contratação</p>
-                    <p className="text-gray-900 font-medium">{formatDate(employee.hireDate)}</p>
+                    <p className="text-gray-900 font-medium">{formatDate(employee.hiredAt)}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-1">Tempo na Empresa</p>
-                    <p className="text-gray-900 font-medium">{calculateWorkTime(employee.hireDate)}</p>
+                    <p className="text-gray-900 font-medium">{calculateWorkTime(employee.hiredAt)}</p>
                   </div>
                 </div>
                 {employee.salary && (
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500 mb-1">Salário</p>
-                      <p className="text-gray-900 font-bold text-xl font-mono">
-                        R$ {employee.salary.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </p>
-                    </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-1">Salário</p>
+                    <p className="text-gray-900 font-medium break-all">R$ {employee.salary.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                   </div>
                 )}
               </div>
             </div>
-
-            {/* Observations */}
-            {employee.notes && (
-              <div className="bg-amber-50/50 border border-amber-100 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-amber-600" />
-                  Observações
-                </h3>
-                <p className="text-gray-700 leading-relaxed">{employee.notes}</p>
-              </div>
-            )}
 
             <Separator />
           </div>
@@ -315,7 +277,7 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
         <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-900">
-              Agenda de {employee.name}
+              Agenda de {employee.fullName}
             </DialogTitle>
           </DialogHeader>
 

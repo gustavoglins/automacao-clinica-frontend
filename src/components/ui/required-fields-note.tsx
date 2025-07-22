@@ -23,7 +23,7 @@ export const RequiredFieldsNote: React.FC<RequiredFieldsNoteProps> = ({
 }) => {
   return (
     <p className={className}>
-      Campos marcados com <span className="text-primary font-medium">*</span> são obrigatórios
+      {/* Texto removido conforme solicitado */}
     </p>
   );
 };

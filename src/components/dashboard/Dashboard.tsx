@@ -254,11 +254,10 @@ export function Dashboard() {
       {/* Quick Actions */}
       <Card className="shadow-card">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-accent" />
+          <CardTitle className="">
             Ações Rápidas
           </CardTitle>
-          <CardDescription className="ml-7">
+          <CardDescription>
             Acesse rapidamente as principais funcionalidades
           </CardDescription>
         </CardHeader>

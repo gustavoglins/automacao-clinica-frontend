@@ -43,7 +43,7 @@ export const AllPatientsDialog = ({
             <SearchBar
               value={dialogSearch}
               onChange={setDialogSearch}
-              placeholder="Buscar por nome, telefone, email, plano ou status..."
+              placeholder="Buscar por nome, telefone, email ou status..."
               autoFocus
               resultsCount={filteredPatients.length}
             />
@@ -59,7 +59,7 @@ export const AllPatientsDialog = ({
                       <Search className="w-12 h-12 mx-auto text-muted-foreground/50" />
                     </div>
                     <p>Nenhum paciente encontrado para "{dialogSearch}"</p>
-                    <p className="text-sm mt-1">Tente buscar por nome, email, telefone, plano ou status</p>
+                    <p className="text-sm mt-1">Tente buscar por nome, email, telefone ou status</p>
                   </div>
                 ) : filteredPatients.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">

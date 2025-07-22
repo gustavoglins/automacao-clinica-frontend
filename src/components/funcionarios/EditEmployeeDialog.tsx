@@ -63,26 +63,21 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
 
   React.useEffect(() => {
     if (employee) {
-      setFormData({
-        name: employee.name || "",
+      setFormData(prev => ({
+        ...prev,
+        name: employee.fullName || "",
         email: employee.email || "",
         phone: formatPhone(employee.phone || ""),
         cpf: employee.cpf || "",
-        role: employee.role || "",
-        specialty: employee.specialty || "",
-        registrationNumber: employee.registrationNumber || "",
-        hireDate: employee.hireDate || "",
+        role: typeof employee.role === "string" ? employee.role : "",
+        specialty: typeof employee.specialty === "string" ? employee.specialty : "",
         salary: employee.salary?.toString() || "",
         status: employee.status || "ativo",
-        visibleOnSchedule: employee.visibleOnSchedule ?? true,
-        acceptsOnlineBooking: employee.acceptsOnlineBooking ?? true,
-        showContact: employee.showContact ?? false,
-        avatarUrl: employee.avatarUrl || "",
-        notes: employee.notes || "",
+        hireDate: employee.hiredAt || "",
         workDays: employee.workDays || ["Seg", "Ter", "Qua", "Qui", "Sex"],
         startHour: employee.startHour || "08:00",
         endHour: employee.endHour || "18:00"
-      });
+      }));
     }
   }, [employee]);
 
@@ -100,24 +95,18 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
     try {
       const updatedEmployee: Employee = {
         ...employee,
-        name: formData.name,
+        fullName: formData.name,
         email: formData.email,
         phone: onlyNumbers(formData.phone),
         cpf: formData.cpf,
         role: formData.role,
         specialty: formData.specialty,
-        registrationNumber: formData.registrationNumber,
-        hireDate: formData.hireDate,
-        salary: formData.salary ? parseFloat(formData.salary) : 0,
+        salary: formData.salary ? parseFloat(formData.salary) : null,
         status: formData.status as 'ativo' | 'inativo',
-        visibleOnSchedule: formData.visibleOnSchedule,
-        acceptsOnlineBooking: formData.acceptsOnlineBooking,
-        showContact: formData.showContact,
-        avatarUrl: formData.avatarUrl,
-        notes: formData.notes,
         workDays: formData.workDays,
         startHour: formData.startHour,
-        endHour: formData.endHour
+        endHour: formData.endHour,
+        hiredAt: employee.hiredAt // manter data original
       };
 
       await employeeService.updateEmployee(updatedEmployee);
@@ -146,7 +135,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3">
           <DialogTitle className="flex items-center gap-2 text-xl">
-            <UserPen className="w-5 h-5" />
+            <UserPen className="w-5 h-5 text-blue-600" />
             Editar Funcionário
           </DialogTitle>
           <DialogDescription>
@@ -157,6 +146,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-6">
           {/* Informações Pessoais */}
+          {/* ...existing code... */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -240,11 +230,31 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                       <SelectValue placeholder="Selecione o cargo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Dentista">Dentista</SelectItem>
-                      <SelectItem value="Assistente">Assistente</SelectItem>
-                      <SelectItem value="Recepcionista">Recepcionista</SelectItem>
-                      <SelectItem value="Gerente">Gerente</SelectItem>
-                      <SelectItem value="Auxiliar">Auxiliar</SelectItem>
+                      <SelectItem value="acupuntura_odonto">Acupuntura Odonto</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="atendente">Atendente</SelectItem>
+                      <SelectItem value="auxiliar_saude_bucal">Auxiliar Saúde Bucal</SelectItem>
+                      <SelectItem value="cirurgiao_buco_maxilo">Cirurgião Buco-Maxilo</SelectItem>
+                      <SelectItem value="coordenador">Coordenador</SelectItem>
+                      <SelectItem value="dentista">Dentista</SelectItem>
+                      <SelectItem value="diretor">Diretor</SelectItem>
+                      <SelectItem value="endodontista">Endodontista</SelectItem>
+                      <SelectItem value="estoquista">Estoquista</SelectItem>
+                      <SelectItem value="financeiro">Financeiro</SelectItem>
+                      <SelectItem value="gerente">Gerente</SelectItem>
+                      <SelectItem value="higienista">Higienista</SelectItem>
+                      <SelectItem value="implantodontista">Implantodontista</SelectItem>
+                      <SelectItem value="limpeza">Limpeza</SelectItem>
+                      <SelectItem value="marketing">Marketing</SelectItem>
+                      <SelectItem value="odontopediatra">Odontopediatra</SelectItem>
+                      <SelectItem value="periodontista">Periodontista</SelectItem>
+                      <SelectItem value="protesista">Protesista</SelectItem>
+                      <SelectItem value="recepcionista">Recepcionista</SelectItem>
+                      <SelectItem value="rh">RH</SelectItem>
+                      <SelectItem value="secretaria">Secretária</SelectItem>
+                      <SelectItem value="suporte_tecnico">Suporte Técnico</SelectItem>
+                      <SelectItem value="tecnico_saude_bucal">Técnico Saúde Bucal</SelectItem>
+                      <SelectItem value="estagiario">Estagiário</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -259,13 +269,31 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                       <SelectValue placeholder="Selecione uma especialidade" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Ortodontia">Ortodontia</SelectItem>
-                      <SelectItem value="Endodontia">Endodontia</SelectItem>
-                      <SelectItem value="Periodontia">Periodontia</SelectItem>
-                      <SelectItem value="Implantodontia">Implantodontia</SelectItem>
-                      <SelectItem value="Cirurgia">Cirurgia</SelectItem>
-                      <SelectItem value="Estética">Estética</SelectItem>
-                      <SelectItem value="Pediatria">Pediatria</SelectItem>
+                      <SelectItem value="acupuntura_odonto">Acupuntura Odonto</SelectItem>
+                      <SelectItem value="clinico_geral">Clínico Geral</SelectItem>
+                      <SelectItem value="cirurgiao_buco_maxilo">Cirurgião Buco-Maxilo</SelectItem>
+                      <SelectItem value="dentistica">Dentística</SelectItem>
+                      <SelectItem value="disfuncoes_temporomandibulares">Disfunções Temporomandibulares</SelectItem>
+                      <SelectItem value="endodontista">Endodontista</SelectItem>
+                      <SelectItem value="estomatologista">Estomatologista</SelectItem>
+                      <SelectItem value="homeopatia_odonto">Homeopatia Odonto</SelectItem>
+                      <SelectItem value="implantodontista">Implantodontista</SelectItem>
+                      <SelectItem value="laserterapia">Laserterapia</SelectItem>
+                      <SelectItem value="necessidades_especiais">Necessidades Especiais</SelectItem>
+                      <SelectItem value="odontogeriatra">Odontogeriatra</SelectItem>
+                      <SelectItem value="odontologia_do_esporte">Odontologia do Esporte</SelectItem>
+                      <SelectItem value="odontologia_do_trabalho">Odontologia do Trabalho</SelectItem>
+                      <SelectItem value="odontologia_estetica">Odontologia Estética</SelectItem>
+                      <SelectItem value="odontologia_hospitalar">Odontologia Hospitalar</SelectItem>
+                      <SelectItem value="odontologia_legal">Odontologia Legal</SelectItem>
+                      <SelectItem value="odontopediatra">Odontopediatra</SelectItem>
+                      <SelectItem value="ortodontista">Ortodontista</SelectItem>
+                      <SelectItem value="ortopedia_funcional">Ortopedia Funcional</SelectItem>
+                      <SelectItem value="patologista_bucal">Patologista Bucal</SelectItem>
+                      <SelectItem value="periodontista">Periodontista</SelectItem>
+                      <SelectItem value="protesista">Protesista</SelectItem>
+                      <SelectItem value="radiologista">Radiologista</SelectItem>
+                      <SelectItem value="saude_coletiva">Saúde Coletiva</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -344,7 +372,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="startHour">Horário de Início</Label>
+                  <Label htmlFor="startHour">Horário de Entrada</Label>
                   <Input
                     id="startHour"
                     type="time"
@@ -354,7 +382,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="endHour">Horário de Fim</Label>
+                  <Label htmlFor="endHour">Horário de Saída</Label>
                   <Input
                     id="endHour"
                     type="time"
@@ -364,58 +392,11 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="visibleOnSchedule"
-                    checked={formData.visibleOnSchedule}
-                    onCheckedChange={(checked) => handleChange("visibleOnSchedule", checked)}
-                  />
-                  <Label htmlFor="visibleOnSchedule">Visível no agendamento</Label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="acceptsOnlineBooking"
-                    checked={formData.acceptsOnlineBooking}
-                    onCheckedChange={(checked) => handleChange("acceptsOnlineBooking", checked)}
-                  />
-                  <Label htmlFor="acceptsOnlineBooking">Aceita agendamento online</Label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="showContact"
-                    checked={formData.showContact}
-                    onCheckedChange={(checked) => handleChange("showContact", checked)}
-                  />
-                  <Label htmlFor="showContact">Exibir contato publicamente</Label>
-                </div>
-              </div>
+              {/* Campos de agendamento removidos conforme solicitado */}
             </CardContent>
           </Card>
 
-          {/* Observações */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <FileText className="w-5 h-5" />
-                Observações
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Label htmlFor="notes">Observações Adicionais</Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => handleChange("notes", e.target.value)}
-                  placeholder="Informações adicionais sobre o funcionário..."
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          {/* Card de Observações removido conforme solicitado */}
 
           {/* Botões */}
           <div className="flex justify-end gap-3 pt-6 border-t">

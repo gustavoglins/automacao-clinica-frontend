@@ -22,15 +22,6 @@ interface FilterDialogProps {
   onFilterStatusChange: (status: PatientStatus) => void;
 }
 
-const healthPlans = [
-  { value: "particular", label: "Particular" },
-  { value: "unimed", label: "Unimed" },
-  { value: "amil", label: "Amil" },
-  { value: "bradesco", label: "Bradesco" },
-  { value: "sulamerica", label: "SulAmérica" },
-  { value: "hapvida", label: "Hapvida" },
-  { value: "outros", label: "Outros" }
-];
 
 const ageRanges = [
   { value: "0-18", label: "0 - 18 anos" },
@@ -47,13 +38,11 @@ export const FilterDialog = ({
   onFilterStatusChange
 }: FilterDialogProps) => {
   const [ageRange, setAgeRange] = useState("");
-  const [plan, setPlan] = useState("");
   const [lastVisit, setLastVisit] = useState("");
 
   const handleClearFilters = () => {
     onFilterStatusChange("");
     setAgeRange("");
-    setPlan("");
     setLastVisit("");
   };
 
@@ -88,8 +77,8 @@ export const FilterDialog = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Status</Label>
-                  <Select 
-                    value={filterStatus || "all"} 
+                  <Select
+                    value={filterStatus || "all"}
                     onValueChange={(value) => onFilterStatusChange(value === "all" ? "" : value as PatientStatus)}
                   >
                     <SelectTrigger>
@@ -118,34 +107,6 @@ export const FilterDialog = ({
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Plano de Saúde */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <CreditCard className="h-5 w-5" />
-                Plano de Saúde
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Label>Plano de Saúde</Label>
-                <Select value={plan || "all"} onValueChange={(value) => setPlan(value === "all" ? "" : value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Todos os planos" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos os planos</SelectItem>
-                    {healthPlans.map(planOption => (
-                      <SelectItem key={planOption.value} value={planOption.value}>
-                        {planOption.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
             </CardContent>
           </Card>

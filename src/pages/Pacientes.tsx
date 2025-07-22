@@ -18,7 +18,7 @@ import { usePatients } from "@/context/PatientContext";
 const Pacientes = () => {
   const [search, setSearch] = useState("");
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<PatientStatus>("");
+  const [filterStatus, setFilterStatus] = useState<PatientStatus>(""); // Mantém status, mas não planos
   const [openAllPatientsDialog, setOpenAllPatientsDialog] = useState(false);
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const [openAddPatientDialog, setOpenAddPatientDialog] = useState(false);
@@ -30,7 +30,7 @@ const Pacientes = () => {
   // Usar contexto global de pacientes
   const { patients, setPatients, loading, fetchPatients } = usePatients();
 
-  // Aplicar filtros
+  // Aplicar filtros (sem planos)
   const searchFiltered = patients.filter(patient =>
     patient.fullName.toLowerCase().includes(query.toLowerCase()) ||
     (patient.email && patient.email.toLowerCase().includes(query.toLowerCase())) ||
@@ -81,24 +81,16 @@ const Pacientes = () => {
         {/* Stats Cards */}
         <PatientsStats patients={patients} />
 
-        {/* Filters */}
+        {/* Barra de pesquisa e botão de adicionar paciente */}
         <PatientsFilters
           search={query}
           onSearchChange={setSearch}
-          filterStatus={filterStatus}
-          onFilterStatusChange={setFilterStatus}
-          onOpenFilters={() => setOpenFilterDialog(true)}
+          filterStatus={""}
+          onFilterStatusChange={() => { }}
+          onOpenFilters={() => { }}
           onOpenAddPatient={handleAddPatient}
           filteredPatientsCount={filteredPatients.length}
           totalPatientsCount={patients.length}
-        />
-
-        {/* Filter Dialog */}
-        <FilterDialog
-          open={openFilterDialog}
-          onOpenChange={setOpenFilterDialog}
-          filterStatus={filterStatus}
-          onFilterStatusChange={setFilterStatus}
         />
 
         {/* Patients List */}
