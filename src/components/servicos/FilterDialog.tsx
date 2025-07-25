@@ -32,12 +32,18 @@ interface FilterDialogProps {
 }
 
 const serviceCategories = [
-  { value: "preventivo", label: "Preventivo" },
-  { value: "restaurador", label: "Restaurador" },
+  { value: "clinico_geral", label: "Clínico Geral" },
   { value: "ortodontia", label: "Ortodontia" },
+  { value: "endodontia", label: "Endodontia" },
+  { value: "implantodontia", label: "Implantodontia" },
+  { value: "periodontia", label: "Periodontia" },
+  { value: "proteses", label: "Próteses" },
+  { value: "odontopediatria", label: "Odontopediatria" },
   { value: "cirurgia", label: "Cirurgia" },
-  { value: "estetico", label: "Estético" },
-  { value: "emergencia", label: "Emergência" }
+  { value: "radiologia", label: "Radiologia" },
+  { value: "estetica", label: "Estética" },
+  { value: "preventivo", label: "Preventivo" },
+  { value: "outros", label: "Outros" },
 ];
 
 const priceRanges = [
@@ -45,7 +51,7 @@ const priceRanges = [
   { value: "100-300", label: "R$ 100 - R$ 300" },
   { value: "300-500", label: "R$ 300 - R$ 500" },
   { value: "500-1000", label: "R$ 500 - R$ 1.000" },
-  { value: "1000+", label: "Acima de R$ 1.000" }
+  { value: "1000+", label: "Acima de R$ 1.000" },
 ];
 
 const durationRanges = [
@@ -53,13 +59,13 @@ const durationRanges = [
   { value: "30-60", label: "30 - 60 min" },
   { value: "60-90", label: "1h - 1h30" },
   { value: "90-120", label: "1h30 - 2h" },
-  { value: "120+", label: "Mais de 2h" }
+  { value: "120+", label: "Mais de 2h" },
 ];
 
 const FilterDialog: React.FC<FilterDialogProps> = ({
   isOpen,
   onClose,
-  onApplyFilters
+  onApplyFilters,
 }) => {
   const [category, setCategory] = useState("all");
   const [status, setStatus] = useState("all");
@@ -79,7 +85,7 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
       category: category === "all" ? "" : category,
       status: status === "all" ? "" : status,
       priceRange: priceRange === "all" ? "" : priceRange,
-      duration: duration === "all" ? "" : duration
+      duration: duration === "all" ? "" : duration,
     });
     onClose();
   };
@@ -116,7 +122,7 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todas as categorias</SelectItem>
-                      {serviceCategories.map(cat => (
+                      {serviceCategories.map((cat) => (
                         <SelectItem key={cat.value} value={cat.value}>
                           {cat.label}
                         </SelectItem>
@@ -132,9 +138,8 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todos os status</SelectItem>
-                      <SelectItem value="ativo">Ativo</SelectItem>
-                      <SelectItem value="inativo">Inativo</SelectItem>
-                      <SelectItem value="em_manutencao">Em Manutenção</SelectItem>
+                      <SelectItem value="active">Ativo</SelectItem>
+                      <SelectItem value="inactive">Inativo</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -160,7 +165,7 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todas as faixas</SelectItem>
-                      {priceRanges.map(range => (
+                      {priceRanges.map((range) => (
                         <SelectItem key={range.value} value={range.value}>
                           {range.label}
                         </SelectItem>
@@ -176,7 +181,7 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todas as durações</SelectItem>
-                      {durationRanges.map(range => (
+                      {durationRanges.map((range) => (
                         <SelectItem key={range.value} value={range.value}>
                           {range.label}
                         </SelectItem>
@@ -194,9 +199,7 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
             <Button variant="outline" onClick={handleReset}>
               Limpar Filtros
             </Button>
-            <Button onClick={handleApply}>
-              Aplicar Filtros
-            </Button>
+            <Button onClick={handleApply}>Aplicar Filtros</Button>
           </div>
         </div>
       </DialogContent>

@@ -19,7 +19,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { X, Check, Stethoscope, DollarSign, Clock, FileText } from "lucide-react";
+import {
+  X,
+  Check,
+  Stethoscope,
+  DollarSign,
+  Clock,
+  FileText,
+} from "lucide-react";
 import { Service } from "@/types/service";
 
 interface ServiceFormData {
@@ -44,12 +51,18 @@ interface ServiceFormDialogProps {
 }
 
 const serviceCategories = [
-  { value: "preventivo", label: "Preventivo" },
-  { value: "restaurador", label: "Restaurador" },
+  { value: "clinico_geral", label: "Clínico Geral" },
   { value: "ortodontia", label: "Ortodontia" },
+  { value: "endodontia", label: "Endodontia" },
+  { value: "implantodontia", label: "Implantodontia" },
+  { value: "periodontia", label: "Periodontia" },
+  { value: "proteses", label: "Próteses" },
+  { value: "odontopediatria", label: "Odontopediatria" },
   { value: "cirurgia", label: "Cirurgia" },
-  { value: "estetico", label: "Estético" },
-  { value: "emergencia", label: "Emergência" }
+  { value: "radiologia", label: "Radiologia" },
+  { value: "estetica", label: "Estética" },
+  { value: "preventivo", label: "Preventivo" },
+  { value: "outros", label: "Outros" },
 ];
 
 const ServiceFormDialog: React.FC<ServiceFormDialogProps> = ({
@@ -61,12 +74,15 @@ const ServiceFormDialog: React.FC<ServiceFormDialogProps> = ({
   onSubmit,
   onCancel,
   loading = false,
-  submitLabel = "Cadastrar Serviço"
+  submitLabel = "Cadastrar Serviço",
 }) => {
-  const updateFormData = (field: keyof ServiceFormData, value: string | boolean) => {
+  const updateFormData = (
+    field: keyof ServiceFormData,
+    value: string | boolean
+  ) => {
     onFormDataChange({
       ...formData,
-      [field]: value
+      [field]: value,
     });
   };
 
@@ -79,11 +95,19 @@ const ServiceFormDialog: React.FC<ServiceFormDialogProps> = ({
             {title}
           </DialogTitle>
           <DialogDescription>
-            {title.includes('Novo') ? 'Preencha as informações para criar um novo serviço' : 'Edite as informações do serviço'}
+            {title.includes("Novo")
+              ? "Preencha as informações para criar um novo serviço"
+              : "Edite as informações do serviço"}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="space-y-6 mt-6">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSubmit();
+          }}
+          className="space-y-6 mt-6"
+        >
           {/* Informações Básicas */}
           <Card>
             <CardHeader>
@@ -99,7 +123,7 @@ const ServiceFormDialog: React.FC<ServiceFormDialogProps> = ({
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => updateFormData('name', e.target.value)}
+                    onChange={(e) => updateFormData("name", e.target.value)}
                     placeholder="Ex: Consulta de Rotina"
                     required
                   />
@@ -109,13 +133,13 @@ const ServiceFormDialog: React.FC<ServiceFormDialogProps> = ({
                   <Label htmlFor="category">Categoria *</Label>
                   <Select
                     value={formData.category}
-                    onValueChange={(value) => updateFormData('category', value)}
+                    onValueChange={(value) => updateFormData("category", value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione uma categoria" />
                     </SelectTrigger>
                     <SelectContent>
-                      {serviceCategories.map(category => (
+                      {serviceCategories.map((category) => (
                         <SelectItem key={category.value} value={category.value}>
                           {category.label}
                         </SelectItem>
@@ -144,7 +168,7 @@ const ServiceFormDialog: React.FC<ServiceFormDialogProps> = ({
                     type="number"
                     step="0.01"
                     value={formData.price}
-                    onChange={(e) => updateFormData('price', e.target.value)}
+                    onChange={(e) => updateFormData("price", e.target.value)}
                     placeholder="0,00"
                     required
                   />
@@ -152,13 +176,33 @@ const ServiceFormDialog: React.FC<ServiceFormDialogProps> = ({
 
                 <div className="space-y-2">
                   <Label htmlFor="duration">Duração (minutos)</Label>
-                  <Input
-                    id="duration"
-                    type="number"
+                  <Select
                     value={formData.duration}
-                    onChange={(e) => updateFormData('duration', e.target.value)}
-                    placeholder="30"
-                  />
+                    onValueChange={(value) => updateFormData("duration", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a duração" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10 minutos</SelectItem>
+                      <SelectItem value="15">15 minutos</SelectItem>
+                      <SelectItem value="20">20 minutos</SelectItem>
+                      <SelectItem value="25">25 minutos</SelectItem>
+                      <SelectItem value="30">30 minutos</SelectItem>
+                      <SelectItem value="35">35 minutos</SelectItem>
+                      <SelectItem value="40">40 minutos</SelectItem>
+                      <SelectItem value="45">45 minutos</SelectItem>
+                      <SelectItem value="50">50 minutos</SelectItem>
+                      <SelectItem value="55">55 minutos</SelectItem>
+                      <SelectItem value="60">60 minutos</SelectItem>
+                      <SelectItem value="70">70 minutos</SelectItem>
+                      <SelectItem value="80">80 minutos</SelectItem>
+                      <SelectItem value="90">90 minutos</SelectItem>
+                      <SelectItem value="100">100 minutos</SelectItem>
+                      <SelectItem value="110">110 minutos</SelectItem>
+                      <SelectItem value="120">120 minutos</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </CardContent>
@@ -178,7 +222,9 @@ const ServiceFormDialog: React.FC<ServiceFormDialogProps> = ({
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => updateFormData('description', e.target.value)}
+                  onChange={(e) =>
+                    updateFormData("description", e.target.value)
+                  }
                   placeholder="Descreva o serviço..."
                   rows={3}
                 />
@@ -188,7 +234,9 @@ const ServiceFormDialog: React.FC<ServiceFormDialogProps> = ({
                 <Switch
                   id="isActive"
                   checked={formData.isActive}
-                  onCheckedChange={(checked) => updateFormData('isActive', checked)}
+                  onCheckedChange={(checked) =>
+                    updateFormData("isActive", checked)
+                  }
                 />
                 <Label htmlFor="isActive">Serviço ativo</Label>
               </div>
@@ -209,7 +257,12 @@ const ServiceFormDialog: React.FC<ServiceFormDialogProps> = ({
             </Button>
             <Button
               type="submit"
-              disabled={loading || !formData.name || !formData.category || !formData.price}
+              disabled={
+                loading ||
+                !formData.name ||
+                !formData.category ||
+                !formData.price
+              }
               className="min-w-[120px] flex items-center gap-2"
             >
               {loading ? (

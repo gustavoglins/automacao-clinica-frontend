@@ -32,12 +32,18 @@ interface ServiceFiltersProps {
 }
 
 const serviceCategories = [
-  { value: "preventivo", label: "Preventivo" },
-  { value: "restaurador", label: "Restaurador" },
+  { value: "clinico_geral", label: "Clínico Geral" },
   { value: "ortodontia", label: "Ortodontia" },
+  { value: "endodontia", label: "Endodontia" },
+  { value: "implantodontia", label: "Implantodontia" },
+  { value: "periodontia", label: "Periodontia" },
+  { value: "proteses", label: "Próteses" },
+  { value: "odontopediatria", label: "Odontopediatria" },
   { value: "cirurgia", label: "Cirurgia" },
-  { value: "estetico", label: "Estético" },
-  { value: "emergencia", label: "Emergência" }
+  { value: "radiologia", label: "Radiologia" },
+  { value: "estetica", label: "Estética" },
+  { value: "preventivo", label: "Preventivo" },
+  { value: "outros", label: "Outros" },
 ];
 
 const ServiceFilters: React.FC<ServiceFiltersProps> = ({
@@ -52,7 +58,7 @@ const ServiceFilters: React.FC<ServiceFiltersProps> = ({
   onClearAdvancedFilters,
   filteredServicesCount,
   totalServicesCount,
-  advancedFilters
+  advancedFilters,
 }) => {
   const clearFilters = () => {
     onSearchChange("");
@@ -63,13 +69,18 @@ const ServiceFilters: React.FC<ServiceFiltersProps> = ({
     }
   };
 
-  const hasActiveFilters = searchTerm ||
+  const hasActiveFilters =
+    searchTerm ||
     categoryFilter !== "all" ||
     statusFilter !== "all" ||
-    (advancedFilters?.dateRange?.start !== null && advancedFilters?.dateRange?.start !== undefined) ||
-    (advancedFilters?.dateRange?.end !== null && advancedFilters?.dateRange?.end !== undefined) ||
-    (advancedFilters?.priceRange !== "" && advancedFilters?.priceRange !== undefined) ||
-    (advancedFilters?.duration !== "" && advancedFilters?.duration !== undefined);
+    (advancedFilters?.dateRange?.start !== null &&
+      advancedFilters?.dateRange?.start !== undefined) ||
+    (advancedFilters?.dateRange?.end !== null &&
+      advancedFilters?.dateRange?.end !== undefined) ||
+    (advancedFilters?.priceRange !== "" &&
+      advancedFilters?.priceRange !== undefined) ||
+    (advancedFilters?.duration !== "" &&
+      advancedFilters?.duration !== undefined);
 
   return (
     <div className="flex flex-col gap-4 p-6 bg-card rounded-lg border shadow-sm">
@@ -90,7 +101,7 @@ const ServiceFilters: React.FC<ServiceFiltersProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas categorias</SelectItem>
-              {serviceCategories.map(category => (
+              {serviceCategories.map((category) => (
                 <SelectItem key={category.value} value={category.value}>
                   {category.label}
                 </SelectItem>
@@ -118,10 +129,7 @@ const ServiceFilters: React.FC<ServiceFiltersProps> = ({
             <Filter className="h-4 w-4" />
             Filtros
           </Button>
-          <Button
-            onClick={onAddNew}
-            className="flex items-center gap-2"
-          >
+          <Button onClick={onAddNew} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             Novo Serviço
           </Button>
@@ -130,20 +138,26 @@ const ServiceFilters: React.FC<ServiceFiltersProps> = ({
 
       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
-          <span>Mostrando <strong>{filteredServicesCount}</strong> de <strong>{totalServicesCount}</strong> serviços</span>
+          <span>
+            Mostrando <strong>{filteredServicesCount}</strong> de{" "}
+            <strong>{totalServicesCount}</strong> serviços
+          </span>
           {hasActiveFilters && (
             <>
               <Separator orientation="vertical" className="h-4" />
               <div className="flex items-center gap-2">
                 <span>Filtros ativos:</span>
                 {searchTerm && (
-                  <Badge variant="secondary">
-                    Busca: {searchTerm}
-                  </Badge>
+                  <Badge variant="secondary">Busca: {searchTerm}</Badge>
                 )}
                 {categoryFilter !== "all" && (
                   <Badge variant="secondary">
-                    Categoria: {serviceCategories.find(cat => cat.value === categoryFilter)?.label}
+                    Categoria:{" "}
+                    {
+                      serviceCategories.find(
+                        (cat) => cat.value === categoryFilter
+                      )?.label
+                    }
                   </Badge>
                 )}
                 {statusFilter !== "all" && (
@@ -153,30 +167,50 @@ const ServiceFilters: React.FC<ServiceFiltersProps> = ({
                 )}
                 {advancedFilters?.dateRange?.start && (
                   <Badge variant="secondary">
-                    Data início: {new Date(advancedFilters.dateRange.start).toLocaleDateString('pt-BR')}
+                    Data início:{" "}
+                    {new Date(
+                      advancedFilters.dateRange.start
+                    ).toLocaleDateString("pt-BR")}
                   </Badge>
                 )}
                 {advancedFilters?.dateRange?.end && (
                   <Badge variant="secondary">
-                    Data fim: {new Date(advancedFilters.dateRange.end).toLocaleDateString('pt-BR')}
+                    Data fim:{" "}
+                    {new Date(advancedFilters.dateRange.end).toLocaleDateString(
+                      "pt-BR"
+                    )}
                   </Badge>
                 )}
                 {advancedFilters?.priceRange && (
                   <Badge variant="secondary">
-                    Preço: {advancedFilters.priceRange === "0-100" ? "Até R$ 100" :
-                      advancedFilters.priceRange === "100-300" ? "R$ 100 - R$ 300" :
-                        advancedFilters.priceRange === "300-500" ? "R$ 300 - R$ 500" :
-                          advancedFilters.priceRange === "500-1000" ? "R$ 500 - R$ 1.000" :
-                            advancedFilters.priceRange === "1000+" ? "Acima de R$ 1.000" : ""}
+                    Preço:{" "}
+                    {advancedFilters.priceRange === "0-100"
+                      ? "Até R$ 100"
+                      : advancedFilters.priceRange === "100-300"
+                      ? "R$ 100 - R$ 300"
+                      : advancedFilters.priceRange === "300-500"
+                      ? "R$ 300 - R$ 500"
+                      : advancedFilters.priceRange === "500-1000"
+                      ? "R$ 500 - R$ 1.000"
+                      : advancedFilters.priceRange === "1000+"
+                      ? "Acima de R$ 1.000"
+                      : ""}
                   </Badge>
                 )}
                 {advancedFilters?.duration && (
                   <Badge variant="secondary">
-                    Duração: {advancedFilters.duration === "0-30" ? "Até 30min" :
-                      advancedFilters.duration === "30-60" ? "30-60min" :
-                        advancedFilters.duration === "60-90" ? "60-90min" :
-                          advancedFilters.duration === "90-120" ? "90-120min" :
-                            advancedFilters.duration === "120+" ? "Mais de 120min" : ""}
+                    Duração:{" "}
+                    {advancedFilters.duration === "0-30"
+                      ? "Até 30min"
+                      : advancedFilters.duration === "30-60"
+                      ? "30-60min"
+                      : advancedFilters.duration === "60-90"
+                      ? "60-90min"
+                      : advancedFilters.duration === "90-120"
+                      ? "90-120min"
+                      : advancedFilters.duration === "120+"
+                      ? "Mais de 120min"
+                      : ""}
                   </Badge>
                 )}
                 <Button

@@ -20,7 +20,7 @@ import {
   Eye,
   Zap,
   Star,
-  Stethoscope
+  Stethoscope,
 } from "lucide-react";
 import { Service } from "@/types/service";
 
@@ -31,38 +31,95 @@ interface ServiceCardProps {
 }
 
 const serviceCategories = [
-  { value: "preventivo", label: "Preventivo", icon: Shield },
-  { value: "restaurador", label: "Restaurador", icon: Heart },
+  { value: "clinico_geral", label: "Clínico Geral", icon: Stethoscope },
   { value: "ortodontia", label: "Ortodontia", icon: Zap },
+  { value: "endodontia", label: "Endodontia", icon: Star },
+  { value: "implantodontia", label: "Implantodontia", icon: Shield },
+  { value: "periodontia", label: "Periodontia", icon: Heart },
+  { value: "proteses", label: "Próteses", icon: Star },
+  { value: "odontopediatria", label: "Odontopediatria", icon: Heart },
   { value: "cirurgia", label: "Cirurgia", icon: Stethoscope },
-  { value: "estetico", label: "Estético", icon: Star },
-  { value: "emergencia", label: "Emergência", icon: Zap }
+  { value: "radiologia", label: "Radiologia", icon: Zap },
+  { value: "estetica", label: "Estética", icon: Star },
+  { value: "preventivo", label: "Preventivo", icon: Shield },
+  { value: "outros", label: "Outros", icon: Eye },
 ];
 
 // Função para obter a badge de status do serviço
 const getServiceStatusBadge = (isActive: boolean) => {
   return isActive
-    ? { variant: 'success' as const }
-    : { variant: 'muted' as const };
+    ? { variant: "success" as const }
+    : { variant: "muted" as const };
 };
 
 // Função para obter a badge de categoria com cores específicas
 const getCategoryBadge = (category: string) => {
   switch (category) {
-    case "preventivo":
-      return { variant: 'success' as const, className: 'bg-green-100 text-green-700 border-transparent' };
-    case "restaurador":
-      return { variant: 'info' as const, className: 'bg-blue-100 text-blue-700 border-transparent' };
+    case "clinico_geral":
+      return {
+        variant: "info" as const,
+        className: "bg-blue-100 text-blue-700 border-transparent",
+      };
     case "ortodontia":
-      return { variant: 'outline' as const, className: 'bg-purple-100 text-purple-700 border-transparent' };
+      return {
+        variant: "outline" as const,
+        className: "bg-purple-100 text-purple-700 border-transparent",
+      };
+    case "endodontia":
+      return {
+        variant: "success" as const,
+        className: "bg-green-100 text-green-700 border-transparent",
+      };
+    case "implantodontia":
+      return {
+        variant: "outline" as const,
+        className: "bg-cyan-100 text-cyan-700 border-transparent",
+      };
+    case "periodontia":
+      return {
+        variant: "outline" as const,
+        className: "bg-emerald-100 text-emerald-700 border-transparent",
+      };
+    case "proteses":
+      return {
+        variant: "outline" as const,
+        className: "bg-yellow-100 text-yellow-700 border-transparent",
+      };
+    case "odontopediatria":
+      return {
+        variant: "outline" as const,
+        className: "bg-pink-100 text-pink-700 border-transparent",
+      };
     case "cirurgia":
-      return { variant: 'destructive' as const, className: 'bg-red-100 text-red-700 border-transparent' };
-    case "estetico":
-      return { variant: 'warning' as const, className: 'bg-yellow-100 text-yellow-700 border-transparent' };
-    case "emergencia":
-      return { variant: 'outline' as const, className: 'bg-orange-100 text-orange-700 border-transparent' };
+      return {
+        variant: "destructive" as const,
+        className: "bg-red-100 text-red-700 border-transparent",
+      };
+    case "radiologia":
+      return {
+        variant: "outline" as const,
+        className: "bg-gray-200 text-gray-700 border-transparent",
+      };
+    case "estetica":
+      return {
+        variant: "warning" as const,
+        className: "bg-yellow-100 text-yellow-700 border-transparent",
+      };
+    case "preventivo":
+      return {
+        variant: "success" as const,
+        className: "bg-green-100 text-green-700 border-transparent",
+      };
+    case "outros":
+      return {
+        variant: "outline" as const,
+        className: "bg-gray-100 text-gray-700 border-transparent",
+      };
     default:
-      return { variant: 'outline' as const, className: 'bg-gray-100 text-gray-700 border-transparent' };
+      return {
+        variant: "outline" as const,
+        className: "bg-gray-100 text-gray-700 border-transparent",
+      };
   }
 };
 
@@ -86,15 +143,22 @@ const getCategoryIconColor = (category: string) => {
   }
 };
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDelete }) => {
+const ServiceCard: React.FC<ServiceCardProps> = ({
+  service,
+  onEdit,
+  onDelete,
+}) => {
   const getCategoryInfo = (category: string) => {
-    return serviceCategories.find(cat => cat.value === category) || serviceCategories[0];
+    return (
+      serviceCategories.find((cat) => cat.value === category) ||
+      serviceCategories[0]
+    );
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
     }).format(price);
   };
 
@@ -102,7 +166,9 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDelete }) 
     if (minutes >= 60) {
       const hours = Math.floor(minutes / 60);
       const remainingMinutes = minutes % 60;
-      return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
+      return remainingMinutes > 0
+        ? `${hours}h ${remainingMinutes}min`
+        : `${hours}h`;
     }
     return `${minutes}min`;
   };
@@ -125,10 +191,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onEdit, onDelete }) 
               <h3 className="font-semibold text-gray-900 leading-tight">
                 {service.name}
               </h3>
-              <Badge
-                variant={statusBadge.variant}
-                className="mt-1"
-              >
+              <Badge variant={statusBadge.variant} className="mt-1">
                 {service.active ? "Ativo" : "Inativo"}
               </Badge>
             </div>
