@@ -22,6 +22,9 @@ export interface NextAppointment {
   id: string;
   appointmentAt: string;
   patientName: string;
+  patientAge?: number;
+  patientEmail?: string;
+  patientPhone?: string;
   serviceName: string;
   employeeName: string;
   status: string;
@@ -111,6 +114,9 @@ export const dashboardService = {
           id,
           appointment_at,
           status,
+          patient_id,
+          service_id,
+          employee_id,
           patients(full_name),
           services(name, duration_minutes),
           employees(full_name)
@@ -121,15 +127,60 @@ export const dashboardService = {
 
       if (error) throw error;
 
-      return data?.map(appointment => ({
-        id: appointment.id,
-        appointmentAt: appointment.appointment_at,
-        patientName: appointment.patients?.[0]?.full_name || 'Paciente não encontrado',
-        serviceName: appointment.services?.[0]?.name || 'Serviço não encontrado',
-        employeeName: appointment.employees?.[0]?.full_name || 'Funcionário não encontrado',
-        status: appointment.status,
-        durationMinutes: appointment.services?.[0]?.duration_minutes || 30
-      })) || [];
+      const results: TodayAppointment[] = [];
+      for (const appointment of data || []) {
+        // Paciente
+        let patientName = appointment.patients?.[0]?.full_name;
+        if (!patientName && appointment.patient_id) {
+          const { data: patientData } = await supabase
+            .from('patients')
+            .select('full_name')
+            .eq('id', appointment.patient_id)
+            .single();
+          if (patientData && patientData.full_name) patientName = patientData.full_name;
+        }
+        if (!patientName) patientName = 'Paciente não encontrado';
+
+        // Serviço
+        let serviceName = appointment.services?.[0]?.name;
+        let durationMinutes = appointment.services?.[0]?.duration_minutes;
+        if ((!serviceName || !durationMinutes) && appointment.service_id) {
+          const { data: serviceData } = await supabase
+            .from('services')
+            .select('name, duration_minutes')
+            .eq('id', appointment.service_id)
+            .single();
+          if (serviceData) {
+            if (!serviceName && serviceData.name) serviceName = serviceData.name;
+            if (!durationMinutes && serviceData.duration_minutes) durationMinutes = serviceData.duration_minutes;
+          }
+        }
+        if (!serviceName) serviceName = 'Serviço não encontrado';
+        if (!durationMinutes) durationMinutes = 30;
+
+        // Funcionário
+        let employeeName = appointment.employees?.[0]?.full_name;
+        if (!employeeName && appointment.employee_id) {
+          const { data: employeeData } = await supabase
+            .from('employees')
+            .select('full_name')
+            .eq('id', appointment.employee_id)
+            .single();
+          if (employeeData && employeeData.full_name) employeeName = employeeData.full_name;
+        }
+        if (!employeeName) employeeName = 'Funcionário não encontrado';
+
+        results.push({
+          id: appointment.id,
+          appointmentAt: appointment.appointment_at,
+          patientName,
+          serviceName,
+          employeeName,
+          status: appointment.status,
+          durationMinutes,
+        });
+      }
+      return results;
     } catch (error) {
       console.error('Erro ao buscar consultas de hoje:', error);
       return [];
@@ -170,13 +221,30 @@ export const dashboardService = {
 
       // Buscar paciente pelo id
       let patientName = 'Paciente não encontrado';
+      let patientAge: number | undefined = undefined;
+      let patientEmail: string | undefined = undefined;
+      let patientPhone: string | undefined = undefined;
       if (appointment.patient_id) {
         const { data: patientData } = await supabase
           .from('patients')
-          .select('full_name')
+          .select('full_name, birth_date, email, phone')
           .eq('id', appointment.patient_id)
           .single();
-        if (patientData && patientData.full_name) patientName = patientData.full_name;
+        if (patientData) {
+          if (patientData.full_name) patientName = patientData.full_name;
+          if (patientData.birth_date) {
+            const birthDate = new Date(patientData.birth_date);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+              age--;
+            }
+            patientAge = age;
+          }
+          if (patientData.email) patientEmail = patientData.email;
+          if (patientData.phone) patientPhone = patientData.phone;
+        }
       }
 
       // Buscar funcionário pelo id
@@ -219,6 +287,9 @@ export const dashboardService = {
         id: appointment.id,
         appointmentAt: appointment.appointment_at,
         patientName,
+        patientAge,
+        patientEmail,
+        patientPhone,
         serviceName,
         employeeName,
         status: appointment.status,

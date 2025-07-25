@@ -1,13 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -33,12 +49,24 @@ interface AddAppointmentDialogProps {
   onAddAppointment: (appointment: CreateAppointmentData) => void;
 }
 
-
-
 const timeSlots = [
-  "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
-  "11:00", "11:30", "14:00", "14:30", "15:00", "15:30",
-  "16:00", "16:30", "17:00", "17:30", "18:00",
+  "08:00",
+  "08:30",
+  "09:00",
+  "09:30",
+  "10:00",
+  "10:30",
+  "11:00",
+  "11:30",
+  "14:00",
+  "14:30",
+  "15:00",
+  "15:30",
+  "16:00",
+  "16:30",
+  "17:00",
+  "17:30",
+  "18:00",
 ];
 
 const durations = [
@@ -53,6 +81,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
   onOpenChange,
   onAddAppointment,
 }) => {
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [formData, setFormData] = useState({
     patientId: "",
     employeeId: "",
@@ -87,8 +116,15 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.patientId || !formData.employeeId || !formData.serviceId ||
-      !formData.phone || !formData.date || !formData.time || !formData.duration) {
+    if (
+      !formData.patientId ||
+      !formData.employeeId ||
+      !formData.serviceId ||
+      !formData.phone ||
+      !formData.date ||
+      !formData.time ||
+      !formData.duration
+    ) {
       return;
     }
 
@@ -111,10 +147,10 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
         serviceId: Number(formData.serviceId),
         appointmentAt: startDate.toISOString(),
         appointmentEnd: endDate.toISOString(),
-        status: "agendada"
+        status: "agendada",
       };
 
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simula delay da API
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simula delay da API
       onAddAppointment(appointment);
       handleClose();
     } finally {
@@ -136,8 +172,14 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
     onOpenChange(false);
   };
 
-  const isFormValid = formData.patientId && formData.employeeId && formData.serviceId &&
-    formData.phone && formData.date && formData.time && formData.duration;
+  const isFormValid =
+    formData.patientId &&
+    formData.employeeId &&
+    formData.serviceId &&
+    formData.phone &&
+    formData.date &&
+    formData.time &&
+    formData.duration;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -165,10 +207,17 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="patientId">Paciente *</Label>
-                  <Select value={formData.patientId} onValueChange={async (value) => {
-                    const selected = patients.find((p) => p.id === value);
-                    setFormData({ ...formData, patientId: value, phone: selected?.phone || "" });
-                  }}>
+                  <Select
+                    value={formData.patientId}
+                    onValueChange={async (value) => {
+                      const selected = patients.find((p) => p.id === value);
+                      setFormData({
+                        ...formData,
+                        patientId: value,
+                        phone: selected?.phone || "",
+                      });
+                    }}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o paciente" />
                     </SelectTrigger>
@@ -212,13 +261,21 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="serviceId">Serviço *</Label>
-                  <Select value={formData.serviceId} onValueChange={(value) => setFormData({ ...formData, serviceId: value })}>
+                  <Select
+                    value={formData.serviceId}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, serviceId: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o serviço" />
                     </SelectTrigger>
                     <SelectContent>
                       {services.map((service) => (
-                        <SelectItem key={service.id} value={service.id.toString()}>
+                        <SelectItem
+                          key={service.id}
+                          value={service.id.toString()}
+                        >
                           {service.name}
                         </SelectItem>
                       ))}
@@ -228,7 +285,12 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
 
                 <div className="space-y-2">
                   <Label htmlFor="employeeId">Profissional *</Label>
-                  <Select value={formData.employeeId} onValueChange={(value) => setFormData({ ...formData, employeeId: value })}>
+                  <Select
+                    value={formData.employeeId}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, employeeId: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o profissional" />
                     </SelectTrigger>
@@ -257,7 +319,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Data da Consulta *</Label>
-                  <Popover>
+                  <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
@@ -267,15 +329,32 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.date ? format(formData.date, "dd/MM/yyyy", { locale: ptBR }) : "Selecione a data"}
+                        {formData.date
+                          ? format(formData.date, "dd/MM/yyyy", {
+                              locale: ptBR,
+                            })
+                          : "Selecione a data"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
                         selected={formData.date}
-                        onSelect={(date) => setFormData({ ...formData, date })}
-                        disabled={(date) => date < new Date()}
+                        onSelect={(date) => {
+                          setFormData({ ...formData, date });
+                          if (date) setCalendarOpen(false);
+                        }}
+                        disabled={(date) => {
+                          const now = new Date();
+                          return (
+                            date.getFullYear() < now.getFullYear() ||
+                            (date.getFullYear() === now.getFullYear() &&
+                              date.getMonth() < now.getMonth()) ||
+                            (date.getFullYear() === now.getFullYear() &&
+                              date.getMonth() === now.getMonth() &&
+                              date.getDate() < now.getDate())
+                          );
+                        }}
                         initialFocus
                         locale={ptBR}
                       />
@@ -285,7 +364,12 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
 
                 <div className="space-y-2">
                   <Label htmlFor="time">Horário *</Label>
-                  <Select value={formData.time} onValueChange={(value) => setFormData({ ...formData, time: value })}>
+                  <Select
+                    value={formData.time}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, time: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o horário" />
                     </SelectTrigger>
@@ -301,7 +385,12 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
 
                 <div className="space-y-2">
                   <Label htmlFor="duration">Duração *</Label>
-                  <Select value={formData.duration} onValueChange={(value) => setFormData({ ...formData, duration: value })}>
+                  <Select
+                    value={formData.duration}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, duration: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Duração" />
                     </SelectTrigger>
@@ -333,7 +422,9 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                   id="notes"
                   placeholder="Digite qualquer observação importante..."
                   value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, notes: e.target.value })
+                  }
                   rows={3}
                 />
               </div>

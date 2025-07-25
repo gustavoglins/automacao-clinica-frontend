@@ -1,4 +1,5 @@
-import React, { useState } from "react"
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 // Helper para capitalizar a primeira letra
 function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -13,76 +14,117 @@ import {
   AlertCircle,
   CheckCheck,
   Briefcase,
-  User
-} from "lucide-react"
-import { StatsCard } from "./StatsCard"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { AddEmployeeDialog } from "@/components/funcionarios/AddEmployeeDialog"
-import ServiceFormDialog from "@/components/servicos/ServiceFormDialog"
-import { AddAppointmentDialog } from "@/components/agenda"
-import { dashboardService, DashboardStats, TodayAppointment, NextAppointment } from "@/services/dashboardService"
-import { employeeService } from "@/services/employeeService"
-import { serviceService } from "@/services/servicesService"
+  User,
+} from "lucide-react";
+import { StatsCard } from "./StatsCard";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { AddEmployeeDialog } from "@/components/funcionarios/AddEmployeeDialog";
+import ServiceFormDialog from "@/components/servicos/ServiceFormDialog";
+import { AddAppointmentDialog } from "@/components/agenda";
+import {
+  dashboardService,
+  DashboardStats,
+  TodayAppointment,
+  NextAppointment,
+} from "@/services/dashboardService";
+import { employeeService } from "@/services/employeeService";
+import { serviceService } from "@/services/servicesService";
 import { useDashboard } from "@/context/DashboardContext";
 
 export function Dashboard() {
-  const { stats, todayAppointments, nextAppointment, activeEmployees, activeServices, loading, fetchDashboardData } = useDashboard();
+  const navigate = useNavigate();
+  const {
+    stats,
+    todayAppointments,
+    nextAppointment,
+    activeEmployees,
+    activeServices,
+    loading,
+    fetchDashboardData,
+  } = useDashboard();
 
   const todayStats = [
     {
       title: "Consultas Agendadas",
       value: stats.totalAppointments,
       icon: Calendar,
-      change: { value: "", type: "increase" as const }
+      change: { value: "", type: "increase" as const },
     },
     {
       title: "Pacientes Ativos",
       value: stats.totalPatients,
       icon: Users,
-      change: { value: "", type: "increase" as const }
+      change: { value: "", type: "increase" as const },
     },
     {
       title: "Funcionários Ativos",
       value: activeEmployees,
       icon: UserCheck,
-      change: { value: "", type: "increase" as const }
+      change: { value: "", type: "increase" as const },
     },
     {
       title: "Serviços Ativos",
       value: activeServices,
       icon: Briefcase,
-      change: { value: "", type: "increase" as const }
-    }
+      change: { value: "", type: "increase" as const },
+    },
   ];
 
-
-
   // Estados para paginação
-  const [appointmentsPage, setAppointmentsPage] = useState(0)
-  const APPOINTMENTS_PER_PAGE = 5
+  const [appointmentsPage, setAppointmentsPage] = useState(0);
+  const APPOINTMENTS_PER_PAGE = 5;
 
   // Estados para abrir os modais
-  const [openAppointmentsDialog, setOpenAppointmentsDialog] = useState(false)
-  const [openAddEmployeeDialog, setOpenAddEmployeeDialog] = useState(false)
-  const [openServiceFormDialog, setOpenServiceFormDialog] = useState(false)
-  const [openAddAppointmentDialog, setOpenAddAppointmentDialog] = useState(false)
+  const [openAppointmentsDialog, setOpenAppointmentsDialog] = useState(false);
+  const [openAddEmployeeDialog, setOpenAddEmployeeDialog] = useState(false);
+  const [openServiceFormDialog, setOpenServiceFormDialog] = useState(false);
+  const [openAddAppointmentDialog, setOpenAddAppointmentDialog] =
+    useState(false);
+
+  // Filtra apenas as consultas do dia atual
+  const today = new Date();
+  const isSameDay = (date1: Date, date2: Date) =>
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate();
+
+  const onlyTodayAppointments = todayAppointments.filter((appointment) => {
+    const apptDate = new Date(appointment.appointmentAt);
+    return isSameDay(apptDate, today);
+  });
 
   // Ordena as consultas do mais cedo para o mais tarde
-  const sortedAppointments = [...todayAppointments].sort((a, b) => a.appointmentAt.localeCompare(b.appointmentAt))
+  const sortedAppointments = [...onlyTodayAppointments].sort((a, b) =>
+    a.appointmentAt.localeCompare(b.appointmentAt)
+  );
 
   const paginatedAppointments = sortedAppointments.slice(
     appointmentsPage * APPOINTMENTS_PER_PAGE,
     (appointmentsPage + 1) * APPOINTMENTS_PER_PAGE
-  )
+  );
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">Visão geral da sua clínica odontológica</p>
+        <p className="text-muted-foreground">
+          Visão geral da sua clínica odontológica
+        </p>
       </div>
 
       {/* Stats Cards */}
@@ -108,37 +150,71 @@ export function Dashboard() {
               Próxima Consulta
             </CardTitle>
             <CardDescription>
-              {nextAppointment ? `Próxima consulta ${nextAppointment.timeUntil}` : 'Nenhuma consulta agendada'}
+              {nextAppointment
+                ? `Próxima consulta ${nextAppointment.timeUntil}`
+                : "Nenhuma consulta agendada"}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col">
             {nextAppointment ? (
-              <div className="flex-1 flex flex-col justify-center">
-                <div className="flex flex-col h-full w-full p-8 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl shadow-md">
-                  <div className="flex items-center gap-6 mb-6">
-                    <div className="flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full">
-                      <User className="w-10 h-10 text-blue-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-3xl font-bold text-gray-900 mb-1 truncate">{nextAppointment.patientName}</h3>
-                      <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">{nextAppointment.serviceName}</span>
-                        <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">{nextAppointment.durationMinutes} min</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-700 text-base mb-1">
-                        <UserCheck className="w-5 h-5 text-blue-500" />
-                        <span>{nextAppointment.employeeName}</span>
-                      </div>
-                    </div>
+              <div className="flex flex-row items-center gap-8 p-7 bg-white rounded-xl border border-blue-200 shadow-md">
+                {/* Avatar grande */}
+                <div className="flex items-center justify-center w-24 h-24 bg-blue-100 rounded-full shadow-sm">
+                  <User className="w-14 h-14 text-blue-600" />
+                </div>
+                {/* Informações do paciente e consulta */}
+                <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
+                  <div className="flex flex-row items-end gap-3 mb-1 min-h-[2.5rem]">
+                    <h3 className="text-2xl font-bold text-gray-900 truncate leading-tight">
+                      {nextAppointment.patientName}
+                    </h3>
+                    {nextAppointment.patientAge !== undefined && (
+                      <span className="text-sm text-gray-500 font-medium flex items-end pb-[2px]">
+                        {nextAppointment.patientAge} anos
+                      </span>
+                    )}
                   </div>
-                  <div className="flex flex-col gap-2 mb-4">
-                    <div className="flex items-center gap-2 text-gray-700 text-base">
-                      <Clock className="w-5 h-5 text-blue-500" />
-                      <span>{capitalizeFirstLetter(new Date(nextAppointment.appointmentAt).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }))} às {new Date(nextAppointment.appointmentAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-700 text-base">
-                      <span className="inline-block px-3 py-1 bg-blue-200 text-blue-900 rounded-full text-xs font-semibold capitalize">{nextAppointment.status}</span>
-                      <span className="text-xs text-gray-500">{nextAppointment.timeUntil}</span>
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+                      {nextAppointment.serviceName}
+                    </span>
+                    <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">
+                      {nextAppointment.durationMinutes} min
+                    </span>
+                  </div>
+                  <div className="text-base font-semibold text-gray-800 mb-1">
+                    {nextAppointment.employeeName && (
+                      <span>
+                        com Dr(a).{" "}
+                        <span className="font-bold">
+                          {nextAppointment.employeeName}
+                        </span>
+                      </span>
+                    )}
+                  </div>
+                  {/* Data e hora em destaque */}
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg shadow-sm">
+                      <Clock className="w-5 h-5 text-blue-300" />
+                      <span className="text-base font-medium">
+                        {capitalizeFirstLetter(
+                          new Date(
+                            nextAppointment.appointmentAt
+                          ).toLocaleDateString("pt-BR", {
+                            weekday: "long",
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                          })
+                        )}{" "}
+                        às{" "}
+                        {new Date(
+                          nextAppointment.appointmentAt
+                        ).toLocaleTimeString("pt-BR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -171,29 +247,48 @@ export function Dashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col">
-            <div
-              className="space-y-4 flex-1 h-[600px] overflow-y-auto"
-            >
+            <div className="space-y-4 flex-1 h-[600px] overflow-y-auto">
               {paginatedAppointments.map((appointment, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl"
+                >
                   <div className="flex items-center gap-3">
                     <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
                       <Clock className="w-4 h-4 text-blue-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{appointment.patientName}</p>
-                      <p className="text-sm text-gray-600">{appointment.serviceName}</p>
+                      <p className="font-medium text-gray-900">
+                        {appointment.patientName}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {appointment.serviceName}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-blue-600">{new Date(appointment.appointmentAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
-                    <p className="text-sm text-gray-600">{appointment.employeeName}</p>
+                    <p className="font-medium text-blue-600">
+                      {new Date(appointment.appointmentAt).toLocaleTimeString(
+                        "pt-BR",
+                        { hour: "2-digit", minute: "2-digit" }
+                      )}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {appointment.employeeName
+                        ? `com Dr(a). ${appointment.employeeName}`
+                        : ""}
+                    </p>
                   </div>
                 </div>
               ))}
               {/* Preenche com placeholders invisíveis para manter altura e espaçamento */}
-              {Array.from({ length: APPOINTMENTS_PER_PAGE - paginatedAppointments.length }).map((_, idx) => (
-                <div key={"placeholder-appointment-" + idx} className="opacity-0 select-none pointer-events-none">
+              {Array.from({
+                length: APPOINTMENTS_PER_PAGE - paginatedAppointments.length,
+              }).map((_, idx) => (
+                <div
+                  key={"placeholder-appointment-" + idx}
+                  className="opacity-0 select-none pointer-events-none"
+                >
                   <div className="flex items-center justify-between p-3 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg" />
@@ -221,29 +316,64 @@ export function Dashboard() {
                   disabled={appointmentsPage === 0}
                 >
                   <span className="sr-only">Anterior</span>
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M15 18l-6-6 6-6" /></svg>
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                    <path
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 18l-6-6 6-6"
+                    />
+                  </svg>
                 </Button>
                 <span className="text-xs text-muted-foreground italic">
-                  Mostrando {appointmentsPage * APPOINTMENTS_PER_PAGE + 1}
-                  -{Math.min((appointmentsPage + 1) * APPOINTMENTS_PER_PAGE, todayAppointments.length)} de {todayAppointments.length} consultas
+                  Mostrando {appointmentsPage * APPOINTMENTS_PER_PAGE + 1}-
+                  {Math.min(
+                    (appointmentsPage + 1) * APPOINTMENTS_PER_PAGE,
+                    todayAppointments.length
+                  )}{" "}
+                  de {todayAppointments.length} consultas
                 </span>
                 <Button
                   size="icon"
                   variant="ghost"
                   className="p-1 h-6 w-6"
                   title="Próxima"
-                  onClick={() => setAppointmentsPage((p) =>
-                    (p + 1) < Math.ceil(todayAppointments.length / APPOINTMENTS_PER_PAGE) ? p + 1 : p
-                  )}
-                  disabled={(appointmentsPage + 1) * APPOINTMENTS_PER_PAGE >= todayAppointments.length}
+                  onClick={() =>
+                    setAppointmentsPage((p) =>
+                      p + 1 <
+                      Math.ceil(
+                        todayAppointments.length / APPOINTMENTS_PER_PAGE
+                      )
+                        ? p + 1
+                        : p
+                    )
+                  }
+                  disabled={
+                    (appointmentsPage + 1) * APPOINTMENTS_PER_PAGE >=
+                    todayAppointments.length
+                  }
                 >
                   <span className="sr-only">Próxima</span>
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M9 18l6-6-6-6" /></svg>
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                    <path
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 18l6-6-6-6"
+                    />
+                  </svg>
                 </Button>
               </div>
             )}
             <div className="mt-4">
-              <Button size="sm" className="w-full mt-auto" variant="outline-primary" onClick={() => setOpenAppointmentsDialog(true)}>
+              <Button
+                size="sm"
+                className="w-full mt-auto"
+                variant="link"
+                onClick={() => navigate("/agenda")}
+              >
                 Ver Agenda Completa
               </Button>
             </div>
@@ -254,9 +384,7 @@ export function Dashboard() {
       {/* Quick Actions */}
       <Card className="shadow-card">
         <CardHeader>
-          <CardTitle className="">
-            Ações Rápidas
-          </CardTitle>
+          <CardTitle className="">Ações Rápidas</CardTitle>
           <CardDescription>
             Acesse rapidamente as principais funcionalidades
           </CardDescription>
@@ -301,27 +429,48 @@ export function Dashboard() {
       </Card>
 
       {/* Dialog: Agenda Completa */}
-      <Dialog open={openAppointmentsDialog} onOpenChange={setOpenAppointmentsDialog}>
+      <Dialog
+        open={openAppointmentsDialog}
+        onOpenChange={setOpenAppointmentsDialog}
+      >
         <DialogContent className="max-w-lg w-full">
           <DialogHeader>
             <DialogTitle>Agenda Completa</DialogTitle>
-            <DialogDescription>Veja todas as consultas de hoje</DialogDescription>
+            <DialogDescription>
+              Veja todas as consultas de hoje
+            </DialogDescription>
           </DialogHeader>
           <div className="max-h-96 overflow-y-auto space-y-3 mt-2">
             {sortedAppointments.map((appointment, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl">
+              <div
+                key={index}
+                className="flex items-center justify-between p-3 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl"
+              >
                 <div className="flex items-center gap-3">
                   <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
                     <Clock className="w-4 h-4 text-blue-600" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{appointment.patientName}</p>
-                    <p className="text-sm text-gray-600">{appointment.serviceName}</p>
+                    <p className="font-medium text-gray-900">
+                      {appointment.patientName}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {appointment.serviceName}
+                    </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium text-blue-600">{new Date(appointment.appointmentAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
-                  <p className="text-sm text-gray-600">{appointment.employeeName}</p>
+                  <p className="font-medium text-blue-600">
+                    {new Date(appointment.appointmentAt).toLocaleTimeString(
+                      "pt-BR",
+                      { hour: "2-digit", minute: "2-digit" }
+                    )}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {appointment.employeeName
+                      ? `Dr(a). ${appointment.employeeName}`
+                      : ""}
+                  </p>
                 </div>
               </div>
             ))}
@@ -329,14 +478,12 @@ export function Dashboard() {
         </DialogContent>
       </Dialog>
 
-
-
       {/* Dialog: Novo Funcionário */}
       <AddEmployeeDialog
         isOpen={openAddEmployeeDialog}
         onClose={() => setOpenAddEmployeeDialog(false)}
         onEmployeeAdded={() => {
-          setOpenAddEmployeeDialog(false)
+          setOpenAddEmployeeDialog(false);
           // Aqui você pode adicionar lógica para atualizar a lista de funcionários
         }}
       />
@@ -352,16 +499,16 @@ export function Dashboard() {
           price: "",
           duration: "",
           category: "",
-          isActive: true
+          isActive: true,
         }}
-        onFormDataChange={() => { }}
+        onFormDataChange={() => {}}
         onSubmit={() => {
-          setOpenServiceFormDialog(false)
+          setOpenServiceFormDialog(false);
           // Aqui você pode adicionar lógica para salvar o serviço
         }}
         onCancel={() => setOpenServiceFormDialog(false)}
         submitLabel="Criar Serviço"
       />
     </div>
-  )
+  );
 }
