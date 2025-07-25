@@ -21,9 +21,26 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { employeeService, type Employee } from "@/services/employeeService";
 import { toast } from "sonner";
-import { applyPhoneMask, onlyNumbers, isValidPhone, formatPhone, getPhoneInfo } from "@/lib/utils";
+import {
+  applyPhoneMask,
+  applyCpfMask,
+  onlyNumbers,
+  isValidPhone,
+  formatPhone,
+  getPhoneInfo,
+} from "@/lib/utils";
 import { RequiredFieldsNote } from "@/components/ui/required-fields-note";
-import { UserPen, User, Phone, Briefcase, CreditCard, FileText, Check, X, Clock } from "lucide-react";
+import {
+  UserPen,
+  User,
+  Phone,
+  Briefcase,
+  CreditCard,
+  FileText,
+  Check,
+  X,
+  Clock,
+} from "lucide-react";
 
 interface EditEmployeeDialogProps {
   employee: Employee | null;
@@ -36,7 +53,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
   employee,
   isOpen,
   onClose,
-  onEmployeeUpdated
+  onEmployeeUpdated,
 }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -56,27 +73,28 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
     notes: "",
     workDays: ["Seg", "Ter", "Qua", "Qui", "Sex"] as string[],
     startHour: "08:00",
-    endHour: "18:00"
+    endHour: "18:00",
   });
 
   const [isLoading, setIsLoading] = useState(false);
 
   React.useEffect(() => {
     if (employee) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         name: employee.fullName || "",
         email: employee.email || "",
         phone: formatPhone(employee.phone || ""),
-        cpf: employee.cpf || "",
+        cpf: applyCpfMask(employee.cpf || ""),
         role: typeof employee.role === "string" ? employee.role : "",
-        specialty: typeof employee.specialty === "string" ? employee.specialty : "",
+        specialty:
+          typeof employee.specialty === "string" ? employee.specialty : "",
         salary: employee.salary?.toString() || "",
         status: employee.status || "ativo",
         hireDate: employee.hiredAt || "",
         workDays: employee.workDays || ["Seg", "Ter", "Qua", "Qui", "Sex"],
         startHour: employee.startHour || "08:00",
-        endHour: employee.endHour || "18:00"
+        endHour: employee.endHour || "18:00",
       }));
     }
   }, [employee]);
@@ -102,11 +120,11 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
         role: formData.role,
         specialty: formData.specialty,
         salary: formData.salary ? parseFloat(formData.salary) : null,
-        status: formData.status as 'ativo' | 'inativo',
+        status: formData.status as "ativo" | "inativo",
         workDays: formData.workDays,
         startHour: formData.startHour,
         endHour: formData.endHour,
-        hiredAt: employee.hiredAt // manter data original
+        hiredAt: employee.hiredAt, // manter data original
       };
 
       await employeeService.updateEmployee(updatedEmployee);
@@ -114,19 +132,25 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
       onEmployeeUpdated();
       onClose();
     } catch (error) {
-      console.error('Erro ao atualizar funcionário:', error);
+      console.error("Erro ao atualizar funcionário:", error);
       toast.error("Erro ao atualizar funcionário. Tente novamente.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleChange = (field: keyof typeof formData, value: string | boolean | string[]) => {
+  const handleChange = (
+    field: keyof typeof formData,
+    value: string | boolean | string[]
+  ) => {
     if (field === "phone") {
       const maskedValue = applyPhoneMask(value as string);
-      setFormData(prev => ({ ...prev, [field]: maskedValue }));
+      setFormData((prev) => ({ ...prev, [field]: maskedValue }));
+    } else if (field === "cpf") {
+      const maskedValue = applyCpfMask(value as string);
+      setFormData((prev) => ({ ...prev, [field]: maskedValue }));
     } else {
-      setFormData(prev => ({ ...prev, [field]: value }));
+      setFormData((prev) => ({ ...prev, [field]: value }));
     }
   };
 
@@ -157,7 +181,9 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nome Completo <span className="text-primary">*</span></Label>
+                  <Label htmlFor="name">
+                    Nome Completo <span className="text-gray-800">*</span>
+                  </Label>
                   <Input
                     id="name"
                     value={formData.name}
@@ -167,12 +193,15 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="cpf">CPF</Label>
+                  <Label htmlFor="cpf">
+                    CPF <span className="text-gray-800">*</span>
+                  </Label>
                   <Input
                     id="cpf"
                     value={formData.cpf}
                     onChange={(e) => handleChange("cpf", e.target.value)}
                     placeholder="000.000.000-00"
+                    required
                   />
                 </div>
               </div>
@@ -224,17 +253,28 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="role">Cargo <span className="text-primary">*</span></Label>
-                  <Select value={formData.role} onValueChange={(value) => handleChange("role", value)}>
+                  <Label htmlFor="role">
+                    Cargo <span className="text-gray-800">*</span>
+                  </Label>
+                  <Select
+                    value={formData.role}
+                    onValueChange={(value) => handleChange("role", value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o cargo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="acupuntura_odonto">Acupuntura Odonto</SelectItem>
+                      <SelectItem value="acupuntura_odonto">
+                        Acupuntura Odonto
+                      </SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                       <SelectItem value="atendente">Atendente</SelectItem>
-                      <SelectItem value="auxiliar_saude_bucal">Auxiliar Saúde Bucal</SelectItem>
-                      <SelectItem value="cirurgiao_buco_maxilo">Cirurgião Buco-Maxilo</SelectItem>
+                      <SelectItem value="auxiliar_saude_bucal">
+                        Auxiliar Saúde Bucal
+                      </SelectItem>
+                      <SelectItem value="cirurgiao_buco_maxilo">
+                        Cirurgião Buco-Maxilo
+                      </SelectItem>
                       <SelectItem value="coordenador">Coordenador</SelectItem>
                       <SelectItem value="dentista">Dentista</SelectItem>
                       <SelectItem value="diretor">Diretor</SelectItem>
@@ -243,17 +283,29 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                       <SelectItem value="financeiro">Financeiro</SelectItem>
                       <SelectItem value="gerente">Gerente</SelectItem>
                       <SelectItem value="higienista">Higienista</SelectItem>
-                      <SelectItem value="implantodontista">Implantodontista</SelectItem>
+                      <SelectItem value="implantodontista">
+                        Implantodontista
+                      </SelectItem>
                       <SelectItem value="limpeza">Limpeza</SelectItem>
                       <SelectItem value="marketing">Marketing</SelectItem>
-                      <SelectItem value="odontopediatra">Odontopediatra</SelectItem>
-                      <SelectItem value="periodontista">Periodontista</SelectItem>
+                      <SelectItem value="odontopediatra">
+                        Odontopediatra
+                      </SelectItem>
+                      <SelectItem value="periodontista">
+                        Periodontista
+                      </SelectItem>
                       <SelectItem value="protesista">Protesista</SelectItem>
-                      <SelectItem value="recepcionista">Recepcionista</SelectItem>
+                      <SelectItem value="recepcionista">
+                        Recepcionista
+                      </SelectItem>
                       <SelectItem value="rh">RH</SelectItem>
                       <SelectItem value="secretaria">Secretária</SelectItem>
-                      <SelectItem value="suporte_tecnico">Suporte Técnico</SelectItem>
-                      <SelectItem value="tecnico_saude_bucal">Técnico Saúde Bucal</SelectItem>
+                      <SelectItem value="suporte_tecnico">
+                        Suporte Técnico
+                      </SelectItem>
+                      <SelectItem value="tecnico_saude_bucal">
+                        Técnico Saúde Bucal
+                      </SelectItem>
                       <SelectItem value="estagiario">Estagiário</SelectItem>
                     </SelectContent>
                   </Select>
@@ -269,31 +321,69 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                       <SelectValue placeholder="Selecione uma especialidade" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="acupuntura_odonto">Acupuntura Odonto</SelectItem>
-                      <SelectItem value="clinico_geral">Clínico Geral</SelectItem>
-                      <SelectItem value="cirurgiao_buco_maxilo">Cirurgião Buco-Maxilo</SelectItem>
+                      <SelectItem value="acupuntura_odonto">
+                        Acupuntura Odonto
+                      </SelectItem>
+                      <SelectItem value="clinico_geral">
+                        Clínico Geral
+                      </SelectItem>
+                      <SelectItem value="cirurgiao_buco_maxilo">
+                        Cirurgião Buco-Maxilo
+                      </SelectItem>
                       <SelectItem value="dentistica">Dentística</SelectItem>
-                      <SelectItem value="disfuncoes_temporomandibulares">Disfunções Temporomandibulares</SelectItem>
+                      <SelectItem value="disfuncoes_temporomandibulares">
+                        Disfunções Temporomandibulares
+                      </SelectItem>
                       <SelectItem value="endodontista">Endodontista</SelectItem>
-                      <SelectItem value="estomatologista">Estomatologista</SelectItem>
-                      <SelectItem value="homeopatia_odonto">Homeopatia Odonto</SelectItem>
-                      <SelectItem value="implantodontista">Implantodontista</SelectItem>
+                      <SelectItem value="estomatologista">
+                        Estomatologista
+                      </SelectItem>
+                      <SelectItem value="homeopatia_odonto">
+                        Homeopatia Odonto
+                      </SelectItem>
+                      <SelectItem value="implantodontista">
+                        Implantodontista
+                      </SelectItem>
                       <SelectItem value="laserterapia">Laserterapia</SelectItem>
-                      <SelectItem value="necessidades_especiais">Necessidades Especiais</SelectItem>
-                      <SelectItem value="odontogeriatra">Odontogeriatra</SelectItem>
-                      <SelectItem value="odontologia_do_esporte">Odontologia do Esporte</SelectItem>
-                      <SelectItem value="odontologia_do_trabalho">Odontologia do Trabalho</SelectItem>
-                      <SelectItem value="odontologia_estetica">Odontologia Estética</SelectItem>
-                      <SelectItem value="odontologia_hospitalar">Odontologia Hospitalar</SelectItem>
-                      <SelectItem value="odontologia_legal">Odontologia Legal</SelectItem>
-                      <SelectItem value="odontopediatra">Odontopediatra</SelectItem>
+                      <SelectItem value="necessidades_especiais">
+                        Necessidades Especiais
+                      </SelectItem>
+                      <SelectItem value="odontogeriatra">
+                        Odontogeriatra
+                      </SelectItem>
+                      <SelectItem value="odontologia_do_esporte">
+                        Odontologia do Esporte
+                      </SelectItem>
+                      <SelectItem value="odontologia_do_trabalho">
+                        Odontologia do Trabalho
+                      </SelectItem>
+                      <SelectItem value="odontologia_estetica">
+                        Odontologia Estética
+                      </SelectItem>
+                      <SelectItem value="odontologia_hospitalar">
+                        Odontologia Hospitalar
+                      </SelectItem>
+                      <SelectItem value="odontologia_legal">
+                        Odontologia Legal
+                      </SelectItem>
+                      <SelectItem value="odontopediatra">
+                        Odontopediatra
+                      </SelectItem>
                       <SelectItem value="ortodontista">Ortodontista</SelectItem>
-                      <SelectItem value="ortopedia_funcional">Ortopedia Funcional</SelectItem>
-                      <SelectItem value="patologista_bucal">Patologista Bucal</SelectItem>
-                      <SelectItem value="periodontista">Periodontista</SelectItem>
+                      <SelectItem value="ortopedia_funcional">
+                        Ortopedia Funcional
+                      </SelectItem>
+                      <SelectItem value="patologista_bucal">
+                        Patologista Bucal
+                      </SelectItem>
+                      <SelectItem value="periodontista">
+                        Periodontista
+                      </SelectItem>
                       <SelectItem value="protesista">Protesista</SelectItem>
                       <SelectItem value="radiologista">Radiologista</SelectItem>
-                      <SelectItem value="saude_coletiva">Saúde Coletiva</SelectItem>
+                      <SelectItem value="saude_coletiva">
+                        Saúde Coletiva
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -305,14 +395,21 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                   <Input
                     id="registrationNumber"
                     value={formData.registrationNumber}
-                    onChange={(e) => handleChange("registrationNumber", e.target.value)}
+                    onChange={(e) =>
+                      handleChange("registrationNumber", e.target.value)
+                    }
                     placeholder="CRO 12345"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
+                  <Label htmlFor="status">
+                    Status <span className="text-gray-800">*</span>
+                  </Label>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) => handleChange("status", value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -372,7 +469,9 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="startHour">Horário de Entrada</Label>
+                  <Label htmlFor="startHour">
+                    Horário de Entrada <span className="text-gray-800">*</span>
+                  </Label>
                   <Input
                     id="startHour"
                     type="time"
@@ -382,7 +481,9 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="endHour">Horário de Saída</Label>
+                  <Label htmlFor="endHour">
+                    Horário de Saída <span className="text-gray-800">*</span>
+                  </Label>
                   <Input
                     id="endHour"
                     type="time"
