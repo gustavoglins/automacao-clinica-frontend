@@ -12,9 +12,10 @@ import {
   Clock,
   TrendingUp,
   AlertCircle,
-  CheckCheck,
+  CalendarClock,
   Briefcase,
   User,
+  Zap,
 } from "lucide-react";
 import { StatsCard } from "./StatsCard";
 import {
@@ -167,175 +168,215 @@ export function Dashboard() {
 
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Próxima Consulta - agora em primeiro */}
-        <Card
-          className="shadow-card h-full flex flex-col"
-          style={{
-            pointerEvents: nextAppointment ? undefined : "none",
-            opacity: nextAppointment ? 1 : 0.6,
-          }}
-        >
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-blue-500" />
-              Próxima Consulta
-            </CardTitle>
-            <CardDescription>
-              {nextAppointment
-                ? `Próxima consulta ${nextAppointment.timeUntil}`
-                : "Nenhuma consulta agendada"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col">
-            {nextAppointment ? (
-              <div
-                className="flex flex-row items-center gap-8 p-7 bg-white rounded-xl border border-blue-200 shadow-md cursor-pointer"
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  setProfileDialogLoading(true);
-                  setOpenProfileDialog(true);
-                  try {
-                    const [patients, employees, services] = await Promise.all([
-                      patientService.getAllPatients(),
-                      employeeService.getAllEmployees(),
-                      serviceService.getAllServices(),
-                    ]);
-                    const patient =
-                      patients.find(
-                        (p) => p.fullName === nextAppointment.patientName
-                      ) || null;
-                    const employee =
-                      employees.find(
-                        (e) => e.fullName === nextAppointment.employeeName
-                      ) || null;
-                    const service =
-                      services.find(
-                        (s) => s.name === nextAppointment.serviceName
-                      ) || null;
-                    let appointmentEnd = nextAppointment.appointmentAt;
-                    if (
-                      nextAppointment.appointmentAt &&
-                      nextAppointment.durationMinutes
-                    ) {
-                      const start = new Date(nextAppointment.appointmentAt);
-                      const end = new Date(
-                        start.getTime() +
-                          nextAppointment.durationMinutes * 60000
+        {/* Coluna 1: Próxima Consulta + Ações Rápidas */}
+        <div className="h-full flex flex-col space-y-4">
+          {/* Próxima Consulta - menor */}
+          <Card className="shadow-card flex-1">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2">
+                <CalendarClock className="w-5 h-5 text-blue-500" />
+                Próxima Consulta
+              </CardTitle>
+              <CardDescription>
+                {nextAppointment
+                  ? `Próxima consulta ${nextAppointment.timeUntil}`
+                  : "Nenhuma consulta agendada"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-3 flex-1 flex items-center">
+              {nextAppointment ? (
+                <div
+                  className="w-full flex flex-row items-center gap-5 p-5 rounded-xl border border-blue-200 cursor-pointer shadow-sm transition-shadow"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    setProfileDialogLoading(true);
+                    setOpenProfileDialog(true);
+                    try {
+                      const [patients, employees, services] = await Promise.all(
+                        [
+                          patientService.getAllPatients(),
+                          employeeService.getAllEmployees(),
+                          serviceService.getAllServices(),
+                        ]
                       );
-                      appointmentEnd = end.toISOString();
+                      const patient =
+                        patients.find(
+                          (p) => p.fullName === nextAppointment.patientName
+                        ) || null;
+                      const employee =
+                        employees.find(
+                          (e) => e.fullName === nextAppointment.employeeName
+                        ) || null;
+                      const service =
+                        services.find(
+                          (s) => s.name === nextAppointment.serviceName
+                        ) || null;
+                      let appointmentEnd = nextAppointment.appointmentAt;
+                      if (
+                        nextAppointment.appointmentAt &&
+                        nextAppointment.durationMinutes
+                      ) {
+                        const start = new Date(nextAppointment.appointmentAt);
+                        const end = new Date(
+                          start.getTime() +
+                            nextAppointment.durationMinutes * 60000
+                        );
+                        appointmentEnd = end.toISOString();
+                      }
+                      const appointment = {
+                        ...nextAppointment,
+                        patient,
+                        employee,
+                        service,
+                        appointmentAt: nextAppointment.appointmentAt,
+                        appointmentEnd,
+                        status: nextAppointment.status || "Agendado",
+                      };
+                      setProfileDialogAppointment(appointment);
+                      setProfileDialogPatients(
+                        patients.map((p) => ({
+                          id: p.id,
+                          fullName: p.fullName,
+                          phone: p.phone,
+                        }))
+                      );
+                      setProfileDialogEmployees(
+                        employees.map((e) => ({
+                          id: e.id,
+                          fullName: e.fullName,
+                        }))
+                      );
+                      setProfileDialogServices(
+                        services.map((s) => ({
+                          id: s.id,
+                          name: s.name,
+                          durationMinutes: s.durationMinutes,
+                        }))
+                      );
+                    } catch (e) {
+                      // erro ao buscar dados
+                    } finally {
+                      setProfileDialogLoading(false);
                     }
-                    const appointment = {
-                      ...nextAppointment,
-                      patient,
-                      employee,
-                      service,
-                      appointmentAt: nextAppointment.appointmentAt,
-                      appointmentEnd,
-                      status: nextAppointment.status || "Agendado",
-                    };
-                    setProfileDialogAppointment(appointment);
-                    setProfileDialogPatients(
-                      patients.map((p) => ({
-                        id: p.id,
-                        fullName: p.fullName,
-                        phone: p.phone,
-                      }))
-                    );
-                    setProfileDialogEmployees(
-                      employees.map((e) => ({ id: e.id, fullName: e.fullName }))
-                    );
-                    setProfileDialogServices(
-                      services.map((s) => ({
-                        id: s.id,
-                        name: s.name,
-                        durationMinutes: s.durationMinutes,
-                      }))
-                    );
-                  } catch (e) {
-                    // erro ao buscar dados
-                  } finally {
-                    setProfileDialogLoading(false);
-                  }
-                }}
-              >
-                {/* Avatar grande */}
-                <div className="flex items-center justify-center w-24 h-24 bg-blue-100 rounded-full shadow-sm">
-                  <User className="w-14 h-14 text-blue-600" />
-                </div>
-                {/* Informações do paciente e consulta */}
-                <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
-                  <div className="flex flex-row items-end gap-3 mb-1 min-h-[2.5rem]">
-                    <h3 className="text-2xl font-bold text-gray-900 truncate leading-tight">
-                      {nextAppointment.patientName}
-                    </h3>
-                    {nextAppointment.patientAge !== undefined && (
-                      <span className="text-sm text-gray-500 font-medium flex items-end pb-[2px]">
-                        {nextAppointment.patientAge} anos
+                  }}
+                >
+                  {/* Avatar */}
+                  {/* <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full shadow-lg"> */}
+                  <div className="flex items-center justify-center w-[5rem] h-[5rem] bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full shadow-lg">
+                    <User className="w-12 h-12 text-white" />
+                  </div>
+                  {/* Informações */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-end gap-2 mb-1">
+                      <h3 className="text-base font-bold text-gray-900 truncate">
+                        {nextAppointment.patientName}
+                      </h3>
+                      {nextAppointment.patientAge !== undefined && (
+                        <span className="text-xs text-gray-500 font-medium">
+                          {nextAppointment.patientAge} anos
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <span className="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md text-xs font-semibold">
+                        {nextAppointment.serviceName}
                       </span>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                      {nextAppointment.serviceName}
-                    </span>
-                    <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">
-                      {nextAppointment.durationMinutes} min
-                    </span>
-                  </div>
-                  <div className="text-base font-semibold text-gray-800 mb-1">
+                      <span className="inline-block px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md text-xs font-semibold">
+                        {nextAppointment.durationMinutes} min
+                      </span>
+                    </div>
                     {nextAppointment.employeeName && (
-                      <span>
-                        com Dr(a).{" "}
-                        <span className="font-bold">
+                      <p className="text-xs text-gray-700 mb-1">
+                        Dr(a).{" "}
+                        <span className="font-semibold">
                           {nextAppointment.employeeName}
                         </span>
-                      </span>
+                      </p>
                     )}
-                  </div>
-                  {/* Data e hora em destaque */}
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg shadow-sm">
-                      <Clock className="w-5 h-5 text-blue-300" />
-                      <span className="text-base font-medium">
-                        {capitalizeFirstLetter(
-                          new Date(
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 px-2 py-1 bg-gray-900 text-white rounded-lg shadow-sm">
+                        <Clock className="w-3 h-3 text-blue-300" />
+                        <span className="text-xs font-medium">
+                          {capitalizeFirstLetter(
+                            new Date(
+                              nextAppointment.appointmentAt
+                            ).toLocaleDateString("pt-BR", {
+                              weekday: "long",
+                              day: "2-digit",
+                              month: "long",
+                            })
+                          )}{" "}
+                          às{" "}
+                          {new Date(
                             nextAppointment.appointmentAt
-                          ).toLocaleDateString("pt-BR", {
-                            weekday: "long",
-                            day: "2-digit",
-                            month: "long",
-                            year: "numeric",
-                          })
-                        )}{" "}
-                        às{" "}
-                        {new Date(
-                          nextAppointment.appointmentAt
-                        ).toLocaleTimeString("pt-BR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
+                          ).toLocaleTimeString("pt-BR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <Calendar className="w-8 h-8 text-gray-400" />
+              ) : (
+                <div className="w-full flex items-center gap-4 p-4 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                  <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full">
+                    <Calendar className="w-6 h-6 text-gray-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium text-gray-900 mb-1">
+                      Nenhuma consulta agendada
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Não há consultas futuras no momento
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Nenhuma consulta agendada
-                </h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Não há consultas futuras no momento
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              )}
+            </CardContent>
+          </Card>
 
-        {/* Today's Appointments - agora em segundo */}
+          {/* Ações Rápidas - abaixo */}
+          <Card className="shadow-card flex-1">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-blue-500" />
+                Ações Rápidas
+              </CardTitle>
+              <CardDescription>Funcionalidades principais</CardDescription>
+            </CardHeader>
+            <CardContent className="p-3 flex-1 flex flex-col justify-center">
+              <div className="grid grid-cols-1 gap-3">
+                <Button
+                  size="sm"
+                  className="h-12 px-3 justify-start bg-blue-600 hover:bg-blue-700"
+                  onClick={() => setOpenAddAppointmentDialog(true)}
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  <span>Agendar Consulta</span>
+                </Button>
+                <Button
+                  size="sm"
+                  className="h-12 px-3 justify-start bg-blue-600 hover:bg-blue-700"
+                  onClick={() => setOpenAddEmployeeDialog(true)}
+                >
+                  <UserCheck className="w-4 h-4 mr-2" />
+                  <span>Novo Funcionário</span>
+                </Button>
+                <Button
+                  size="sm"
+                  className="h-12 px-3 justify-start bg-blue-600 hover:bg-blue-700"
+                  onClick={() => setOpenServiceFormDialog(true)}
+                >
+                  <Briefcase className="w-4 h-4 mr-2" />
+                  <span>Novo Serviço</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Consultas de Hoje - Segunda coluna */}
         <Card className="shadow-card h-full flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -481,52 +522,12 @@ export function Dashboard() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <Card className="shadow-card">
-        <CardHeader>
-          <CardTitle className="">Ações Rápidas</CardTitle>
-          <CardDescription>
-            Acesse rapidamente as principais funcionalidades
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button
-              size="sm"
-              className="h-auto p-4 flex-col gap-2"
-              variant="primary"
-              onClick={() => setOpenAddAppointmentDialog(true)}
-            >
-              <Calendar className="w-6 h-6" />
-              <span>Agendar Consulta</span>
-            </Button>
-            {/* Dialog: Nova Consulta */}
-            <AddAppointmentDialog
-              open={openAddAppointmentDialog}
-              onOpenChange={setOpenAddAppointmentDialog}
-              onAddAppointment={() => setOpenAddAppointmentDialog(false)}
-            />
-            <Button
-              size="sm"
-              className="h-auto p-4 flex-col gap-2"
-              variant="primary"
-              onClick={() => setOpenAddEmployeeDialog(true)}
-            >
-              <UserCheck className="w-6 h-6" />
-              <span>Novo Funcionário</span>
-            </Button>
-            <Button
-              size="sm"
-              className="h-auto p-4 flex-col gap-2"
-              variant="primary"
-              onClick={() => setOpenServiceFormDialog(true)}
-            >
-              <Briefcase className="w-6 h-6" />
-              <span>Novo Serviço</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Dialog: Nova Consulta */}
+      <AddAppointmentDialog
+        open={openAddAppointmentDialog}
+        onOpenChange={setOpenAddAppointmentDialog}
+        onAddAppointment={() => setOpenAddAppointmentDialog(false)}
+      />
 
       {/* Dialog: Agenda Completa */}
       <Dialog
