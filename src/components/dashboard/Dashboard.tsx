@@ -34,7 +34,10 @@ import {
 } from "@/components/ui/dialog";
 import { AddEmployeeDialog } from "@/components/funcionarios/AddEmployeeDialog";
 import ServiceFormDialog from "@/components/servicos/ServiceFormDialog";
-import { AddAppointmentDialog } from "@/components/agenda";
+import {
+  AddAppointmentDialog,
+  AppointmentProfileDialog,
+} from "@/components/agenda";
 import {
   dashboardService,
   DashboardStats,
@@ -43,6 +46,7 @@ import {
 } from "@/services/dashboardService";
 import { employeeService } from "@/services/employeeService";
 import { serviceService } from "@/services/servicesService";
+import { patientService } from "@/services/patientService";
 import { useDashboard } from "@/context/DashboardContext";
 
 export function Dashboard() {
@@ -95,6 +99,15 @@ export function Dashboard() {
   const [openAddAppointmentDialog, setOpenAddAppointmentDialog] =
     useState(false);
 
+  // Estado para dialog de detalhes da consulta
+  const [openProfileDialog, setOpenProfileDialog] = useState(false);
+  const [profileDialogLoading, setProfileDialogLoading] = useState(false);
+  const [profileDialogAppointment, setProfileDialogAppointment] =
+    useState(null);
+  const [profileDialogPatients, setProfileDialogPatients] = useState([]);
+  const [profileDialogEmployees, setProfileDialogEmployees] = useState([]);
+  const [profileDialogServices, setProfileDialogServices] = useState([]);
+
   // Filtra apenas as consultas do dia atual
   const today = new Date();
   const isSameDay = (date1: Date, date2: Date) =>
@@ -119,6 +132,18 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Dialog: Detalhes da Consulta (fora do Card para controle correto) */}
+      <AppointmentProfileDialog
+        appointment={profileDialogAppointment}
+        open={openProfileDialog}
+        onClose={() => setOpenProfileDialog(false)}
+        patients={profileDialogPatients}
+        employees={profileDialogEmployees}
+        services={profileDialogServices}
+        onSave={async () => {
+          setOpenProfileDialog(false);
+        }}
+      />
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
@@ -143,7 +168,13 @@ export function Dashboard() {
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Próxima Consulta - agora em primeiro */}
-        <Card className="shadow-card h-full flex flex-col">
+        <Card
+          className="shadow-card h-full flex flex-col"
+          style={{
+            pointerEvents: nextAppointment ? undefined : "none",
+            opacity: nextAppointment ? 1 : 0.6,
+          }}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-blue-500" />
@@ -157,7 +188,76 @@ export function Dashboard() {
           </CardHeader>
           <CardContent className="flex-1 flex flex-col">
             {nextAppointment ? (
-              <div className="flex flex-row items-center gap-8 p-7 bg-white rounded-xl border border-blue-200 shadow-md">
+              <div
+                className="flex flex-row items-center gap-8 p-7 bg-white rounded-xl border border-blue-200 shadow-md cursor-pointer"
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  setProfileDialogLoading(true);
+                  setOpenProfileDialog(true);
+                  try {
+                    const [patients, employees, services] = await Promise.all([
+                      patientService.getAllPatients(),
+                      employeeService.getAllEmployees(),
+                      serviceService.getAllServices(),
+                    ]);
+                    const patient =
+                      patients.find(
+                        (p) => p.fullName === nextAppointment.patientName
+                      ) || null;
+                    const employee =
+                      employees.find(
+                        (e) => e.fullName === nextAppointment.employeeName
+                      ) || null;
+                    const service =
+                      services.find(
+                        (s) => s.name === nextAppointment.serviceName
+                      ) || null;
+                    let appointmentEnd = nextAppointment.appointmentAt;
+                    if (
+                      nextAppointment.appointmentAt &&
+                      nextAppointment.durationMinutes
+                    ) {
+                      const start = new Date(nextAppointment.appointmentAt);
+                      const end = new Date(
+                        start.getTime() +
+                          nextAppointment.durationMinutes * 60000
+                      );
+                      appointmentEnd = end.toISOString();
+                    }
+                    const appointment = {
+                      ...nextAppointment,
+                      patient,
+                      employee,
+                      service,
+                      appointmentAt: nextAppointment.appointmentAt,
+                      appointmentEnd,
+                      status: nextAppointment.status || "Agendado",
+                    };
+                    setProfileDialogAppointment(appointment);
+                    setProfileDialogPatients(
+                      patients.map((p) => ({
+                        id: p.id,
+                        fullName: p.fullName,
+                        phone: p.phone,
+                      }))
+                    );
+                    setProfileDialogEmployees(
+                      employees.map((e) => ({ id: e.id, fullName: e.fullName }))
+                    );
+                    setProfileDialogServices(
+                      services.map((s) => ({
+                        id: s.id,
+                        name: s.name,
+                        durationMinutes: s.durationMinutes,
+                      }))
+                    );
+                  } catch (e) {
+                    // erro ao buscar dados
+                  } finally {
+                    setProfileDialogLoading(false);
+                  }
+                }}
+              >
                 {/* Avatar grande */}
                 <div className="flex items-center justify-center w-24 h-24 bg-blue-100 rounded-full shadow-sm">
                   <User className="w-14 h-14 text-blue-600" />
