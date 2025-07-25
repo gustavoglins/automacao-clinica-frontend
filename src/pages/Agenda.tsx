@@ -330,11 +330,11 @@ const Agenda = () => {
         </div>
 
         {/* Layout com Calendário e Lista */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Calendário */}
           <div className="lg:col-span-1 flex justify-center">
             {/* <Card className="w-[400px] max-w-full h-auto flex flex-col justify-start"> */}
-            <Card className="w-[400px] max-w-full max-h-[600px] overflow-auto flex flex-col justify-start">
+            <Card className="w-[400px] max-w-full max-h-[565px] overflow-auto flex flex-col justify-start">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CalendarIcon className="w-5 h-5" />
@@ -457,7 +457,7 @@ const Agenda = () => {
           </div>
 
           {/* Lista de Consultas */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             <AppointmentDataList
               appointments={filteredAppointments}
               onViewAppointment={(appointment) => {
