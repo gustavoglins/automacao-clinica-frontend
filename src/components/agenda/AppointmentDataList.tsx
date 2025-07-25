@@ -153,11 +153,10 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
       (a) => new Date(a.appointmentAt).getTime() >= now.getTime() - toleranceMs
     ).length;
 
-    return `${total} consulta${
-      total !== 1 ? "s" : ""
-    } • ${realized} realizadas${
-      realized !== 1 ? "s" : ""
-    } • ${upcoming} agendada(s)`;
+    return `${total} consulta${total !== 1 ? "s" : ""} • ${realized} ${
+      realized === 1 ? "realizada" : "realizadas"
+    }
+    • ${upcoming} ${upcoming === 1 ? "agendada" : "agendadas"}`;
   };
 
   return (
