@@ -19,6 +19,7 @@ export interface Appointment {
   employee?: {
     fullName: string;
     role: string;
+    specialty?: string | null;
   };
   service?: {
     name: string;

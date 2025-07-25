@@ -145,7 +145,7 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
   const getDescription = () => {
     const total = appointments.length;
     const now = new Date();
-    const toleranceMs = 5 * 60 * 1000; // 5 minutos em ms
+    const toleranceMs = 5 * 60 * 1000;
     const realized = appointments.filter(
       (a) => new Date(a.appointmentAt).getTime() < now.getTime() - toleranceMs
     ).length;

@@ -150,7 +150,8 @@ export const AppointmentProfileDialog: React.FC<
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Clock className="w-4 h-4" />
-                    Duração: {appointment.service?.durationMinutes || 30} min
+                    <span className="font-semibold">Duração:</span>{" "}
+                    {appointment.service?.durationMinutes || 30} min
                   </div>
                 </CardContent>
               </Card>
@@ -166,7 +167,8 @@ export const AppointmentProfileDialog: React.FC<
                     {appointment.service?.name || "-"}
                   </div>
                   <div className="text-sm text-gray-600">
-                    Valor: R$ {appointment.service?.price?.toFixed(2) || "-"}
+                    <span className="font-semibold">Valor:</span> R${" "}
+                    {appointment.service?.price?.toFixed(2) || "-"}
                   </div>
                 </CardContent>
               </Card>
@@ -182,10 +184,12 @@ export const AppointmentProfileDialog: React.FC<
                     {appointment.patient?.fullName || "-"}
                   </div>
                   <div className="text-sm text-gray-600">
-                    Telefone: {appointment.patient?.phone || "-"}
+                    <span className="font-semibold">Telefone:</span>{" "}
+                    {appointment.patient?.phone || "-"}
                   </div>
                   <div className="text-sm text-gray-600">
-                    Email: {appointment.patient?.email || "-"}
+                    <span className="font-semibold">Email:</span>{" "}
+                    {appointment.patient?.email || "-"}
                   </div>
                 </CardContent>
               </Card>
@@ -201,8 +205,17 @@ export const AppointmentProfileDialog: React.FC<
                     {appointment.employee?.fullName || "-"}
                   </div>
                   <div className="text-sm text-gray-600">
-                    Cargo: {appointment.employee?.role || "-"}
+                    <span className="font-semibold">Cargo:</span>{" "}
+                    {appointment.employee?.role
+                      ? capitalizeFirstLetter(appointment.employee.role)
+                      : "-"}
                   </div>
+                  {appointment.employee && appointment.employee.specialty && (
+                    <div className="text-sm text-gray-600">
+                      <span className="font-semibold">Especialidade:</span>{" "}
+                      {appointment.employee.specialty}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
               {/* Observações */}
