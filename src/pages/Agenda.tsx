@@ -332,8 +332,9 @@ const Agenda = () => {
         {/* Layout com Calendário e Lista */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Calendário */}
-          <div className="lg:col-span-1">
-            <Card>
+          <div className="lg:col-span-1 flex justify-center">
+            {/* <Card className="w-[400px] max-w-full h-auto flex flex-col justify-start"> */}
+            <Card className="w-[400px] max-w-full max-h-[600px] overflow-auto flex flex-col justify-start">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CalendarIcon className="w-5 h-5" />
@@ -343,46 +344,47 @@ const Agenda = () => {
                   Clique em uma data para filtrar as consultas
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => {
-                    if (date) {
-                      setSelectedDate(date);
-                      setViewMode("day");
-                    }
-                  }}
-                  className="rounded-md border"
-                  locale={ptBR}
-                  modifiers={{
-                    hasAppointments: appointments.reduce(
-                      (dates: Date[], appointment) => {
-                        const appointmentDate = new Date(
-                          appointment.appointmentAt
-                        );
-                        appointmentDate.setHours(0, 0, 0, 0);
-                        if (
-                          !dates.find(
-                            (d) => d.getTime() === appointmentDate.getTime()
-                          )
-                        ) {
-                          dates.push(appointmentDate);
-                        }
-                        return dates;
+              <CardContent className="flex flex-col items-center gap-3 p-4 pb-2">
+                <div className="border rounded-md p-2 w-[340px] bg-white">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => {
+                      if (date) {
+                        setSelectedDate(date);
+                        setViewMode("day");
+                      }
+                    }}
+                    className=""
+                    locale={ptBR}
+                    modifiers={{
+                      hasAppointments: appointments.reduce(
+                        (dates: Date[], appointment) => {
+                          const appointmentDate = new Date(
+                            appointment.appointmentAt
+                          );
+                          appointmentDate.setHours(0, 0, 0, 0);
+                          if (
+                            !dates.find(
+                              (d) => d.getTime() === appointmentDate.getTime()
+                            )
+                          ) {
+                            dates.push(appointmentDate);
+                          }
+                          return dates;
+                        },
+                        []
+                      ),
+                    }}
+                    modifiersStyles={{
+                      hasAppointments: {
+                        position: "relative",
                       },
-                      []
-                    ),
-                  }}
-                  modifiersStyles={{
-                    hasAppointments: {
-                      position: "relative",
-                    },
-                  }}
-                />
-
+                    }}
+                  />
+                </div>
                 {/* View Mode Selector */}
-                <div className="flex items-center justify-center gap-1 mt-4 p-1 bg-muted rounded-lg">
+                <div className="flex items-center justify-center gap-1 w-full p-1 bg-muted rounded-lg">
                   <Button
                     variant={viewMode === "day" ? "default" : "ghost"}
                     size="sm"
@@ -411,48 +413,44 @@ const Agenda = () => {
                     Mês
                   </Button>
                 </div>
-
                 {/* Navigation */}
-                <div className="flex items-center justify-between mt-4 gap-2">
-                  <div className="relative flex w-full items-center justify-between gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigateDate("prev")}
-                      className="gap-1 text-xs"
-                    >
-                      <ChevronLeft className="w-3 h-3" />
-                      Anterior
-                    </Button>
-                    <span className="absolute left-1/2 -translate-x-1/2 flex-1 text-center font-medium text-sm">
-                      {viewMode === "day" &&
-                        selectedDate.toLocaleDateString("pt-BR", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      {viewMode === "week" &&
-                        `Semana de ${selectedDate.toLocaleDateString("pt-BR", {
-                          day: "numeric",
-                          month: "short",
-                        })}`}
-                      {viewMode === "month" &&
-                        selectedDate.toLocaleDateString("pt-BR", {
-                          month: "long",
-                          year: "numeric",
-                        })}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigateDate("next")}
-                      className="gap-1 text-xs"
-                    >
-                      Próximo
-                      <ChevronRight className="w-3 h-3" />
-                    </Button>
-                  </div>
+                <div className="flex items-center justify-between w-full gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigateDate("prev")}
+                    className="gap-1 text-xs"
+                  >
+                    <ChevronLeft className="w-3 h-3" />
+                    Anterior
+                  </Button>
+                  <span className="flex-1 text-center font-medium text-sm">
+                    {viewMode === "day" &&
+                      selectedDate.toLocaleDateString("pt-BR", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    {viewMode === "week" &&
+                      `Semana de ${selectedDate.toLocaleDateString("pt-BR", {
+                        day: "numeric",
+                        month: "short",
+                      })}`}
+                    {viewMode === "month" &&
+                      selectedDate.toLocaleDateString("pt-BR", {
+                        month: "long",
+                        year: "numeric",
+                      })}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigateDate("next")}
+                    className="gap-1 text-xs"
+                  >
+                    Próximo
+                    <ChevronRight className="w-3 h-3" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
