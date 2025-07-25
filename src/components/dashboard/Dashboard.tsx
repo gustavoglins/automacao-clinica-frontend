@@ -289,7 +289,7 @@ export function Dashboard() {
                     </div>
                     {nextAppointment.employeeName && (
                       <p className="text-xs text-gray-700 mb-1">
-                        Dr(a).{" "}
+                        com Dr(a).{" "}
                         <span className="font-semibold">
                           {nextAppointment.employeeName}
                         </span>
