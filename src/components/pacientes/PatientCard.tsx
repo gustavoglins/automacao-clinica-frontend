@@ -9,12 +9,13 @@ interface PatientCardProps {
   onViewRecord?: (patient: Patient) => void;
 }
 
-export const PatientCard = ({
-  patient,
-  onViewRecord
-}: PatientCardProps) => {
+export const PatientCard = ({ patient, onViewRecord }: PatientCardProps) => {
   const getInitials = (fullName: string) => {
-    return fullName.split(' ').map(n => n[0]).join('').slice(0, 2);
+    return fullName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2);
   };
 
   const calculateAge = (birthDate: string) => {
@@ -22,13 +23,16 @@ export const PatientCard = ({
     const birth = new Date(birthDate);
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birth.getDate())
+    ) {
       age--;
     }
     return age;
   };
 
-  const statusBadge = getPatientStatusBadge('ativo');
+  const statusBadge = getPatientStatusBadge("ativo");
   const planBadge = getPlanBadge();
 
   return (
@@ -42,11 +46,11 @@ export const PatientCard = ({
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-gray-900">{patient.fullName}</h3>
-            <Badge variant={statusBadge.variant} className={statusBadge.className}>
+            <Badge
+              variant={statusBadge.variant}
+              className={statusBadge.className}
+            >
               Ativo
-            </Badge>
-            <Badge variant={planBadge.variant} className={planBadge.className}>
-              {/* Plano removido */}
             </Badge>
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -67,9 +71,7 @@ export const PatientCard = ({
           <div className="flex items-center gap-4 text-xs text-gray-500">
             <span>CPF: {patient.cpf}</span>
             {patient.address && (
-              <span className="text-gray-500">
-                {patient.address}
-              </span>
+              <span className="text-gray-500">{patient.address}</span>
             )}
           </div>
         </div>
@@ -80,7 +82,7 @@ export const PatientCard = ({
           variant="classic"
           onClick={() => onViewRecord?.(patient)}
         >
-          Ver Prontuário
+          Ver Perfil
         </Button>
       </div>
     </div>
