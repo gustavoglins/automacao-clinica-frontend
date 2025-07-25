@@ -122,13 +122,15 @@ export function Dashboard() {
   });
 
   // Ordena as consultas do mais cedo para o mais tarde
-  const sortedAppointments = [...onlyTodayAppointments].sort((a, b) =>
-    a.appointmentAt.localeCompare(b.appointmentAt)
-  );
+  const now = new Date();
+  const sortedAppointments = [...onlyTodayAppointments]
+    .filter((a) => new Date(a.appointmentAt) >= now)
+    .sort((a, b) => a.appointmentAt.localeCompare(b.appointmentAt));
 
+  // Pega apenas as 5 próximas do dia
   const paginatedAppointments = sortedAppointments.slice(
-    appointmentsPage * APPOINTMENTS_PER_PAGE,
-    (appointmentsPage + 1) * APPOINTMENTS_PER_PAGE
+    0,
+    APPOINTMENTS_PER_PAGE
   );
 
   return (
@@ -170,9 +172,9 @@ export function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Coluna 1: Próxima Consulta + Ações Rápidas */}
         <div className="h-full flex flex-col space-y-4">
-          {/* Próxima Consulta - menor */}
+          {/* Próxima Consulta - destaque equilibrado */}
           <Card className="shadow-card flex-1">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2">
                 <CalendarClock className="w-5 h-5 text-blue-500" />
                 Próxima Consulta
@@ -183,10 +185,10 @@ export function Dashboard() {
                   : "Nenhuma consulta agendada"}
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-3 flex-1 flex items-center">
+            <CardContent className="p-4 flex-1 flex items-center">
               {nextAppointment ? (
                 <div
-                  className="w-full flex flex-row items-center gap-5 p-5 rounded-xl border border-blue-200 cursor-pointer shadow-sm transition-shadow"
+                  className="w-full flex flex-row items-center gap-6 p-5 rounded-xl border border-blue-200 cursor-pointer shadow-md transition-shadow hover:shadow-lg bg-blue-50 bg-opacity-40"
                   onClick={async (e) => {
                     e.stopPropagation();
                     setProfileDialogLoading(true);
@@ -262,17 +264,17 @@ export function Dashboard() {
                 >
                   {/* Avatar */}
                   {/* <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full shadow-lg"> */}
-                  <div className="flex items-center justify-center w-[5rem] h-[5rem] bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full shadow-lg">
+                  <div className="flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full shadow-lg">
                     <User className="w-12 h-12 text-white" />
                   </div>
                   {/* Informações */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-end gap-2 mb-1">
-                      <h3 className="text-base font-bold text-gray-900 truncate">
+                      <h3 className="text-lg font-bold text-gray-900 truncate">
                         {nextAppointment.patientName}
                       </h3>
                       {nextAppointment.patientAge !== undefined && (
-                        <span className="text-xs text-gray-500 font-medium">
+                        <span className="text-sm text-gray-500 font-medium">
                           {nextAppointment.patientAge} anos
                         </span>
                       )}
@@ -293,7 +295,7 @@ export function Dashboard() {
                         </span>
                       </p>
                     )}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 mt-1">
                       <div className="flex items-center gap-2 px-2 py-1 bg-gray-900 text-white rounded-lg shadow-sm">
                         <Clock className="w-3 h-3 text-blue-300" />
                         <span className="text-xs font-medium">
@@ -381,10 +383,11 @@ export function Dashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-primary" />
-              Consultas de Hoje
+              Próximas Consultas de Hoje
             </CardTitle>
             <CardDescription>
-              {todayAppointments.length} consultas agendadas
+              Exibindo as {paginatedAppointments.length} próximas consultas do
+              dia
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col">
@@ -448,7 +451,7 @@ export function Dashboard() {
             </div>
             {todayAppointments.length > APPOINTMENTS_PER_PAGE && (
               <div className="flex items-center justify-center gap-2 mt-2">
-                <Button
+                {/* <Button
                   size="icon"
                   variant="ghost"
                   className="p-1 h-6 w-6"
@@ -505,7 +508,7 @@ export function Dashboard() {
                       d="M9 18l6-6-6-6"
                     />
                   </svg>
-                </Button>
+                </Button> */}
               </div>
             )}
             <div className="mt-4">
