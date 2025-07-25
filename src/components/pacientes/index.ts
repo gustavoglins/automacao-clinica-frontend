@@ -1,5 +1,6 @@
 export { PatientCard } from './PatientCard';
 export { PatientList } from './PatientList';
+export { PatientDataList } from './PatientDataList';
 export { PatientsStats } from './PatientsStats';
 export { SearchBar } from './SearchBar';
 export { FilterDialog } from './FilterDialog';

@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { AppLayout } from '@/components/layout/AppLayout';
+import { AppLayout } from "@/components/layout/AppLayout";
 import { UserX } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { employeeService } from "@/services/employeeService";
 import type { Employee } from "@/types/employee";
 import { onlyNumbers } from "@/lib/utils";
@@ -10,12 +16,12 @@ import { Button } from "@/components/ui/button";
 import {
   EmployeeStats,
   Filters,
-  EmployeeList,
+  EmployeeDataList,
   EmployeeProfileDialog,
   EditEmployeeDialog,
   DeleteEmployeeDialog,
   AddEmployeeDialog,
-  FilterDialog
+  FilterDialog,
 } from "@/components/funcionarios";
 import { toast } from "sonner";
 import { useEmployees } from "@/context/EmployeeContext";
@@ -47,11 +53,13 @@ function Funcionarios() {
     dateRange: { start: null, end: null },
     status: "",
     location: "",
-    performance: ""
+    performance: "",
   });
 
   // Dialog states
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
   const [modernProfileDialogOpen, setModernProfileDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -59,24 +67,32 @@ function Funcionarios() {
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
   // Filter employees based on current filters
-  const filteredEmployees = employees.filter(employee => {
+  const filteredEmployees = employees.filter((employee) => {
     const searchLower = filters.search.toLowerCase();
     const searchNumbers = onlyNumbers(filters.search);
 
-    const matchesSearch = employee.fullName.toLowerCase().includes(searchLower) ||
+    const matchesSearch =
+      employee.fullName.toLowerCase().includes(searchLower) ||
       (employee.email && employee.email.toLowerCase().includes(searchLower)) ||
       (employee.phone && employee.phone.includes(searchNumbers)) ||
       (employee.phone && employee.phone.includes(filters.search));
 
-    const matchesRole = !filters.role || filters.role === "all" || employee.role === filters.role;
-    const matchesSpecialty = !filters.specialty || filters.specialty === "all" || employee.specialty === filters.specialty;
+    const matchesRole =
+      !filters.role || filters.role === "all" || employee.role === filters.role;
+    const matchesSpecialty =
+      !filters.specialty ||
+      filters.specialty === "all" ||
+      employee.specialty === filters.specialty;
 
     // Filtros avançados
     const matchesStatus = !filters.status || employee.status === filters.status;
 
     // Filtro de data de admissão
     let matchesDateRange = true;
-    if (filters.dateRange && (filters.dateRange.start || filters.dateRange.end)) {
+    if (
+      filters.dateRange &&
+      (filters.dateRange.start || filters.dateRange.end)
+    ) {
       const hireDate = new Date(employee.hiredAt);
       if (filters.dateRange.start && hireDate < filters.dateRange.start) {
         matchesDateRange = false;
@@ -91,7 +107,15 @@ function Funcionarios() {
     const matchesLocation = !filters.location; // sempre true por enquanto
     const matchesPerformance = !filters.performance; // sempre true por enquanto
 
-    return matchesSearch && matchesRole && matchesSpecialty && matchesStatus && matchesDateRange && matchesLocation && matchesPerformance;
+    return (
+      matchesSearch &&
+      matchesRole &&
+      matchesSpecialty &&
+      matchesStatus &&
+      matchesDateRange &&
+      matchesLocation &&
+      matchesPerformance
+    );
   });
 
   // Event handlers
@@ -113,7 +137,7 @@ function Funcionarios() {
   };
 
   const handleToggleShowAll = () => {
-    setFilters(prev => ({ ...prev, showAll: !prev.showAll }));
+    setFilters((prev) => ({ ...prev, showAll: !prev.showAll }));
   };
 
   const handleEmployeeUpdated = () => {
@@ -151,7 +175,7 @@ function Funcionarios() {
     location: string;
     performance: string;
   }) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       dateRange: advancedFilters.dateRange,
       status: advancedFilters.status,
@@ -159,7 +183,7 @@ function Funcionarios() {
       performance: advancedFilters.performance,
       // Se os filtros avançados incluem role/specialty, atualizar também
       role: advancedFilters.role || prev.role,
-      specialty: advancedFilters.specialty || prev.specialty
+      specialty: advancedFilters.specialty || prev.specialty,
     }));
   };
 
@@ -180,7 +204,9 @@ function Funcionarios() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Funcionários</h1>
-            <p className="text-muted-foreground">Gerencie os funcionários da clínica</p>
+            <p className="text-muted-foreground">
+              Gerencie os funcionários da clínica
+            </p>
           </div>
         </div>
 
@@ -200,44 +226,16 @@ function Funcionarios() {
           />
 
           {/* Employee List */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Lista de Funcionários</CardTitle>
-              <CardDescription>
-                Visualize e gerencie todos os funcionários da clínica
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {filteredEmployees.length === 0 ? (
-                <div className="text-center py-12">
-                  <UserX className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhum funcionário encontrado</h3>
-                  <p className="text-gray-600 mb-4">
-                    {filters.search || (filters.role && filters.role !== "all") || (filters.specialty && filters.specialty !== "all")
-                      ? "Tente ajustar os filtros ou buscar por outros termos"
-                      : "Comece adicionando o primeiro funcionário da clínica"}
-                  </p>
-                  {!(filters.search || (filters.role && filters.role !== "all") || (filters.specialty && filters.specialty !== "all")) && (
-                    <Button
-                      onClick={handleOpenAddEmployee}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      <span className="mr-2 text-lg font-bold">+</span> Adicionar Primeiro Funcionário
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                <EmployeeList
-                  employees={filteredEmployees}
-                  showAll={filters.showAll}
-                  onToggleShowAll={handleToggleShowAll}
-                  onOpenProfile={handleOpenProfile}
-                  onOpenEdit={handleOpenEdit}
-                  onOpenDelete={handleOpenDelete}
-                />
-              )}
-            </CardContent>
-          </Card>
+          <EmployeeDataList
+            employees={filteredEmployees}
+            onOpenProfile={handleOpenProfile}
+            onOpenEdit={handleOpenEdit}
+            onOpenDelete={handleOpenDelete}
+            onAddNew={handleOpenAddEmployee}
+            pagination="paged"
+            pageSize={8}
+            height="600px"
+          />
         </div>
 
         {/* Dialogs */}

@@ -1,5 +1,6 @@
 export { EmployeeCard } from "./EmployeeCard";
 export { EmployeeList } from "./EmployeeList";
+export { EmployeeDataList } from "./EmployeeDataList";
 export { EmployeeStats } from "./EmployeeStats";
 export { Filters } from "./Filters";
 export { EmployeeProfileDialog } from "./EmployeeProfileDialog";

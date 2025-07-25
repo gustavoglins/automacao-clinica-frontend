@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
-  Calendar as CalendarIcon,
+  Calendar,
   Plus,
   Filter,
   Search,
@@ -12,6 +12,7 @@ import {
   ChevronRight,
   CalendarDays,
   CalendarRange,
+  CalendarIcon,
 } from "lucide-react";
 import {
   Card,
@@ -23,7 +24,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Calendar } from "@/components/ui/calendar";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import {
   AddAppointmentDialog,
@@ -232,7 +232,7 @@ const Agenda = () => {
           <StatsCard
             title="Consultas Agendadas"
             value={appointments.length}
-            icon={CalendarIcon}
+            icon={Calendar}
           />
           <StatsCard
             title="Confirmadas"
@@ -324,153 +324,89 @@ const Agenda = () => {
           </div>
         </div>
 
-        {/* Layout com Calendário e Lista */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Calendário */}
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CalendarIcon className="w-5 h-5" />
-                  Calendário
-                </CardTitle>
-                <CardDescription>
-                  Clique em uma data para filtrar as consultas
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => {
-                    if (date) {
-                      setSelectedDate(date);
-                      setViewMode("day");
-                    }
-                  }}
-                  className="rounded-md border"
-                  modifiers={{
-                    hasAppointments: appointments.reduce(
-                      (dates: Date[], appointment) => {
-                        const appointmentDate = new Date(
-                          appointment.appointmentAt
-                        );
-                        appointmentDate.setHours(0, 0, 0, 0);
-                        if (
-                          !dates.find(
-                            (d) => d.getTime() === appointmentDate.getTime()
-                          )
-                        ) {
-                          dates.push(appointmentDate);
-                        }
-                        return dates;
-                      },
-                      []
-                    ),
-                  }}
-                  modifiersStyles={{
-                    hasAppointments: {
-                      position: "relative",
-                    },
-                  }}
-                />
-
-                {/* View Mode Selector */}
-                <div className="flex items-center justify-center gap-1 mt-4 p-1 bg-muted rounded-lg">
-                  <Button
-                    variant={viewMode === "day" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("day")}
-                    className="gap-1 text-xs"
-                  >
-                    <CalendarDays className="w-3 h-3" />
-                    Dia
-                  </Button>
-                  <Button
-                    variant={viewMode === "week" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("week")}
-                    className="gap-1 text-xs"
-                  >
-                    <CalendarRange className="w-3 h-3" />
-                    Semana
-                  </Button>
-                  <Button
-                    variant={viewMode === "month" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("month")}
-                    className="gap-1 text-xs"
-                  >
-                    <CalendarIcon className="w-3 h-3" />
-                    Mês
-                  </Button>
-                </div>
-
-                {/* Navigation */}
-                <div className="flex items-center justify-between mt-4 gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigateDate("prev")}
-                    className="gap-1 text-xs"
-                  >
-                    <ChevronLeft className="w-3 h-3" />
-                    Anterior
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigateDate("next")}
-                    className="gap-1 text-xs"
-                  >
-                    Próximo
-                    <ChevronRight className="w-3 h-3" />
-                  </Button>
-                </div>
-
-                {/* Data selecionada */}
-                <div className="mt-4 text-center">
-                  <h3 className="text-sm font-medium">
-                    {viewMode === "day" &&
-                      selectedDate.toLocaleDateString("pt-BR", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    {viewMode === "week" &&
-                      `Semana de ${selectedDate.toLocaleDateString("pt-BR", {
-                        day: "numeric",
-                        month: "short",
-                      })}`}
-                    {viewMode === "month" &&
-                      selectedDate.toLocaleDateString("pt-BR", {
-                        month: "long",
-                        year: "numeric",
-                      })}
-                  </h3>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Lista de Consultas */}
-          <div className="lg:col-span-2">
-            <AppointmentDataList
-              appointments={filteredAppointments}
-              onViewAppointment={(appointment) => {
-                setSelectedAppointment(appointment);
-                setOpenViewEditDialog(true);
-              }}
-              onAddNew={() => setOpenAddAppointmentDialog(true)}
-              pagination="paged"
-              pageSize={8}
-              height="600px"
-              viewMode={viewMode}
-            />
-          </div>
+        {/* View Mode Selector */}
+        <div className="flex items-center justify-center gap-2 p-2 bg-muted rounded-lg w-fit">
+          <Button
+            variant={viewMode === "day" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("day")}
+            className="gap-2"
+          >
+            <CalendarDays className="w-4 h-4" />
+            Dia
+          </Button>
+          <Button
+            variant={viewMode === "week" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("week")}
+            className="gap-2"
+          >
+            <CalendarRange className="w-4 h-4" />
+            Semana
+          </Button>
+          <Button
+            variant={viewMode === "month" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("month")}
+            className="gap-2"
+          >
+            <CalendarIcon className="w-4 h-4" />
+            Mês
+          </Button>
         </div>
+
+        {/* Navigation */}
+        <div className="flex items-center justify-between">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigateDate("prev")}
+            className="gap-2"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Anterior
+          </Button>
+
+          <h2 className="text-xl font-semibold">
+            {viewMode === "day" &&
+              selectedDate.toLocaleDateString("pt-BR", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            {viewMode === "week" && "Semana"}
+            {viewMode === "month" &&
+              selectedDate.toLocaleDateString("pt-BR", {
+                month: "long",
+                year: "numeric",
+              })}
+          </h2>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigateDate("next")}
+            className="gap-2"
+          >
+            Próximo
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
+
+        {/* Lista de Consultas */}
+        <AppointmentDataList
+          appointments={filteredAppointments}
+          onViewAppointment={(appointment) => {
+            setSelectedAppointment(appointment);
+            setOpenViewEditDialog(true);
+          }}
+          onAddNew={() => setOpenAddAppointmentDialog(true)}
+          pagination="paged"
+          pageSize={8}
+          height="600px"
+          viewMode={viewMode}
+        />
 
         {/* Dialogs */}
         <FilterDialog

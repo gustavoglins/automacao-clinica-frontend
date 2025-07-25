@@ -15,10 +15,10 @@ import { Patient, PatientStatus } from "@/types/patient";
 import { patientService } from "@/services/patientService";
 import { usePatients } from "@/context/PatientContext";
 
-const Pacientes = () => {
+const PacientesWithDataList = () => {
   const [search, setSearch] = useState("");
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<PatientStatus>(""); // Mantém status, mas não planos
+  const [filterStatus, setFilterStatus] = useState<PatientStatus>("");
   const [openAllPatientsDialog, setOpenAllPatientsDialog] = useState(false);
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const [openAddPatientDialog, setOpenAddPatientDialog] = useState(false);
@@ -30,7 +30,7 @@ const Pacientes = () => {
   // Usar contexto global de pacientes
   const { patients, setPatients, loading, fetchPatients } = usePatients();
 
-  // Aplicar filtros (sem planos)
+  // Aplicar filtros
   const searchFiltered = patients.filter(
     (patient) =>
       patient.fullName.toLowerCase().includes(query.toLowerCase()) ||
@@ -85,7 +85,7 @@ const Pacientes = () => {
         {/* Stats Cards */}
         <PatientsStats patients={patients} />
 
-        {/* Barra de pesquisa e botão de adicionar paciente */}
+        {/* Barra de pesquisa e filtros */}
         <PatientsFilters
           search={query}
           onSearchChange={setSearch}
@@ -97,17 +97,66 @@ const Pacientes = () => {
           totalPatientsCount={patients.length}
         />
 
-        {/* Patients List */}
-        <PatientDataList
-          patients={filteredPatients}
-          onViewRecord={handleViewRecord}
-          onAddNew={handleAddPatient}
-          pagination="paged"
-          pageSize={8}
-          height="600px"
-        />
+        {/* DataList de Pacientes */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Lista paginada */}
+          <PatientDataList
+            patients={filteredPatients}
+            onViewRecord={handleViewRecord}
+            onAddNew={handleAddPatient}
+            pagination="paged"
+            pageSize={5}
+            height="500px"
+          />
 
-        {/* All Patients Dialog */}
+          {/* Lista com scroll infinito */}
+          <PatientDataList
+            patients={filteredPatients}
+            onViewRecord={handleViewRecord}
+            onAddNew={handleAddPatient}
+            pagination="infinite"
+            pageSize={3}
+            height="500px"
+          />
+        </div>
+
+        {/* Exemplo de diferentes configurações */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">
+            Diferentes Configurações do DataList
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {/* Configuração compacta */}
+            <PatientDataList
+              patients={filteredPatients.slice(0, 10)}
+              onViewRecord={handleViewRecord}
+              pagination="paged"
+              pageSize={3}
+              height="300px"
+            />
+
+            {/* Configuração média */}
+            <PatientDataList
+              patients={filteredPatients}
+              onViewRecord={handleViewRecord}
+              pagination="infinite"
+              pageSize={4}
+              height="400px"
+            />
+
+            {/* Configuração expandida */}
+            <PatientDataList
+              patients={filteredPatients}
+              onViewRecord={handleViewRecord}
+              pagination="paged"
+              pageSize={8}
+              height="600px"
+            />
+          </div>
+        </div>
+
+        {/* Dialogs originais mantidos */}
         <AllPatientsDialog
           open={openAllPatientsDialog}
           onOpenChange={setOpenAllPatientsDialog}
@@ -117,7 +166,6 @@ const Pacientes = () => {
           onViewRecord={handleViewRecord}
         />
 
-        {/* Patient Profile Dialog */}
         <PatientProfileDialog
           patient={selectedPatient}
           isOpen={openProfileDialog}
@@ -127,7 +175,6 @@ const Pacientes = () => {
           onViewRecord={handleViewRecord}
         />
 
-        {/* Add Patient Dialog */}
         <AddPatientDialog
           open={openAddPatientDialog}
           onOpenChange={setOpenAddPatientDialog}
@@ -148,4 +195,4 @@ const Pacientes = () => {
   );
 };
 
-export default Pacientes;
+export default PacientesWithDataList;

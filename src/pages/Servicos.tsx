@@ -5,10 +5,10 @@ import { StatsCard } from "@/components/dashboard/StatsCard";
 import { Settings, TrendingUp, DollarSign, Activity } from "lucide-react";
 import {
   ServiceFilters,
-  ServiceList,
+  ServiceDataList,
   ServiceFormDialog,
   DeleteServiceDialog,
-  FilterDialog
+  FilterDialog,
 } from "@/components/servicos";
 import { Service, CreateServiceData } from "@/types/service";
 import { serviceService } from "@/services/servicesService";
@@ -40,7 +40,7 @@ const Servicos = () => {
   const [advancedFilters, setAdvancedFilters] = useState({
     dateRange: { start: null as Date | null, end: null as Date | null },
     priceRange: "",
-    duration: ""
+    duration: "",
   });
 
   // Estados para o formulário
@@ -50,7 +50,7 @@ const Servicos = () => {
     price: "",
     duration: "",
     category: "",
-    isActive: true
+    isActive: true,
   });
 
   useEffect(() => {
@@ -63,20 +63,23 @@ const Servicos = () => {
 
     // Filtro por texto
     if (searchTerm) {
-      filtered = filtered.filter(service =>
-        service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service.description.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (service) =>
+          service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          service.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Filtro por categoria
     if (categoryFilter !== "all") {
-      filtered = filtered.filter(service => service.category === categoryFilter);
+      filtered = filtered.filter(
+        (service) => service.category === categoryFilter
+      );
     }
 
     // Filtro por status
     if (statusFilter !== "all") {
-      filtered = filtered.filter(service =>
+      filtered = filtered.filter((service) =>
         statusFilter === "active" ? service.active : !service.active
       );
     }
@@ -84,12 +87,18 @@ const Servicos = () => {
     // Filtros avançados
     // Filtro por data de criação
     if (advancedFilters.dateRange.start || advancedFilters.dateRange.end) {
-      filtered = filtered.filter(service => {
+      filtered = filtered.filter((service) => {
         const serviceDate = new Date(service.createdAt);
-        if (advancedFilters.dateRange.start && serviceDate < advancedFilters.dateRange.start) {
+        if (
+          advancedFilters.dateRange.start &&
+          serviceDate < advancedFilters.dateRange.start
+        ) {
           return false;
         }
-        if (advancedFilters.dateRange.end && serviceDate > advancedFilters.dateRange.end) {
+        if (
+          advancedFilters.dateRange.end &&
+          serviceDate > advancedFilters.dateRange.end
+        ) {
           return false;
         }
         return true;
@@ -98,7 +107,7 @@ const Servicos = () => {
 
     // Filtro por faixa de preço
     if (advancedFilters.priceRange) {
-      filtered = filtered.filter(service => {
+      filtered = filtered.filter((service) => {
         const price = service.price;
         switch (advancedFilters.priceRange) {
           case "0-100":
@@ -119,7 +128,7 @@ const Servicos = () => {
 
     // Filtro por duração
     if (advancedFilters.duration) {
-      filtered = filtered.filter(service => {
+      filtered = filtered.filter((service) => {
         const duration = service.durationMinutes;
         switch (advancedFilters.duration) {
           case "0-30":
@@ -149,7 +158,7 @@ const Servicos = () => {
       price: "",
       duration: "",
       category: "",
-      isActive: true
+      isActive: true,
     });
   };
 
@@ -166,21 +175,26 @@ const Servicos = () => {
         price: parseFloat(formData.price),
         durationMinutes: parseInt(formData.duration) || 30,
         category: formData.category,
-        active: formData.isActive
+        active: formData.isActive,
       };
 
       const newService = await serviceService.createService(newServiceData);
-      setServices(prev => [...prev, newService]);
+      setServices((prev) => [...prev, newService]);
       setIsAddDialogOpen(false);
       resetForm();
       toast.success("Serviço adicionado com sucesso!");
     } catch (error) {
-      console.error('Erro ao adicionar serviço:', error);
+      console.error("Erro ao adicionar serviço:", error);
     }
   };
 
   const handleEditService = async () => {
-    if (!selectedService || !formData.name || !formData.category || !formData.price) {
+    if (
+      !selectedService ||
+      !formData.name ||
+      !formData.category ||
+      !formData.price
+    ) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
@@ -193,19 +207,23 @@ const Servicos = () => {
         price: parseFloat(formData.price),
         durationMinutes: parseInt(formData.duration) || 30,
         category: formData.category,
-        active: formData.isActive
+        active: formData.isActive,
       };
 
-      const updatedService = await serviceService.updateService(updatedServiceData);
-      setServices(prev => prev.map(service =>
-        service.id === selectedService.id ? updatedService : service
-      ));
+      const updatedService = await serviceService.updateService(
+        updatedServiceData
+      );
+      setServices((prev) =>
+        prev.map((service) =>
+          service.id === selectedService.id ? updatedService : service
+        )
+      );
       setIsEditDialogOpen(false);
       setSelectedService(null);
       resetForm();
       toast.success("Serviço atualizado com sucesso!");
     } catch (error) {
-      console.error('Erro ao atualizar serviço:', error);
+      console.error("Erro ao atualizar serviço:", error);
     }
   };
 
@@ -215,11 +233,13 @@ const Servicos = () => {
         await serviceService.deleteService(selectedService.id);
 
         // Atualizar o estado local após deletar do banco
-        setServices(prev => prev.filter(service => service.id !== selectedService.id));
+        setServices((prev) =>
+          prev.filter((service) => service.id !== selectedService.id)
+        );
         setIsDeleteDialogOpen(false);
         setSelectedService(null);
       } catch (error) {
-        console.error('Erro ao deletar serviço:', error);
+        console.error("Erro ao deletar serviço:", error);
         // Não mostrar toast de sucesso aqui pois o service já mostra
       }
     }
@@ -233,7 +253,7 @@ const Servicos = () => {
       price: service.price.toString(),
       duration: service.durationMinutes.toString(),
       category: service.category,
-      isActive: service.active
+      isActive: service.active,
     });
     setIsEditDialogOpen(true);
   };
@@ -262,7 +282,7 @@ const Servicos = () => {
     setAdvancedFilters({
       dateRange: filters.dateRange,
       priceRange: filters.priceRange,
-      duration: filters.duration
+      duration: filters.duration,
     });
 
     // Aplicar também os filtros básicos se fornecidos
@@ -280,11 +300,12 @@ const Servicos = () => {
     setAdvancedFilters({
       dateRange: { start: null, end: null },
       priceRange: "",
-      duration: ""
+      duration: "",
     });
   };
 
-  const hasFilters = searchTerm !== "" ||
+  const hasFilters =
+    searchTerm !== "" ||
     categoryFilter !== "all" ||
     statusFilter !== "all" ||
     advancedFilters.dateRange.start !== null ||
@@ -296,28 +317,35 @@ const Servicos = () => {
   const totalServices = services.length;
 
   // Serviço mais realizado (baseado em times_used)
-  const mostRequestedService = services.length > 0
-    ? services.reduce((prev, current) =>
-      (current.times_used ?? 0) > (prev.times_used ?? 0) ? current : prev
-    ).name
-    : "N/A";
+  const mostRequestedService =
+    services.length > 0
+      ? services.reduce((prev, current) =>
+          (current.times_used ?? 0) > (prev.times_used ?? 0) ? current : prev
+        ).name
+      : "N/A";
 
   // Preço médio dos serviços
-  const averagePrice = services.length > 0
-    ? services.reduce((sum, service) => sum + service.price, 0) / services.length
-    : 0;
+  const averagePrice =
+    services.length > 0
+      ? services.reduce((sum, service) => sum + service.price, 0) /
+        services.length
+      : 0;
 
   // Serviços ativos vs inativos
-  const activeServices = services.filter(service => service.active).length;
-  const inactiveServices = services.filter(service => !service.active).length;
+  const activeServices = services.filter((service) => service.active).length;
+  const inactiveServices = services.filter((service) => !service.active).length;
 
   return (
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Serviços da Clínica</h1>
-          <p className="text-muted-foreground">Gerencie os serviços oferecidos pela clínica</p>
+          <h1 className="text-3xl font-bold text-foreground">
+            Serviços da Clínica
+          </h1>
+          <p className="text-muted-foreground">
+            Gerencie os serviços oferecidos pela clínica
+          </p>
         </div>
 
         {/* Stats Cards */}
@@ -363,11 +391,14 @@ const Servicos = () => {
           />
 
           {/* Lista de Serviços */}
-          <ServiceList
+          <ServiceDataList
             services={filteredServices}
             onEdit={openEditDialog}
             onDelete={openDeleteDialog}
             onAddNew={openAddDialog}
+            pagination="paged"
+            pageSize={9}
+            height="600px"
             hasFilters={hasFilters}
           />
         </div>
