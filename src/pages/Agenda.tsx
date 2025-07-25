@@ -197,7 +197,11 @@ const Agenda = () => {
     });
   };
 
-  const filteredAppointments = getFilteredAppointmentsByView();
+  const filteredAppointments = getFilteredAppointmentsByView().sort((a, b) => {
+    const dateA = new Date(a.appointmentAt).getTime();
+    const dateB = new Date(b.appointmentAt).getTime();
+    return dateA - dateB;
+  });
 
   // Função para adicionar nova consulta
   const handleAddAppointment = async (
