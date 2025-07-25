@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
+import { ptBR } from "date-fns/locale";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import {
   AddAppointmentDialog,
@@ -353,6 +354,7 @@ const Agenda = () => {
                     }
                   }}
                   className="rounded-md border"
+                  locale={ptBR}
                   modifiers={{
                     hasAppointments: appointments.reduce(
                       (dates: Date[], appointment) => {
@@ -469,6 +471,36 @@ const Agenda = () => {
               pageSize={8}
               height="600px"
               viewMode={viewMode}
+              getBorderColor={(appointment) => {
+                // Tolerância de 5 minutos para passado
+                const now = new Date();
+                const apptDate = new Date(appointment.appointmentAt);
+                const diff = apptDate.getTime() - now.getTime();
+                // Consulta passada (mais de 5 minutos atrás)
+                if (diff < -5 * 60 * 1000) {
+                  return "gray";
+                }
+                // Consulta mais próxima (próxima futura, dentro das próximas 24h)
+                const futureAppointments = filteredAppointments
+                  .filter(
+                    (a) =>
+                      new Date(a.appointmentAt).getTime() - now.getTime() >=
+                      -5 * 60 * 1000
+                  )
+                  .sort(
+                    (a, b) =>
+                      new Date(a.appointmentAt).getTime() -
+                      new Date(b.appointmentAt).getTime()
+                  );
+                if (
+                  futureAppointments.length > 0 &&
+                  futureAppointments[0].id === appointment.id
+                ) {
+                  return "green";
+                }
+                // Default (azul)
+                return "blue";
+              }}
             />
           </div>
         </div>

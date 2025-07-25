@@ -15,6 +15,7 @@ interface AppointmentDataListProps {
   pageSize?: number;
   height?: string;
   viewMode?: "day" | "week" | "month";
+  getBorderColor?: (appointment: Appointment) => "green" | "gray" | "blue";
 }
 
 export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
@@ -25,6 +26,7 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
   pageSize = 6,
   height = "500px",
   viewMode = "day",
+  getBorderColor,
 }) => {
   const fetchData = createFetchDataFromArray(appointments);
 
@@ -70,10 +72,19 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
       minute: "2-digit",
     });
 
+    // Definir cor da borda esquerda
+    let borderColor = "border-l-blue-500";
+    if (getBorderColor) {
+      const color = getBorderColor(appointment);
+      if (color === "green") borderColor = "border-l-green-500";
+      else if (color === "gray") borderColor = "border-l-gray-400";
+      else borderColor = "border-l-blue-500";
+    }
+
     return (
       <div
         key={appointment.id}
-        className="flex items-center justify-between p-3 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl hover:shadow-card transition-all duration-300 cursor-pointer"
+        className={`flex items-center justify-between p-3 bg-white border border-gray-200 border-l-4 ${borderColor} rounded-xl hover:shadow-card transition-all duration-300 cursor-pointer`}
       >
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
