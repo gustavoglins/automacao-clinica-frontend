@@ -144,16 +144,20 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
 
   const getDescription = () => {
     const total = appointments.length;
-    const confirmed = appointments.filter(
-      (a) => a.status === "confirmada"
+    const now = new Date();
+    const toleranceMs = 5 * 60 * 1000; // 5 minutos em ms
+    const realized = appointments.filter(
+      (a) => new Date(a.appointmentAt).getTime() < now.getTime() - toleranceMs
     ).length;
-    const pending = appointments.filter((a) => a.status === "pendente").length;
+    const upcoming = appointments.filter(
+      (a) => new Date(a.appointmentAt).getTime() >= now.getTime() - toleranceMs
+    ).length;
 
     return `${total} consulta${
       total !== 1 ? "s" : ""
-    } • ${confirmed} confirmada${
-      confirmed !== 1 ? "s" : ""
-    } • ${pending} pendente${pending !== 1 ? "s" : ""}`;
+    } • ${realized} realizadas${
+      realized !== 1 ? "s" : ""
+    } • ${upcoming} agendada(s)`;
   };
 
   return (
