@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { AddAppointmentDialog } from "@/components/agenda";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,6 +43,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
   onEdit,
   onViewRecord,
 }) => {
+  const [openAddAppointment, setOpenAddAppointment] = useState(false);
   if (!patient) return null;
 
   const formatDate = (dateString: string) => {
@@ -82,8 +84,9 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
   const planBadge = getPlanBadge();
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto p-0 [&>button]:hidden">
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto p-0 [&>button]:hidden">
         {/* Header */}
         <DialogHeader className="px-6 py-6 border-b bg-white">
           <div className="flex items-center justify-between">
@@ -150,7 +153,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
           {/* Quick Actions */}
           <div className="flex gap-3">
             <Button
-              onClick={() => onSchedule(patient)}
+              onClick={() => setOpenAddAppointment(true)}
               className="flex-1 bg-green-600 hover:bg-green-700 text-white shadow-sm transition-all duration-200 hover:shadow-md"
             >
               <CalendarIcon className="w-4 h-4 mr-2" />
@@ -216,24 +219,6 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                   </p>
                 </div>
               </div>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">
-                    Idade
-                  </p>
-                  <p className="text-gray-900 font-medium">
-                    {calculateAge()} anos
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">
-                    Plano de Saúde
-                  </p>
-                  <p className="text-gray-900 font-medium">
-                    {patient.plan || "-"}
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -253,7 +238,6 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                     {formatDate(patient.lastVisit || "")}
                   </p>
                 </div>
-                {/* Plano de Saúde removido */}
               </div>
               <div className="space-y-4">
                 <div>
@@ -266,13 +250,24 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                       : "Não agendada"}
                   </p>
                 </div>
-                {/* Convênio removido */}
               </div>
             </div>
           </div>
-          {/* Convênio removido */}
         </div>
       </DialogContent>
     </Dialog>
+    {/* Dialog de Agendar Consulta */}
+    {patient && (
+      <AddAppointmentDialog
+        open={openAddAppointment}
+        onOpenChange={setOpenAddAppointment}
+        onAddAppointment={() => {
+          setOpenAddAppointment(false);
+        }}
+        initialPatientId={patient.id}
+        initialPhone={patient.phone || ""}
+      />
+    )}
+  </>
   );
 };

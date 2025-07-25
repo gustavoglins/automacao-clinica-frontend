@@ -47,6 +47,8 @@ interface AddAppointmentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAddAppointment: (appointment: CreateAppointmentData) => void;
+  initialPatientId?: string;
+  initialPhone?: string;
 }
 
 const timeSlots = [
@@ -80,18 +82,29 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
   open,
   onOpenChange,
   onAddAppointment,
+  initialPatientId,
+  initialPhone,
 }) => {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [formData, setFormData] = useState({
-    patientId: "",
+    patientId: initialPatientId || "",
     employeeId: "",
     serviceId: "",
-    phone: "",
+    phone: initialPhone || "",
     date: undefined as Date | undefined,
     time: "",
     duration: "",
     notes: "",
   });
+
+  // Atualiza formData se initialPatientId/initialPhone mudarem (ex: ao abrir para outro paciente)
+  React.useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      patientId: initialPatientId || "",
+      phone: initialPhone || "",
+    }));
+  }, [initialPatientId, initialPhone, open]);
 
   const [patients, setPatients] = useState([]);
   const [employees, setEmployees] = useState([]);
