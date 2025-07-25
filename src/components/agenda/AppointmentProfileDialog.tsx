@@ -136,13 +136,13 @@ export const AppointmentProfileDialog: React.FC<
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <div className="flex items-center gap-4 text-lg">
+                  <div className="flex items-center gap-2 text-lg font-semibold">
                     <span>
                       {capitalizeFirstLetter(
                         formatDate(appointment.appointmentAt)
                       )}
                     </span>
-                    <span>•</span>
+                    <span>às</span>
                     <span>
                       {formatTime(appointment.appointmentAt)} -{" "}
                       {formatTime(appointment.appointmentEnd)}

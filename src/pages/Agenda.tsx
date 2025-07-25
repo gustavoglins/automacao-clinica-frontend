@@ -1,25 +1,67 @@
 import React, { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Calendar, Clock, Plus, Filter, Search, CalendarSync, CalendarCheck2, CalendarClock, Edit, MoreVertical, ChevronLeft, ChevronRight, CalendarDays, CalendarRange, CalendarIcon } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Calendar,
+  Clock,
+  Plus,
+  Filter,
+  Search,
+  CalendarSync,
+  CalendarCheck2,
+  CalendarClock,
+  Edit,
+  MoreVertical,
+  ChevronLeft,
+  ChevronRight,
+  CalendarDays,
+  CalendarRange,
+  CalendarIcon,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { StatsCard } from "@/components/dashboard/StatsCard";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem
+  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { getAppointmentStatusBadge } from "@/lib/badgeUtils";
-import { AddAppointmentDialog, FilterDialog, AppointmentProfileDialog } from "@/components/agenda";
+import {
+  AddAppointmentDialog,
+  FilterDialog,
+  AppointmentProfileDialog,
+} from "@/components/agenda";
 import { toast } from "sonner";
 import { appointmentService } from "@/services/appointmentService";
-import { Appointment, CreateAppointmentData, UpdateAppointmentData } from "@/types/appointment";
+import {
+  Appointment,
+  CreateAppointmentData,
+  UpdateAppointmentData,
+} from "@/types/appointment";
 import { Patient } from "@/types/patient";
 import { Employee } from "@/types/employee";
 import { Service } from "@/types/service";
@@ -31,7 +73,8 @@ import { useAppointments } from "@/context/AppointmentContext";
 const Agenda = () => {
   const [search, setSearch] = useState("");
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
-  const [openAddAppointmentDialog, setOpenAddAppointmentDialog] = useState(false);
+  const [openAddAppointmentDialog, setOpenAddAppointmentDialog] =
+    useState(false);
   const [filterStatus, setFilterStatus] = useState("");
   const [filterDoctor, setFilterDoctor] = useState("");
   const [filterTimeRange, setFilterTimeRange] = useState("");
@@ -39,13 +82,18 @@ const Agenda = () => {
 
   // Novos estados para controle de data e visualização
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [viewMode, setViewMode] = useState<"day" | "week" | "month">("day");
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), 1); // Primeiro dia do mês atual
+  });
 
-  const { appointments, setAppointments, loading, fetchAppointments } = useAppointments();
+  const { appointments, setAppointments, loading, fetchAppointments } =
+    useAppointments();
 
   const [openViewEditDialog, setOpenViewEditDialog] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -64,7 +112,9 @@ const Agenda = () => {
   const handleUpdateAppointment = async (data: UpdateAppointmentData) => {
     try {
       const updated = await appointmentService.updateAppointment(data);
-      setAppointments((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
+      setAppointments((prev) =>
+        prev.map((a) => (a.id === updated.id ? updated : a))
+      );
       setOpenViewEditDialog(false);
       toast.success("Consulta atualizada com sucesso!");
     } catch (error) {
@@ -73,11 +123,17 @@ const Agenda = () => {
   };
 
   // Lista de médicos únicos
-  const doctors = Array.from(new Set(appointments.map(a => a.employee?.fullName || 'Funcionário não encontrado')));
+  const doctors = Array.from(
+    new Set(
+      appointments.map(
+        (a) => a.employee?.fullName || "Funcionário não encontrado"
+      )
+    )
+  );
 
   // Funções utilitárias para navegação de data
   const formatDate = (date: Date) => {
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   };
 
   const isToday = (date: Date) => {
@@ -118,14 +174,14 @@ const Agenda = () => {
   };
 
   // Navegação de data
-  const navigateDate = (direction: 'prev' | 'next') => {
+  const navigateDate = (direction: "prev" | "next") => {
     const newDate = new Date(selectedDate);
-    if (viewMode === 'day') {
-      newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1));
-    } else if (viewMode === 'week') {
-      newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
-    } else if (viewMode === 'month') {
-      newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
+    if (viewMode === "day") {
+      newDate.setDate(newDate.getDate() + (direction === "next" ? 1 : -1));
+    } else if (viewMode === "week") {
+      newDate.setDate(newDate.getDate() + (direction === "next" ? 7 : -7));
+    } else if (viewMode === "month") {
+      newDate.setMonth(newDate.getMonth() + (direction === "next" ? 1 : -1));
     }
     setSelectedDate(newDate);
   };
@@ -134,20 +190,22 @@ const Agenda = () => {
   const getFilteredAppointmentsByView = () => {
     let dateFilteredAppointments = appointments;
 
-    if (viewMode === 'day') {
-      dateFilteredAppointments = appointments.filter(appointment =>
-        formatDate(new Date(appointment.appointmentAt)) === formatDate(selectedDate)
+    if (viewMode === "day") {
+      dateFilteredAppointments = appointments.filter(
+        (appointment) =>
+          formatDate(new Date(appointment.appointmentAt)) ===
+          formatDate(selectedDate)
       );
-    } else if (viewMode === 'week') {
+    } else if (viewMode === "week") {
       const weekDates = getWeekDates(selectedDate);
-      const weekDatesStr = weekDates.map(d => formatDate(d));
-      dateFilteredAppointments = appointments.filter(appointment =>
+      const weekDatesStr = weekDates.map((d) => formatDate(d));
+      dateFilteredAppointments = appointments.filter((appointment) =>
         weekDatesStr.includes(formatDate(new Date(appointment.appointmentAt)))
       );
-    } else if (viewMode === 'month') {
+    } else if (viewMode === "month") {
       const monthDates = getMonthDates(selectedDate);
-      const monthDatesStr = monthDates.map(d => formatDate(d));
-      dateFilteredAppointments = appointments.filter(appointment =>
+      const monthDatesStr = monthDates.map((d) => formatDate(d));
+      dateFilteredAppointments = appointments.filter((appointment) =>
         monthDatesStr.includes(formatDate(new Date(appointment.appointmentAt)))
       );
     }
@@ -159,8 +217,12 @@ const Agenda = () => {
         appointment.patient?.fullName.toLowerCase().includes(term) ||
         appointment.service?.name.toLowerCase().includes(term) ||
         appointment.employee?.fullName.toLowerCase().includes(term);
-      const matchesStatus = filterStatus ? appointment.status === filterStatus : true;
-      const matchesDoctor = filterDoctor ? appointment.employee?.fullName === filterDoctor : true;
+      const matchesStatus = filterStatus
+        ? appointment.status === filterStatus
+        : true;
+      const matchesDoctor = filterDoctor
+        ? appointment.employee?.fullName === filterDoctor
+        : true;
       return matchesSearch && matchesStatus && matchesDoctor;
     });
   };
@@ -169,20 +231,26 @@ const Agenda = () => {
 
   // Simula o total de consultas na semana (soma dos valores exibidos nos cards dos dias)
   const weekTotals = [
-    ...['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(() => Math.floor(Math.random() * 8) + 2)
+    ...["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map(
+      () => Math.floor(Math.random() * 8) + 2
+    ),
   ];
   const totalWeekAppointments = weekTotals.reduce((acc, cur) => acc + cur, 0);
 
   // Função para adicionar nova consulta
-  const handleAddAppointment = async (newAppointment: CreateAppointmentData) => {
+  const handleAddAppointment = async (
+    newAppointment: CreateAppointmentData
+  ) => {
     try {
-      const appointment = await appointmentService.createAppointment(newAppointment);
-      setAppointments(prev => [...prev, appointment]);
+      const appointment = await appointmentService.createAppointment(
+        newAppointment
+      );
+      setAppointments((prev) => [...prev, appointment]);
       setOpenAddAppointmentDialog(false);
       toast.success(`Consulta agendada com sucesso!`);
     } catch (error) {
-      console.error('Erro ao agendar consulta:', error);
-      toast.error('Erro ao agendar consulta');
+      console.error("Erro ao agendar consulta:", error);
+      toast.error("Erro ao agendar consulta");
     }
   };
 
@@ -192,7 +260,9 @@ const Agenda = () => {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-foreground">Agenda</h1>
-          <p className="text-muted-foreground">Gerencie todas as consultas e horários</p>
+          <p className="text-muted-foreground">
+            Gerencie todas as consultas e horários
+          </p>
         </div>
 
         {/* Stats Cards */}
@@ -204,17 +274,25 @@ const Agenda = () => {
           />
           <StatsCard
             title="Confirmadas"
-            value={filteredAppointments.filter(a => a.status === 'confirmada').length}
+            value={
+              filteredAppointments.filter((a) => a.status === "confirmada")
+                .length
+            }
             icon={CalendarCheck2}
           />
           <StatsCard
             title="Pendentes"
-            value={filteredAppointments.filter(a => a.status === 'pendente').length}
+            value={
+              filteredAppointments.filter((a) => a.status === "pendente").length
+            }
             icon={CalendarClock}
           />
           <StatsCard
             title="Reagendadas"
-            value={filteredAppointments.filter(a => a.status === 'reagendada').length}
+            value={
+              filteredAppointments.filter((a) => a.status === "reagendada")
+                .length
+            }
             icon={CalendarSync}
           />
         </div>
@@ -229,15 +307,25 @@ const Agenda = () => {
                   placeholder="Buscar por paciente, serviço ou médico..."
                   className="pl-10"
                   value={search}
-                  onChange={e => setSearch(e.target.value)}
+                  onChange={(e) => setSearch(e.target.value)}
                   autoComplete="off"
                 />
               </div>
-              <Button variant="classic" size="sm" className="gap-2" onClick={() => setOpenFilterDialog(true)}>
+              <Button
+                variant="classic"
+                size="sm"
+                className="gap-2"
+                onClick={() => setOpenFilterDialog(true)}
+              >
                 <Filter className="w-4 h-4" />
                 Filtros
               </Button>
-              <Button variant="primary" size="sm" className="gap-2" onClick={() => setOpenAddAppointmentDialog(true)}>
+              <Button
+                variant="primary"
+                size="sm"
+                className="gap-2"
+                onClick={() => setOpenAddAppointmentDialog(true)}
+              >
                 <Plus className="w-4 h-4" />
                 Nova Consulta
               </Button>
@@ -246,26 +334,23 @@ const Agenda = () => {
 
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
-              <span>Mostrando <strong>{filteredAppointments.length}</strong> de <strong>{appointments.length}</strong> consultas</span>
+              <span>
+                Mostrando <strong>{filteredAppointments.length}</strong> de{" "}
+                <strong>{appointments.length}</strong> consultas
+              </span>
               {(search || filterStatus || filterDoctor) && (
                 <>
                   <Separator orientation="vertical" className="h-4" />
                   <div className="flex items-center gap-2">
                     <span>Filtros ativos:</span>
                     {search && (
-                      <Badge variant="secondary">
-                        Busca: {search}
-                      </Badge>
+                      <Badge variant="secondary">Busca: {search}</Badge>
                     )}
                     {filterStatus && (
-                      <Badge variant="secondary">
-                        Status: {filterStatus}
-                      </Badge>
+                      <Badge variant="secondary">Status: {filterStatus}</Badge>
                     )}
                     {filterDoctor && (
-                      <Badge variant="secondary">
-                        Médico: {filterDoctor}
-                      </Badge>
+                      <Badge variant="secondary">Médico: {filterDoctor}</Badge>
                     )}
                     <Button
                       variant="ghost"
@@ -309,20 +394,40 @@ const Agenda = () => {
               <CardHeader>
                 <div className="flex items-center justify-between w-full">
                   <CardTitle className="flex items-center gap-2 m-0 p-0">
-                    {viewMode === 'day' && (
-                      isToday(selectedDate)
-                        ? `Consultas de Hoje - ${selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).replace(/^\w/, c => c.toUpperCase())}`
-                        : selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).replace(/^\w/, c => c.toUpperCase())
-                    )}
-                    {viewMode === 'week' && `Consultas da Semana`}
-                    {viewMode === 'month' && `Consultas do Mês - ${selectedDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`}
+                    {viewMode === "day" &&
+                      (isToday(selectedDate)
+                        ? `Consultas de Hoje - ${selectedDate
+                            .toLocaleDateString("pt-BR", {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })
+                            .replace(/^\w/, (c) => c.toUpperCase())}`
+                        : selectedDate
+                            .toLocaleDateString("pt-BR", {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })
+                            .replace(/^\w/, (c) => c.toUpperCase()))}
+                    {viewMode === "week" && `Consultas da Semana`}
+                    {viewMode === "month" &&
+                      `Consultas do Mês - ${selectedDate.toLocaleDateString(
+                        "pt-BR",
+                        { month: "long", year: "numeric" }
+                      )}`}
                   </CardTitle>
                 </div>
                 <CardDescription>
-                  {filteredAppointments.length} consulta{filteredAppointments.length !== 1 ? 's' : ''}
-                  {viewMode === 'day' && ' agendada' + (filteredAppointments.length !== 1 ? 's' : '')}
-                  {viewMode === 'week' && ' na semana'}
-                  {viewMode === 'month' && ' no mês'}
+                  {filteredAppointments.length} consulta
+                  {filteredAppointments.length !== 1 ? "s" : ""}
+                  {viewMode === "day" &&
+                    " agendada" +
+                      (filteredAppointments.length !== 1 ? "s" : "")}
+                  {viewMode === "week" && " na semana"}
+                  {viewMode === "month" && " no mês"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-1 flex flex-col">
@@ -334,51 +439,94 @@ const Agenda = () => {
                         Nenhuma consulta encontrada
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {viewMode === 'day' && 'Não há consultas agendadas para este dia.'}
-                        {viewMode === 'week' && 'Não há consultas agendadas para esta semana.'}
-                        {viewMode === 'month' && 'Não há consultas agendadas para este mês.'}
+                        {viewMode === "day" &&
+                          "Não há consultas agendadas para este dia."}
+                        {viewMode === "week" &&
+                          "Não há consultas agendadas para esta semana."}
+                        {viewMode === "month" &&
+                          "Não há consultas agendadas para este mês."}
                       </p>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       {filteredAppointments.map((appointment) => (
-                        <div key={appointment.id} className="flex items-center justify-between p-4 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl">
+                        <div
+                          key={appointment.id}
+                          className="flex items-center justify-between p-4 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl"
+                        >
                           <div className="flex items-center gap-4">
                             <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
                               <Clock className="w-5 h-5 text-blue-600" />
                             </div>
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
-                                <h3 className="font-semibold text-gray-900">{appointment.patient?.fullName || 'Paciente não encontrado'}</h3>
+                                <h3 className="font-semibold text-gray-900">
+                                  {appointment.patient?.fullName ||
+                                    "Paciente não encontrado"}
+                                </h3>
                                 <Badge
-                                  variant={getAppointmentStatusBadge(appointment.status).variant}
-                                  className={getAppointmentStatusBadge(appointment.status).className}
+                                  variant={
+                                    getAppointmentStatusBadge(
+                                      appointment.status
+                                    ).variant
+                                  }
+                                  className={
+                                    getAppointmentStatusBadge(
+                                      appointment.status
+                                    ).className
+                                  }
                                 >
                                   {appointment.status}
                                 </Badge>
                               </div>
                               <div className="flex items-center gap-2 text-sm text-gray-600">
-                                <span>{new Date(appointment.appointmentAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                <span>
+                                  {new Date(
+                                    appointment.appointmentAt
+                                  ).toLocaleTimeString("pt-BR", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
                                 <span>•</span>
-                                <span>{appointment.service?.durationMinutes || 30}min</span>
+                                <span>
+                                  {appointment.service?.durationMinutes || 30}
+                                  min
+                                </span>
                                 <span>•</span>
-                                <span>{appointment.service?.name || 'Serviço não encontrado'}</span>
+                                <span>
+                                  {appointment.service?.name ||
+                                    "Serviço não encontrado"}
+                                </span>
                                 <span>•</span>
-                                <span>com {appointment.employee?.fullName || 'Funcionário não encontrado'}</span>
+                                <span>
+                                  com{" "}
+                                  {appointment.employee?.fullName ||
+                                    "Funcionário não encontrado"}
+                                </span>
                               </div>
-                              {viewMode !== 'day' && (
+                              {viewMode !== "day" && (
                                 <p className="text-xs text-gray-500 font-medium">
-                                  {new Date(appointment.appointmentAt).toLocaleDateString('pt-BR', {
-                                    weekday: 'short',
-                                    day: '2-digit',
-                                    month: '2-digit'
+                                  {new Date(
+                                    appointment.appointmentAt
+                                  ).toLocaleDateString("pt-BR", {
+                                    weekday: "short",
+                                    day: "2-digit",
+                                    month: "2-digit",
                                   })}
                                 </p>
                               )}
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Button size="sm" variant="classic" onClick={() => { setSelectedAppointment(appointment); setOpenViewEditDialog(true); }}>
+                            <Button
+                              size="sm"
+                              variant="classic"
+                              onClick={() => {
+                                setSelectedAppointment(appointment);
+                                setOpenViewEditDialog(true);
+                              }}
+                            >
                               Ver Mais
                             </Button>
                           </div>
@@ -400,32 +548,35 @@ const Agenda = () => {
                     <CardTitle className="flex items-center gap-2 text-lg">
                       <CalendarIcon className="w-5 h-5 text-primary" />
                       {(() => {
-                        const mesAno = selectedDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                        const mesAno = currentMonth.toLocaleDateString(
+                          "pt-BR",
+                          { month: "long", year: "numeric" }
+                        );
                         return mesAno.charAt(0).toUpperCase() + mesAno.slice(1);
                       })()}
                     </CardTitle>
                   </div>
                   <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
                     <Button
-                      variant={viewMode === 'day' ? 'default' : 'ghost'}
+                      variant={viewMode === "day" ? "default" : "ghost"}
                       size="xs"
-                      onClick={() => setViewMode('day')}
+                      onClick={() => setViewMode("day")}
                       className="flex items-center gap-1 rounded-lg transition-all"
                     >
                       Dia
                     </Button>
                     <Button
-                      variant={viewMode === 'week' ? 'default' : 'ghost'}
+                      variant={viewMode === "week" ? "default" : "ghost"}
                       size="xs"
-                      onClick={() => setViewMode('week')}
+                      onClick={() => setViewMode("week")}
                       className="flex items-center gap-1 rounded-lg transition-all"
                     >
                       Semana
                     </Button>
                     <Button
-                      variant={viewMode === 'month' ? 'default' : 'ghost'}
+                      variant={viewMode === "month" ? "default" : "ghost"}
                       size="xs"
-                      onClick={() => setViewMode('month')}
+                      onClick={() => setViewMode("month")}
                       className="flex items-center gap-1 rounded-lg transition-all"
                     >
                       Mês
@@ -435,14 +586,17 @@ const Agenda = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-7 gap-1 text-sm">
-                  {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((day, index) => (
-                    <div key={index} className="text-center text-muted-foreground font-semibold p-2">
+                  {["D", "S", "T", "Q", "Q", "S", "S"].map((day, index) => (
+                    <div
+                      key={index}
+                      className="text-center text-muted-foreground font-semibold p-2"
+                    >
                       {day}
                     </div>
                   ))}
                   {(() => {
-                    const year = selectedDate.getFullYear();
-                    const month = selectedDate.getMonth();
+                    const year = currentMonth.getFullYear();
+                    const month = currentMonth.getMonth();
                     const firstDay = new Date(year, month, 1);
                     const lastDay = new Date(year, month + 1, 0);
                     const startOfWeek = firstDay.getDay();
@@ -460,20 +614,45 @@ const Agenda = () => {
                       const date = new Date(year, month, day);
                       const isCurrentDay = isToday(date);
                       const isSelected = isSameDate(date, selectedDate);
-                      const dayAppointments = appointments.filter(apt => formatDate(new Date(apt.appointmentAt)) === formatDate(date));
+                      const dayAppointments = appointments.filter(
+                        (apt) =>
+                          formatDate(new Date(apt.appointmentAt)) ===
+                          formatDate(date)
+                      );
 
                       days.push(
                         <div
                           key={day}
                           className={`
                             p-2 text-center cursor-pointer rounded-lg text-sm font-medium transition-all hover:scale-105 relative
-                            ${isCurrentDay ? 'bg-primary text-primary-foreground shadow-sm' : ''}
-                            ${isSelected && !isCurrentDay ? 'bg-primary/20 text-primary border border-primary/30' : ''}
-                            ${!isCurrentDay && !isSelected ? 'hover:bg-muted/50' : ''}
+                            ${
+                              isCurrentDay
+                                ? "bg-primary text-primary-foreground shadow-sm"
+                                : ""
+                            }
+                            ${
+                              isSelected && !isCurrentDay
+                                ? "bg-primary/20 text-primary border border-primary/30"
+                                : ""
+                            }
+                            ${
+                              !isCurrentDay && !isSelected
+                                ? "hover:bg-muted/50"
+                                : ""
+                            }
                           `}
                           onClick={() => {
                             setSelectedDate(date);
-                            setViewMode('day');
+                            // Atualiza currentMonth para o mês da data selecionada se for diferente
+                            if (
+                              date.getMonth() !== currentMonth.getMonth() ||
+                              date.getFullYear() !== currentMonth.getFullYear()
+                            ) {
+                              setCurrentMonth(
+                                new Date(date.getFullYear(), date.getMonth(), 1)
+                              );
+                            }
+                            setViewMode("day");
                           }}
                         >
                           {day}
@@ -494,9 +673,9 @@ const Agenda = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      const newDate = new Date(selectedDate);
+                      const newDate = new Date(currentMonth);
                       newDate.setMonth(newDate.getMonth() - 1);
-                      setSelectedDate(newDate);
+                      setCurrentMonth(newDate);
                     }}
                     className="h-8 w-8 p-0"
                   >
@@ -507,9 +686,9 @@ const Agenda = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      const newDate = new Date(selectedDate);
+                      const newDate = new Date(currentMonth);
                       newDate.setMonth(newDate.getMonth() + 1);
-                      setSelectedDate(newDate);
+                      setCurrentMonth(newDate);
                     }}
                     className="h-8 w-8 p-0"
                   >
