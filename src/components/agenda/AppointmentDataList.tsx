@@ -71,64 +71,50 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
     });
 
     return (
-      <Card
+      <div
         key={appointment.id}
-        className="hover:shadow-md transition-shadow cursor-pointer"
+        className="flex items-center justify-between p-3 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl hover:shadow-card transition-all duration-300 cursor-pointer"
       >
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-semibold text-lg">
-                  {appointment.patient?.fullName || "Paciente não encontrado"}
-                </h3>
-                <Badge className={getStatusColor(appointment.status)}>
-                  {getStatusLabel(appointment.status)}
-                </Badge>
-              </div>
-
-              <div className="space-y-2 mb-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Stethoscope className="w-4 h-4" />
-                  <span>
-                    {appointment.service?.name || "Serviço não encontrado"}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <User className="w-4 h-4" />
-                  <span>
-                    {appointment.employee?.fullName ||
-                      "Funcionário não encontrado"}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>{formattedDate}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    <span>{formattedTime}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-2 ml-4">
-              <Button size="sm" variant="outline">
-                Editar
-              </Button>
-              {appointment.status === "pendente" && (
-                <Button size="sm" variant="default">
-                  Confirmar
-                </Button>
-              )}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
+            <Clock className="w-4 h-4 text-blue-600" />
+          </div>
+          <div>
+            <p className="font-medium text-gray-900">
+              {appointment.patient?.fullName || "Paciente não encontrado"}
+            </p>
+            <p className="text-sm text-gray-600">
+              {appointment.service?.name || "Serviço não encontrado"}
+            </p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-xs text-gray-500 flex items-center gap-1">
+                <User className="w-3 h-3" />
+                {appointment.employee?.fullName || "Funcionário não encontrado"}
+              </span>
+              <span className="text-xs text-gray-500 flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {formattedDate}
+              </span>
+              <span className="text-xs text-gray-500 flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {formattedTime}
+              </span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div className="flex flex-col items-end gap-2 ml-4">
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline">
+              Ver Mais
+            </Button>
+            {appointment.status === "pendente" && (
+              <Button size="sm" variant="default">
+                Confirmar
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
     );
   };
 

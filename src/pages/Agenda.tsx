@@ -408,48 +408,45 @@ const Agenda = () => {
 
                 {/* Navigation */}
                 <div className="flex items-center justify-between mt-4 gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigateDate("prev")}
-                    className="gap-1 text-xs"
-                  >
-                    <ChevronLeft className="w-3 h-3" />
-                    Anterior
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigateDate("next")}
-                    className="gap-1 text-xs"
-                  >
-                    Próximo
-                    <ChevronRight className="w-3 h-3" />
-                  </Button>
-                </div>
-
-                {/* Data selecionada */}
-                <div className="mt-4 text-center">
-                  <h3 className="text-sm font-medium">
-                    {viewMode === "day" &&
-                      selectedDate.toLocaleDateString("pt-BR", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    {viewMode === "week" &&
-                      `Semana de ${selectedDate.toLocaleDateString("pt-BR", {
-                        day: "numeric",
-                        month: "short",
-                      })}`}
-                    {viewMode === "month" &&
-                      selectedDate.toLocaleDateString("pt-BR", {
-                        month: "long",
-                        year: "numeric",
-                      })}
-                  </h3>
+                  <div className="relative flex w-full items-center justify-between gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigateDate("prev")}
+                      className="gap-1 text-xs"
+                    >
+                      <ChevronLeft className="w-3 h-3" />
+                      Anterior
+                    </Button>
+                    <span className="absolute left-1/2 -translate-x-1/2 flex-1 text-center font-medium text-sm">
+                      {viewMode === "day" &&
+                        selectedDate.toLocaleDateString("pt-BR", {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      {viewMode === "week" &&
+                        `Semana de ${selectedDate.toLocaleDateString("pt-BR", {
+                          day: "numeric",
+                          month: "short",
+                        })}`}
+                      {viewMode === "month" &&
+                        selectedDate.toLocaleDateString("pt-BR", {
+                          month: "long",
+                          year: "numeric",
+                        })}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigateDate("next")}
+                      className="gap-1 text-xs"
+                    >
+                      Próximo
+                      <ChevronRight className="w-3 h-3" />
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
