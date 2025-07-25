@@ -390,7 +390,7 @@ const Agenda = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Card Principal de Consultas */}
           <div className="lg:col-span-2">
-            <Card className="shadow-card h-[600px] flex flex-col">
+            <Card className="shadow-card flex flex-col">
               <CardHeader>
                 <div className="flex items-center justify-between w-full">
                   <CardTitle className="flex items-center gap-2 m-0 p-0">
@@ -431,7 +431,7 @@ const Agenda = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-1 flex flex-col">
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1">
                   {filteredAppointments.length === 0 ? (
                     <div className="text-center py-12">
                       <CalendarIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
