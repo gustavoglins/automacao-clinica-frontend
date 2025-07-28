@@ -33,7 +33,7 @@ export const PatientsFilters: React.FC<PatientsFiltersProps> = ({
   onOpenFilters,
   onOpenAddPatient,
   filteredPatientsCount,
-  totalPatientsCount
+  totalPatientsCount,
 }) => {
   const clearFilters = () => {
     onSearchChange("");
@@ -44,50 +44,61 @@ export const PatientsFilters: React.FC<PatientsFiltersProps> = ({
   const countBadge = getCountBadge();
 
   return (
-    <div className="flex flex-col gap-4 p-6 bg-card rounded-lg border shadow-sm">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
+    <div className="flex flex-col gap-3 sm:gap-4 p-3 sm:p-6 bg-card rounded-lg border shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-1">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar paciente..."
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-10"
+              className="pl-10 text-sm"
             />
           </div>
-          {/* Select de status removido */}
         </div>
         <div className="flex items-center gap-2">
-          {/* Botão de filtros removido */}
           {onOpenAddPatient && (
             <Button
               onClick={onOpenAddPatient}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-sm"
               size="sm"
             >
               <Plus className="h-4 w-4" />
-              Novo Paciente
+              <span className="hidden sm:inline">Novo Paciente</span>
+              <span className="sm:hidden">Novo</span>
             </Button>
           )}
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
-          <span>Mostrando <strong>{filteredPatientsCount}</strong> de <strong>{totalPatientsCount}</strong> pacientes</span>
+          <span>
+            Mostrando <strong>{filteredPatientsCount}</strong> de{" "}
+            <strong>{totalPatientsCount}</strong> pacientes
+          </span>
           {hasActiveFilters && (
             <>
-              <Separator orientation="vertical" className="h-4" />
-              <div className="flex items-center gap-2">
-                <span>Filtros ativos:</span>
+              <Separator
+                orientation="vertical"
+                className="h-4 hidden sm:block"
+              />
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="hidden sm:inline">Filtros ativos:</span>
                 {search && (
-                  <Badge variant={countBadge.variant} className={countBadge.className}>
+                  <Badge
+                    variant={countBadge.variant}
+                    className={countBadge.className}
+                  >
                     Busca: {search}
                   </Badge>
                 )}
                 {filterStatus && (
-                  <Badge variant={countBadge.variant} className={countBadge.className}>
+                  <Badge
+                    variant={countBadge.variant}
+                    className={countBadge.className}
+                  >
                     Status: {filterStatus}
                   </Badge>
                 )}

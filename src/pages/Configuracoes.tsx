@@ -21,13 +21,13 @@ interface ClinicHour {
 
 // Mapeamento dos dias da semana para o padrão do banco
 const diasSemanaMap = {
-  segunda: 'monday',
-  terca: 'tuesday',
-  quarta: 'wednesday',
-  quinta: 'thursday',
-  sexta: 'friday',
-  sabado: 'saturday',
-  domingo: 'sunday'
+  segunda: "monday",
+  terca: "tuesday",
+  quarta: "wednesday",
+  quinta: "thursday",
+  sexta: "friday",
+  sabado: "saturday",
+  domingo: "sunday",
 };
 
 const Configuracoes = () => {
@@ -44,14 +44,14 @@ const Configuracoes = () => {
     quinta: { ativo: true, inicio: "08:00", fim: "18:00" },
     sexta: { ativo: true, inicio: "08:00", fim: "18:00" },
     sabado: { ativo: true, inicio: "08:00", fim: "12:00" },
-    domingo: { ativo: false, inicio: "08:00", fim: "18:00" }
+    domingo: { ativo: false, inicio: "08:00", fim: "18:00" },
   });
 
   const [configAgendamento, setConfigAgendamento] = useState({
     duracaoConsulta: "30",
     intervaloConsultas: "15",
     antecedenciaMinima: "1",
-    antecedenciaMaxima: "90"
+    antecedenciaMaxima: "90",
   });
 
   const [loading, setLoading] = useState(false);
@@ -64,45 +64,49 @@ const Configuracoes = () => {
 
       // Primeiro, busca os registros existentes
       const { data: existingData, error: fetchError } = await supabase
-        .from('clinic_hours')
-        .select('*');
+        .from("clinic_hours")
+        .select("*");
 
       if (fetchError) {
-        console.error('Erro ao buscar horários existentes:', fetchError);
+        console.error("Erro ao buscar horários existentes:", fetchError);
         return;
       }
 
       // Prepara os dados para upsert
-      const horariosParaSalvar = Object.entries(horarioFuncionamento).map(([diaLocal, config]) => {
-        const diaDB = diasSemanaMap[diaLocal as keyof typeof diasSemanaMap];
-        const existingRecord = existingData?.find(record => record.day_of_week === diaDB);
+      const horariosParaSalvar = Object.entries(horarioFuncionamento).map(
+        ([diaLocal, config]) => {
+          const diaDB = diasSemanaMap[diaLocal as keyof typeof diasSemanaMap];
+          const existingRecord = existingData?.find(
+            (record) => record.day_of_week === diaDB
+          );
 
-        return {
-          id: existingRecord?.id,
-          day_of_week: diaDB,
-          open_time: config.inicio,
-          close_time: config.fim,
-          is_open: config.ativo
-        };
-      });
+          return {
+            id: existingRecord?.id,
+            day_of_week: diaDB,
+            open_time: config.inicio,
+            close_time: config.fim,
+            is_open: config.ativo,
+          };
+        }
+      );
 
       // Faz upsert (insert ou update)
       const { error } = await supabase
-        .from('clinic_hours')
+        .from("clinic_hours")
         .upsert(horariosParaSalvar, {
-          onConflict: 'day_of_week',
-          ignoreDuplicates: false
+          onConflict: "day_of_week",
+          ignoreDuplicates: false,
         });
 
       if (error) {
-        console.error('Erro ao salvar horários:', error);
-        toast.error('Erro ao salvar horários de funcionamento');
+        console.error("Erro ao salvar horários:", error);
+        toast.error("Erro ao salvar horários de funcionamento");
       } else {
-        toast.success('Horários de funcionamento salvos com sucesso!');
+        toast.success("Horários de funcionamento salvos com sucesso!");
       }
     } catch (error) {
-      console.error('Erro ao salvar horários:', error);
-      toast.error('Erro ao salvar horários de funcionamento');
+      console.error("Erro ao salvar horários:", error);
+      toast.error("Erro ao salvar horários de funcionamento");
     } finally {
       setLoading(false);
     }
@@ -114,12 +118,12 @@ const Configuracoes = () => {
       try {
         setLoadingHorarios(true);
         const { data, error } = await supabase
-          .from('clinic_hours')
-          .select('*')
-          .order('id');
+          .from("clinic_hours")
+          .select("*")
+          .order("id");
 
         if (error) {
-          console.error('Erro ao carregar horários:', error);
+          console.error("Erro ao carregar horários:", error);
           return;
         }
 
@@ -132,16 +136,16 @@ const Configuracoes = () => {
             quinta: { ativo: true, inicio: "08:00", fim: "18:00" },
             sexta: { ativo: true, inicio: "08:00", fim: "18:00" },
             sabado: { ativo: true, inicio: "08:00", fim: "12:00" },
-            domingo: { ativo: false, inicio: "08:00", fim: "18:00" }
+            domingo: { ativo: false, inicio: "08:00", fim: "18:00" },
           };
 
           Object.entries(diasSemanaMap).forEach(([diaLocal, diaDB]) => {
-            const horarioDB = data.find(h => h.day_of_week === diaDB);
+            const horarioDB = data.find((h) => h.day_of_week === diaDB);
             if (horarioDB) {
               horariosDB[diaLocal as keyof typeof horariosDB] = {
                 ativo: horarioDB.is_open,
                 inicio: horarioDB.open_time,
-                fim: horarioDB.close_time
+                fim: horarioDB.close_time,
               };
             }
           });
@@ -149,7 +153,7 @@ const Configuracoes = () => {
           setHorarioFuncionamento(horariosDB);
         }
       } catch (error) {
-        console.error('Erro ao carregar horários:', error);
+        console.error("Erro ao carregar horários:", error);
       } finally {
         setLoadingHorarios(false);
       }
@@ -161,96 +165,141 @@ const Configuracoes = () => {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     setClinicName(nomeClinica);
-    toast.success('Informações da clínica salvas com sucesso!');
+    toast.success("Informações da clínica salvas com sucesso!");
   };
 
-  const handleHorarioChange = (dia: string, campo: string, valor: string | boolean) => {
-    setHorarioFuncionamento(prev => ({
+  const handleHorarioChange = (
+    dia: string,
+    campo: string,
+    valor: string | boolean
+  ) => {
+    setHorarioFuncionamento((prev) => ({
       ...prev,
       [dia]: {
         ...prev[dia as keyof typeof prev],
-        [campo]: valor
-      }
+        [campo]: valor,
+      },
     }));
   };
 
   const diasSemana = [
-    { key: 'segunda', label: 'Segunda-feira' },
-    { key: 'terca', label: 'Terça-feira' },
-    { key: 'quarta', label: 'Quarta-feira' },
-    { key: 'quinta', label: 'Quinta-feira' },
-    { key: 'sexta', label: 'Sexta-feira' },
-    { key: 'sabado', label: 'Sábado' },
-    { key: 'domingo', label: 'Domingo' }
+    { key: "segunda", label: "Segunda-feira" },
+    { key: "terca", label: "Terça-feira" },
+    { key: "quarta", label: "Quarta-feira" },
+    { key: "quinta", label: "Quinta-feira" },
+    { key: "sexta", label: "Sexta-feira" },
+    { key: "sabado", label: "Sábado" },
+    { key: "domingo", label: "Domingo" },
   ];
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto space-y-6">
-        <h1 className="text-3xl font-bold mb-4 text-left">Configurações</h1>
+      <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-left px-1">
+          Configurações
+        </h1>
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="w-5 h-5" />
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
               Informações da Clínica
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <form onSubmit={handleSave} className="space-y-4">
+          <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-6">
+            <form onSubmit={handleSave} className="space-y-3 sm:space-y-4">
               <div>
                 <Label htmlFor="nomeClinica">Nome da clínica</Label>
                 <Input
                   id="nomeClinica"
                   placeholder="Digite o nome da clínica"
                   value={nomeClinica}
-                  onChange={e => setNomeClinica(e.target.value)}
+                  onChange={(e) => setNomeClinica(e.target.value)}
                 />
               </div>
-              <Button variant="primary" className="w-full" type="submit">Salvar alterações</Button>
+              <Button variant="primary" className="w-full" type="submit">
+                Salvar alterações
+              </Button>
             </form>
           </CardContent>
         </Card>
 
         {/* Seção de Funcionamento da Clínica */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5" />
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
               Funcionamento da Clínica
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-6">
             {/* Horários de Funcionamento */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Horários de Funcionamento</h3>
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold">
+                Horários de Funcionamento
+              </h3>
               {loadingHorarios ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">Carregando horários...</p>
+                <div className="text-center py-6 sm:py-8">
+                  <p className="text-sm sm:text-base text-gray-500">
+                    Carregando horários...
+                  </p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {diasSemana.map(dia => (
-                    <div key={dia.key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="space-y-2 sm:space-y-3">
+                  {diasSemana.map((dia) => (
+                    <div
+                      key={dia.key}
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 rounded-lg gap-3"
+                    >
                       <div className="flex items-center gap-3">
                         <Switch
-                          checked={horarioFuncionamento[dia.key as keyof typeof horarioFuncionamento].ativo}
-                          onCheckedChange={(checked) => handleHorarioChange(dia.key, 'ativo', checked)}
+                          checked={
+                            horarioFuncionamento[
+                              dia.key as keyof typeof horarioFuncionamento
+                            ].ativo
+                          }
+                          onCheckedChange={(checked) =>
+                            handleHorarioChange(dia.key, "ativo", checked)
+                          }
                         />
-                        <Label className="font-medium min-w-[120px]">{dia.label}</Label>
+                        <Label className="font-medium text-sm sm:text-base min-w-[100px] sm:min-w-[120px]">
+                          {dia.label}
+                        </Label>
                       </div>
-                      {horarioFuncionamento[dia.key as keyof typeof horarioFuncionamento].ativo && (
-                        <div className="flex items-center gap-2">
+                      {horarioFuncionamento[
+                        dia.key as keyof typeof horarioFuncionamento
+                      ].ativo && (
+                        <div className="flex items-center gap-2 ml-8 sm:ml-0">
                           <Input
                             type="time"
-                            value={horarioFuncionamento[dia.key as keyof typeof horarioFuncionamento].inicio}
-                            onChange={(e) => handleHorarioChange(dia.key, 'inicio', e.target.value)}
-                            className="w-24"
+                            value={
+                              horarioFuncionamento[
+                                dia.key as keyof typeof horarioFuncionamento
+                              ].inicio
+                            }
+                            onChange={(e) =>
+                              handleHorarioChange(
+                                dia.key,
+                                "inicio",
+                                e.target.value
+                              )
+                            }
+                            className="w-20 sm:w-24 text-sm"
                           />
-                          <span className="text-gray-500">às</span>
+                          <span className="text-gray-500 text-sm">às</span>
                           <Input
                             type="time"
-                            value={horarioFuncionamento[dia.key as keyof typeof horarioFuncionamento].fim}
-                            onChange={(e) => handleHorarioChange(dia.key, 'fim', e.target.value)}
+                            value={
+                              horarioFuncionamento[
+                                dia.key as keyof typeof horarioFuncionamento
+                              ].fim
+                            }
+                            onChange={(e) =>
+                              handleHorarioChange(
+                                dia.key,
+                                "fim",
+                                e.target.value
+                              )
+                            }
                             className="w-24"
                           />
                         </div>
@@ -356,7 +405,9 @@ const Configuracoes = () => {
               onClick={saveClinicHours}
               disabled={loading}
             >
-              {loading ? 'Salvando...' : 'Salvar Configurações de Funcionamento'}
+              {loading
+                ? "Salvando..."
+                : "Salvar Configurações de Funcionamento"}
             </Button>
           </CardContent>
         </Card>

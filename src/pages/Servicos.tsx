@@ -337,19 +337,19 @@ const Servicos = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
+        <div className="px-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
             Serviços da Clínica
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Gerencie os serviços oferecidos pela clínica
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           <StatsCard
             title="Total de Serviços Oferecidos"
             value={totalServices}
@@ -373,7 +373,7 @@ const Servicos = () => {
         </div>
 
         {/* Main Content */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Filtros */}
           <ServiceFilters
             searchTerm={searchTerm}

@@ -14,22 +14,14 @@ export const PatientsStats = ({ patients }: PatientsStatsProps) => {
   const upcomingAppointments = 89;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
       <StatsCard
         title="Total de Pacientes"
         value={totalPatients}
         icon={Users}
       />
-      <StatsCard
-        title="Pacientes Ativos"
-        value={totalPatients}
-        icon={Users}
-      />
-      <StatsCard
-        title="Novos este Mês"
-        value={newThisMonth}
-        icon={Plus}
-      />
+      <StatsCard title="Pacientes Ativos" value={totalPatients} icon={Users} />
+      <StatsCard title="Novos este Mês" value={newThisMonth} icon={Plus} />
       <StatsCard
         title="Próximas Consultas"
         value={upcomingAppointments}

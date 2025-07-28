@@ -73,11 +73,13 @@ const Pacientes = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Pacientes</h1>
-          <p className="text-muted-foreground">
+        <div className="px-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+            Pacientes
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Gerencie o cadastro e histórico dos pacientes
           </p>
         </div>

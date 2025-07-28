@@ -134,7 +134,7 @@ export function Dashboard() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Dialog: Detalhes da Consulta (fora do Card para controle correto) */}
       <AppointmentProfileDialog
         appointment={profileDialogAppointment}
@@ -148,15 +148,17 @@ export function Dashboard() {
         }}
       />
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">
+      <div className="px-1">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+          Dashboard
+        </h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Visão geral da sua clínica odontológica
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {todayStats.map((stat, index) => (
           <StatsCard
             key={stat.title}
@@ -169,23 +171,23 @@ export function Dashboard() {
       </div>
 
       {/* Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Coluna 1: Próxima Consulta + Ações Rápidas */}
         <div className="h-full flex flex-col space-y-4">
           {/* Próxima Consulta - destaque equilibrado */}
           <Card className="shadow-card flex-1">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2">
-                <CalendarClock className="w-5 h-5 text-blue-500" />
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                <CalendarClock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
                 Próxima Consulta
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 {nextAppointment
                   ? `Próxima consulta ${nextAppointment.timeUntil}`
                   : "Nenhuma consulta agendada"}
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-4 flex-1 flex items-center">
+            <CardContent className="p-3 sm:p-4 flex-1 flex items-center">
               {nextAppointment ? (
                 <div
                   className="w-full flex flex-row items-center gap-6 p-5 rounded-xl border border-blue-200 cursor-pointer shadow-md transition-shadow hover:shadow-lg bg-blue-50 bg-opacity-40"

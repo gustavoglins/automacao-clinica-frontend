@@ -223,17 +223,19 @@ const Agenda = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Agenda</h1>
-          <p className="text-muted-foreground">
+        <div className="px-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+            Agenda
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Gerencie todas as consultas e horários
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           <StatsCard
             title="Consultas Agendadas"
             value={appointments.length}
@@ -265,120 +267,117 @@ const Agenda = () => {
         </div>
 
         {/* Search and Filter Bar */}
-        <div className="flex flex-col gap-4 p-6 bg-card rounded-lg border shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
+        <div className="flex flex-col gap-3 sm:gap-4 p-3 sm:p-6 bg-card rounded-lg border shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-1">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar por paciente, serviço ou médico..."
-                  className="pl-10"
+                  className="pl-10 text-sm"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   autoComplete="off"
                 />
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-2"
-                onClick={() => setOpenFilterDialog(true)}
-              >
-                <Filter className="w-4 h-4" />
-                Filtros
-              </Button>
-              <Button
-                variant="default"
-                size="sm"
-                className="gap-2"
-                onClick={() => setOpenAddAppointmentDialog(true)}
-              >
-                <Plus className="w-4 h-4" />
-                Nova Consulta
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 sm:gap-2 text-sm"
+                  onClick={() => setOpenFilterDialog(true)}
+                >
+                  <Filter className="w-4 h-4" />
+                  <span className="hidden sm:inline">Filtros</span>
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="gap-1 sm:gap-2 text-sm"
+                  onClick={() => setOpenAddAppointmentDialog(true)}
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="hidden sm:inline">Nova Consulta</span>
+                  <span className="sm:hidden">Nova</span>
+                </Button>
+              </div>
             </div>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <span>
-                Mostrando <strong>{filteredAppointments.length}</strong> de{" "}
-                <strong>{appointments.length}</strong> consultas
-              </span>
-              {(search || filterStatus || filterDoctor) && (
-                <>
-                  <Separator orientation="vertical" className="h-4" />
-                  <div className="flex items-center gap-2">
-                    <span>Filtros ativos</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setSearch("");
-                        setFilterStatus("");
-                        setFilterDoctor("");
-                      }}
-                      className="text-xs h-auto p-1"
-                    >
-                      Limpar
-                    </Button>
-                  </div>
-                </>
-              )}
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <span>
+                  Mostrando <strong>{filteredAppointments.length}</strong> de{" "}
+                  <strong>{appointments.length}</strong> consultas
+                </span>
+                {(search || filterStatus || filterDoctor) && (
+                  <>
+                    <Separator orientation="vertical" className="h-4" />
+                    <div className="flex items-center gap-2">
+                      <span>Filtros ativos</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSearch("");
+                          setFilterStatus("");
+                          setFilterDoctor("");
+                        }}
+                        className="text-xs h-auto p-1"
+                      >
+                        Limpar
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Layout com Calendário e Lista */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-6">
           {/* Calendário */}
-          <div className="lg:col-span-1 flex justify-center">
-            {/* <Card className="w-[400px] max-w-full h-auto flex flex-col justify-start"> */}
-            <Card className="w-[400px] max-w-full max-h-[565px] overflow-auto flex flex-col justify-start">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CalendarIcon className="w-5 h-5" />
+          <div className="xl:col-span-1 flex justify-center">
+            <Card className="w-full max-w-[400px] max-h-[565px] overflow-auto flex flex-col justify-start">
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                   Calendário
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm">
                   Clique em uma data para filtrar as consultas
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-col items-center gap-3 p-4 pb-2">
-                <div className="border rounded-md p-2 w-[340px] bg-white">
+              <CardContent className="flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-4 pb-2">
+                <div className="border rounded-md p-2 w-full max-w-[340px] bg-white">
                   <Calendar
                     mode="single"
                     selected={selectedDate}
-                    onSelect={(date) => {
-                      if (date) {
-                        setSelectedDate(date);
-                        setViewMode("day");
-                      }
-                    }}
-                    className=""
+                    onSelect={(date) => date && setSelectedDate(date)}
                     locale={ptBR}
+                    className="w-full"
+                    classNames={{
+                      months:
+                        "flex w-full flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 flex-1",
+                      month: "space-y-2 w-full flex flex-col",
+                      table: "w-full h-full border-collapse space-y-1",
+                      head_row: "",
+                      row: "w-full mt-2",
+                    }}
                     modifiers={{
-                      hasAppointments: appointments.reduce(
-                        (dates: Date[], appointment) => {
-                          const appointmentDate = new Date(
-                            appointment.appointmentAt
-                          );
-                          appointmentDate.setHours(0, 0, 0, 0);
-                          if (
-                            !dates.find(
-                              (d) => d.getTime() === appointmentDate.getTime()
-                            )
-                          ) {
-                            dates.push(appointmentDate);
-                          }
-                          return dates;
-                        },
-                        []
-                      ),
+                      today: isToday,
+                      hasAppointments: (date) =>
+                        appointments.some(
+                          (a) =>
+                            formatDate(new Date(a.appointmentAt)) ===
+                            formatDate(date)
+                        ),
                     }}
                     modifiersStyles={{
                       hasAppointments: {
-                        position: "relative",
+                        backgroundColor: "#3b82f6",
+                        color: "white",
+                        borderRadius: "50%",
                       },
                     }}
                   />
@@ -389,28 +388,28 @@ const Agenda = () => {
                     variant={viewMode === "day" ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setViewMode("day")}
-                    className="gap-1 text-xs"
+                    className="gap-1 text-xs flex-1 sm:flex-none"
                   >
                     <CalendarDays className="w-3 h-3" />
-                    Dia
+                    <span className="hidden sm:inline">Dia</span>
                   </Button>
                   <Button
                     variant={viewMode === "week" ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setViewMode("week")}
-                    className="gap-1 text-xs"
+                    className="gap-1 text-xs flex-1 sm:flex-none"
                   >
                     <CalendarRange className="w-3 h-3" />
-                    Semana
+                    <span className="hidden sm:inline">Semana</span>
                   </Button>
                   <Button
                     variant={viewMode === "month" ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setViewMode("month")}
-                    className="gap-1 text-xs"
+                    className="gap-1 text-xs flex-1 sm:flex-none"
                   >
                     <CalendarIcon className="w-3 h-3" />
-                    Mês
+                    <span className="hidden sm:inline">Mês</span>
                   </Button>
                 </div>
                 {/* Navigation */}
@@ -457,47 +456,28 @@ const Agenda = () => {
           </div>
 
           {/* Lista de Consultas */}
-          <div className="lg:col-span-3">
+          <div className="xl:col-span-3">
             <AppointmentDataList
               appointments={filteredAppointments}
               onViewAppointment={(appointment) => {
                 setSelectedAppointment(appointment);
                 setOpenViewEditDialog(true);
               }}
-              onAddNew={() => setOpenAddAppointmentDialog(true)}
               pagination="paged"
-              pageSize={8}
+              pageSize={10}
               height="600px"
-              viewMode={viewMode}
               getBorderColor={(appointment) => {
-                // Tolerância de 5 minutos para passado
-                const now = new Date();
-                const apptDate = new Date(appointment.appointmentAt);
-                const diff = apptDate.getTime() - now.getTime();
-                // Consulta passada (mais de 5 minutos atrás)
-                if (diff < -5 * 60 * 1000) {
-                  return "gray";
+                switch (appointment.status) {
+                  case "confirmada":
+                    return "green";
+                  case "pendente":
+                    return "gray";
+                  case "cancelada":
+                  case "reagendada":
+                  case "concluida":
+                  default:
+                    return "blue";
                 }
-                // Consulta mais próxima (próxima futura, dentro das próximas 24h)
-                const futureAppointments = filteredAppointments
-                  .filter(
-                    (a) =>
-                      new Date(a.appointmentAt).getTime() - now.getTime() >=
-                      -5 * 60 * 1000
-                  )
-                  .sort(
-                    (a, b) =>
-                      new Date(a.appointmentAt).getTime() -
-                      new Date(b.appointmentAt).getTime()
-                  );
-                if (
-                  futureAppointments.length > 0 &&
-                  futureAppointments[0].id === appointment.id
-                ) {
-                  return "green";
-                }
-                // Default (azul)
-                return "blue";
               }}
             />
           </div>

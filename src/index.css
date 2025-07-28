@@ -199,4 +199,72 @@
     transform: translateY(-2px);
     transition: all 0.3s ease;
   }
+
+  /* Responsive utilities */
+  .responsive-padding {
+    @apply p-3 sm:p-4 lg:p-6;
+  }
+
+  .responsive-text {
+    @apply text-sm sm:text-base;
+  }
+
+  .responsive-title {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+
+  .responsive-subtitle {
+    @apply text-sm sm:text-base;
+  }
+
+  .responsive-grid-2 {
+    @apply grid grid-cols-1 sm:grid-cols-2;
+  }
+
+  .responsive-grid-3 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .responsive-grid-4 {
+    @apply grid grid-cols-2 lg:grid-cols-4;
+  }
+
+  .responsive-flex {
+    @apply flex flex-col sm:flex-row;
+  }
+
+  .responsive-gap {
+    @apply gap-2 sm:gap-3 lg:gap-4;
+  }
+
+  .responsive-spacing {
+    @apply space-y-3 sm:space-y-4 lg:space-y-6;
+  }
+
+  .mobile-hidden {
+    @apply hidden sm:block;
+  }
+
+  .mobile-only {
+    @apply block sm:hidden;
+  }
+
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Card layout improvements */
+  .card-responsive {
+    @apply flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 gap-3 sm:gap-4;
+  }
+
+  /* Form improvements */
+  .form-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6;
+  }
+
+  /* Button improvements */
+  .btn-responsive {
+    @apply text-sm px-3 py-2 sm:px-4 sm:py-2;
+  }
 }

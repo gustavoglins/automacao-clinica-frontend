@@ -1,0 +1,246 @@
+/* Responsive improvements for the clinic management system */
+
+/* Global container improvements */
+.container {
+  @apply px-2 sm:px-4 lg:px-6 xl:px-8;
+}
+
+/* Card responsive improvements */
+.card-responsive {
+  @apply p-3 sm:p-4 lg:p-6;
+}
+
+/* Text responsive improvements */
+.text-responsive {
+  @apply text-sm sm:text-base;
+}
+
+.text-title-responsive {
+  @apply text-lg sm:text-xl lg:text-2xl;
+}
+
+.text-subtitle-responsive {
+  @apply text-sm sm:text-base;
+}
+
+/* Button responsive improvements */
+.btn-responsive {
+  @apply text-sm px-3 py-2 sm:px-4 sm:py-2;
+}
+
+/* Grid responsive improvements */
+.grid-responsive-2 {
+  @apply grid grid-cols-1 sm:grid-cols-2;
+}
+
+.grid-responsive-3 {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+}
+
+.grid-responsive-4 {
+  @apply grid grid-cols-2 lg:grid-cols-4;
+}
+
+/* Dialog responsive improvements */
+.dialog-responsive {
+  @apply w-full max-w-lg sm:max-w-2xl lg:max-w-4xl;
+}
+
+/* Form responsive improvements */
+.form-grid-responsive {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6;
+}
+
+/* Table responsive improvements */
+.table-responsive {
+  @apply text-xs sm:text-sm;
+}
+
+/* Badge responsive improvements */
+.badge-responsive {
+  @apply text-xs px-2 py-1;
+}
+
+/* Input responsive improvements */
+.input-responsive {
+  @apply text-sm p-2 sm:p-3;
+}
+
+/* Sidebar responsive improvements */
+@media (max-width: 768px) {
+  .sidebar-mobile-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 z-40;
+  }
+}
+
+/* Touch targets for mobile */
+@media (max-width: 768px) {
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  button, 
+  .btn,
+  [role="button"] {
+    @apply min-h-[44px];
+  }
+}
+
+/* Overflow handling for mobile */
+.mobile-overflow {
+  @apply overflow-x-auto;
+}
+
+.mobile-no-scroll {
+  @apply overflow-x-hidden;
+}
+
+/* Status indicators responsive */
+.status-indicator {
+  @apply w-2 h-2 sm:w-3 sm:h-3 rounded-full;
+}
+
+/* Avatar responsive */
+.avatar-responsive {
+  @apply w-8 h-8 sm:w-10 sm:h-10;
+}
+
+/* Icon responsive */
+.icon-responsive {
+  @apply w-4 h-4 sm:w-5 sm:h-5;
+}
+
+.icon-small-responsive {
+  @apply w-3 h-3 sm:w-4 sm:h-4;
+}
+
+/* Spacing responsive */
+.spacing-responsive {
+  @apply space-y-3 sm:space-y-4 lg:space-y-6;
+}
+
+.gap-responsive {
+  @apply gap-2 sm:gap-3 lg:gap-4;
+}
+
+/* Calendar responsive improvements */
+.calendar-responsive {
+  @apply w-full max-w-sm;
+}
+
+/* Search bar responsive */
+.search-responsive {
+  @apply w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg;
+}
+
+/* Card layout responsive */
+.card-layout-responsive {
+  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between;
+}
+
+/* Stats card responsive */
+.stats-card-responsive {
+  @apply p-3 sm:p-4 lg:p-6;
+}
+
+.stats-value-responsive {
+  @apply text-lg sm:text-xl lg:text-2xl;
+}
+
+.stats-title-responsive {
+  @apply text-xs sm:text-sm;
+}
+
+/* Navigation responsive */
+.nav-responsive {
+  @apply flex flex-col sm:flex-row sm:items-center;
+}
+
+/* Modal responsive */
+.modal-responsive {
+  @apply m-2 sm:m-4 lg:m-8;
+}
+
+/* Truncate text for mobile */
+.truncate-mobile {
+  @apply truncate sm:text-clip;
+}
+
+/* Hide on mobile */
+.hidden-mobile {
+  @apply hidden sm:block;
+}
+
+/* Show only on mobile */
+.mobile-only {
+  @apply block sm:hidden;
+}
+
+/* Flex responsive */
+.flex-responsive {
+  @apply flex flex-col sm:flex-row;
+}
+
+.flex-responsive-reverse {
+  @apply flex flex-col-reverse sm:flex-row;
+}
+
+/* Form field responsive */
+.form-field-responsive {
+  @apply space-y-1 sm:space-y-2;
+}
+
+/* Loading state responsive */
+.loading-responsive {
+  @apply w-4 h-4 sm:w-6 sm:h-6;
+}
+
+/* Progress indicator responsive */
+.progress-responsive {
+  @apply h-1 sm:h-2;
+}
+
+/* Dropdown responsive */
+.dropdown-responsive {
+  @apply w-full sm:w-auto min-w-[200px];
+}
+
+/* Alert responsive */
+.alert-responsive {
+  @apply p-3 sm:p-4 text-sm sm:text-base;
+}
+
+/* Toast responsive */
+.toast-responsive {
+  @apply text-sm sm:text-base;
+}
+
+/* Breadcrumb responsive */
+.breadcrumb-responsive {
+  @apply text-xs sm:text-sm;
+}
+
+/* Tag/Chip responsive */
+.tag-responsive {
+  @apply text-xs px-2 py-1 sm:px-3 sm:py-1;
+}
+
+/* Card grid responsive */
+.card-grid-responsive {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+}
+
+/* List item responsive */
+.list-item-responsive {
+  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4;
+}
+
+/* Header responsive */
+.header-responsive {
+  @apply h-14 sm:h-16 px-2 sm:px-4 lg:px-6;
+}
+
+/* Footer responsive */
+.footer-responsive {
+  @apply p-2 sm:p-4;
+}
