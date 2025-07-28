@@ -172,20 +172,6 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
         </div>
 
         <div className="flex items-center gap-1 sm:gap-3">
-          {/* Notifications */}
-          <div className="relative">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative h-8 w-8 sm:h-10 sm:w-10 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-            </Button>
-            <Badge className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-red-500 hover:bg-red-500 text-white text-xs flex items-center justify-center p-0">
-              3
-            </Badge>
-          </div>
-
           {/* User Profile */}
           <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-gray-200">
             <DropdownMenu>
@@ -205,8 +191,24 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem className="text-red-600 hover:bg-red-50 hover:text-red-600 focus:bg-red-50 focus:text-red-600 cursor-pointer">
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sair
+                  <div
+                    onClick={() => {
+                      window.open("", "_self");
+                      window.close();
+                      setTimeout(() => {
+                        window.location.href = "about:blank";
+                      }, 200);
+                    }}
+                    style={{
+                      cursor: "pointer",
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    <span>Sair</span>
+                  </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
