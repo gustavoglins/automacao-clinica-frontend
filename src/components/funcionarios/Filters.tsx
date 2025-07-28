@@ -43,7 +43,7 @@ export const Filters: React.FC<FiltersProps> = ({
   onOpenFilters,
   onOpenAddEmployee,
   filteredEmployeesCount,
-  totalEmployeesCount
+  totalEmployeesCount,
 }) => {
   const clearFilters = () => {
     onFiltersChange({
@@ -54,11 +54,12 @@ export const Filters: React.FC<FiltersProps> = ({
       dateRange: { start: null, end: null },
       status: "",
       location: "",
-      performance: ""
+      performance: "",
     });
   };
 
-  const hasActiveFilters = filters.search ||
+  const hasActiveFilters =
+    filters.search ||
     (filters.role && filters.role !== "all") ||
     (filters.specialty && filters.specialty !== "all") ||
     filters.showAll ||
@@ -77,13 +78,17 @@ export const Filters: React.FC<FiltersProps> = ({
             <Input
               placeholder="Buscar funcionário..."
               value={filters.search}
-              onChange={(e) => onFiltersChange({ ...filters, search: e.target.value })}
+              onChange={(e) =>
+                onFiltersChange({ ...filters, search: e.target.value })
+              }
               className="pl-10"
             />
           </div>
           <Select
             value={filters.role}
-            onValueChange={(value) => onFiltersChange({ ...filters, role: value })}
+            onValueChange={(value) =>
+              onFiltersChange({ ...filters, role: value })
+            }
           >
             <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="Cargo" />
@@ -97,7 +102,9 @@ export const Filters: React.FC<FiltersProps> = ({
           </Select>
           <Select
             value={filters.specialty}
-            onValueChange={(value) => onFiltersChange({ ...filters, specialty: value })}
+            onValueChange={(value) =>
+              onFiltersChange({ ...filters, specialty: value })
+            }
           >
             <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="Especialidade" />
@@ -125,47 +132,77 @@ export const Filters: React.FC<FiltersProps> = ({
 
       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
-          <span>Mostrando <strong>{filteredEmployeesCount}</strong> de <strong>{totalEmployeesCount}</strong> funcionários</span>
+          <span>
+            Total de funcionários cadastrados:{" "}
+            <strong>{filteredEmployeesCount}</strong>
+          </span>
           {hasActiveFilters && (
             <>
               <Separator orientation="vertical" className="h-4" />
               <div className="flex items-center gap-2">
                 <span>Filtros ativos:</span>
                 {filters.search && (
-                  <Badge variant={countBadge.variant} className={countBadge.className}>
+                  <Badge
+                    variant={countBadge.variant}
+                    className={countBadge.className}
+                  >
                     Busca: {filters.search}
                   </Badge>
                 )}
                 {filters.role && filters.role !== "all" && (
-                  <Badge variant={countBadge.variant} className={countBadge.className}>
+                  <Badge
+                    variant={countBadge.variant}
+                    className={countBadge.className}
+                  >
                     Cargo: {filters.role}
                   </Badge>
                 )}
                 {filters.specialty && filters.specialty !== "all" && (
-                  <Badge variant={countBadge.variant} className={countBadge.className}>
+                  <Badge
+                    variant={countBadge.variant}
+                    className={countBadge.className}
+                  >
                     Especialidade: {filters.specialty}
                   </Badge>
                 )}
                 {filters.status && filters.status !== "" && (
-                  <Badge variant={countBadge.variant} className={countBadge.className}>
+                  <Badge
+                    variant={countBadge.variant}
+                    className={countBadge.className}
+                  >
                     Status: {filters.status}
                   </Badge>
                 )}
                 {filters.location && filters.location !== "" && (
-                  <Badge variant={countBadge.variant} className={countBadge.className}>
+                  <Badge
+                    variant={countBadge.variant}
+                    className={countBadge.className}
+                  >
                     Localização: {filters.location}
                   </Badge>
                 )}
                 {filters.performance && filters.performance !== "" && (
-                  <Badge variant={countBadge.variant} className={countBadge.className}>
+                  <Badge
+                    variant={countBadge.variant}
+                    className={countBadge.className}
+                  >
                     Performance: {filters.performance}
                   </Badge>
                 )}
-                {filters.dateRange && (filters.dateRange.start || filters.dateRange.end) && (
-                  <Badge variant={countBadge.variant} className={countBadge.className}>
-                    Data: {filters.dateRange.start?.toLocaleDateString('pt-BR') || '...'} - {filters.dateRange.end?.toLocaleDateString('pt-BR') || '...'}
-                  </Badge>
-                )}
+                {filters.dateRange &&
+                  (filters.dateRange.start || filters.dateRange.end) && (
+                    <Badge
+                      variant={countBadge.variant}
+                      className={countBadge.className}
+                    >
+                      Data:{" "}
+                      {filters.dateRange.start?.toLocaleDateString("pt-BR") ||
+                        "..."}{" "}
+                      -{" "}
+                      {filters.dateRange.end?.toLocaleDateString("pt-BR") ||
+                        "..."}
+                    </Badge>
+                  )}
                 <Button
                   variant="ghost"
                   size="sm"

@@ -75,8 +75,8 @@ export const PatientsFilters: React.FC<PatientsFiltersProps> = ({
       <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <span>
-            Mostrando <strong>{filteredPatientsCount}</strong> de{" "}
-            <strong>{totalPatientsCount}</strong> pacientes
+            Total de pacientes cadastrados:{" "}
+            <strong>{filteredPatientsCount}</strong>
           </span>
           {hasActiveFilters && (
             <>
