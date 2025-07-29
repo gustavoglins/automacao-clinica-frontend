@@ -218,8 +218,25 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="patientId">Paciente *</Label>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between w-full">
+                    <Label htmlFor="patientId">Paciente *</Label>
+                    <Button
+                      type="button"
+                      variant="link"
+                      size="xs"
+                      className="text-primary underline p-0 h-auto min-h-0"
+                      onClick={() => {
+                        if (window.dispatchEvent) {
+                          window.dispatchEvent(
+                            new CustomEvent("openAddPatientDialog")
+                          );
+                        }
+                      }}
+                    >
+                      Novo Paciente
+                    </Button>
+                  </div>
                   <Select
                     value={formData.patientId}
                     onValueChange={async (value) => {
@@ -244,7 +261,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                   </Select>
                 </div>
 
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2 justify-end h-full">
                   <Label htmlFor="phone">Telefone *</Label>
                   <Input
                     id="phone"
@@ -273,48 +290,86 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="serviceId">Serviço *</Label>
-                  <Select
-                    value={formData.serviceId}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, serviceId: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o serviço" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {services.map((service) => (
-                        <SelectItem
-                          key={service.id}
-                          value={service.id.toString()}
-                        >
-                          {service.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center justify-between w-full">
+                    <Label htmlFor="serviceId">Serviço *</Label>
+                    <Button
+                      type="button"
+                      variant="link"
+                      size="xs"
+                      className="text-primary underline p-0 h-auto min-h-0"
+                      onClick={() => {
+                        if (window.dispatchEvent) {
+                          window.dispatchEvent(
+                            new CustomEvent("openAddServiceDialog")
+                          );
+                        }
+                      }}
+                    >
+                      Novo Serviço
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Select
+                      value={formData.serviceId}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, serviceId: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o serviço" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {services.map((service) => (
+                          <SelectItem
+                            key={service.id}
+                            value={service.id.toString()}
+                          >
+                            {service.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="employeeId">Profissional *</Label>
-                  <Select
-                    value={formData.employeeId}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, employeeId: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o profissional" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {employees.map((employee) => (
-                        <SelectItem key={employee.id} value={employee.id}>
-                          {employee.fullName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center justify-between w-full">
+                    <Label htmlFor="employeeId">Profissional *</Label>
+                    <Button
+                      type="button"
+                      variant="link"
+                      size="xs"
+                      className="text-primary underline p-0 h-auto min-h-0"
+                      onClick={() => {
+                        if (window.dispatchEvent) {
+                          window.dispatchEvent(
+                            new CustomEvent("openAddEmployeeDialog")
+                          );
+                        }
+                      }}
+                    >
+                      Novo Profissional
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Select
+                      value={formData.employeeId}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, employeeId: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o profissional" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {employees.map((employee) => (
+                          <SelectItem key={employee.id} value={employee.id}>
+                            {employee.fullName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             </CardContent>

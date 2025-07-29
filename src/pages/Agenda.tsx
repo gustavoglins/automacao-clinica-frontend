@@ -32,6 +32,9 @@ import {
   FilterDialog,
   AppointmentProfileDialog,
 } from "@/components/agenda";
+import { AddEmployeeDialog } from "@/components/funcionarios";
+import { ServiceFormDialog } from "@/components/servicos";
+import { AddPatientDialog } from "@/components/pacientes";
 import { toast } from "sonner";
 import { appointmentService } from "@/services/appointmentService";
 import {
@@ -52,6 +55,31 @@ const Agenda = () => {
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
   const [openAddAppointmentDialog, setOpenAddAppointmentDialog] =
     useState(false);
+  const [openAddPatientDialog, setOpenAddPatientDialog] = useState(false);
+  const [openAddServiceDialog, setOpenAddServiceDialog] = useState(false);
+  const [openAddEmployeeDialog, setOpenAddEmployeeDialog] = useState(false);
+  const [serviceFormData, setServiceFormData] = useState({
+    name: "",
+    description: "",
+    price: "",
+    duration: "",
+    category: "",
+    isActive: true,
+  });
+  // Escuta evento para abrir o dialog de novo paciente
+  useEffect(() => {
+    const handlerPatient = () => setOpenAddPatientDialog(true);
+    const handlerService = () => setOpenAddServiceDialog(true);
+    const handlerEmployee = () => setOpenAddEmployeeDialog(true);
+    window.addEventListener("openAddPatientDialog", handlerPatient);
+    window.addEventListener("openAddServiceDialog", handlerService);
+    window.addEventListener("openAddEmployeeDialog", handlerEmployee);
+    return () => {
+      window.removeEventListener("openAddPatientDialog", handlerPatient);
+      window.removeEventListener("openAddServiceDialog", handlerService);
+      window.removeEventListener("openAddEmployeeDialog", handlerEmployee);
+    };
+  }, []);
   const [filterStatus, setFilterStatus] = useState("");
   const [filterDoctor, setFilterDoctor] = useState("");
   const [filterTimeRange, setFilterTimeRange] = useState("");
@@ -305,10 +333,6 @@ const Agenda = () => {
 
             <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <span>
-                  Mostrando <strong>{filteredAppointments.length}</strong> de{" "}
-                  <strong>{appointments.length}</strong> consultas
-                </span>
                 {(search || filterStatus || filterDoctor) && (
                   <>
                     <Separator orientation="vertical" className="h-4" />
@@ -500,6 +524,37 @@ const Agenda = () => {
           open={openAddAppointmentDialog}
           onOpenChange={setOpenAddAppointmentDialog}
           onAddAppointment={handleAddAppointment}
+        />
+
+        <AddPatientDialog
+          open={openAddPatientDialog}
+          onOpenChange={setOpenAddPatientDialog}
+          onAddPatient={async (patient) => {
+            setOpenAddPatientDialog(false);
+            toast.success("Paciente cadastrado com sucesso!");
+          }}
+        />
+
+        <ServiceFormDialog
+          isOpen={openAddServiceDialog}
+          onOpenChange={setOpenAddServiceDialog}
+          title="Novo Serviço"
+          formData={serviceFormData}
+          onFormDataChange={setServiceFormData}
+          onSubmit={() => {
+            setOpenAddServiceDialog(false);
+            toast.success("Serviço cadastrado com sucesso!");
+          }}
+          onCancel={() => setOpenAddServiceDialog(false)}
+        />
+
+        <AddEmployeeDialog
+          isOpen={openAddEmployeeDialog}
+          onClose={() => setOpenAddEmployeeDialog(false)}
+          onEmployeeAdded={() => {
+            setOpenAddEmployeeDialog(false);
+            toast.success("Profissional cadastrado com sucesso!");
+          }}
         />
 
         <AppointmentProfileDialog
