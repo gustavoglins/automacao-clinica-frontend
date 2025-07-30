@@ -95,9 +95,37 @@ export const Filters: React.FC<FiltersProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os cargos</SelectItem>
-              <SelectItem value="Dentista">Dentista</SelectItem>
-              <SelectItem value="Auxiliar">Auxiliar</SelectItem>
-              <SelectItem value="Recepcionista">Recepcionista</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="diretor">Diretor</SelectItem>
+              <SelectItem value="gerente">Gerente</SelectItem>
+              <SelectItem value="coordenador">Coordenador</SelectItem>
+              <SelectItem value="dentista">Dentista</SelectItem>
+              <SelectItem value="ortodontista">Ortodontista</SelectItem>
+              <SelectItem value="endodontista">Endodontista</SelectItem>
+              <SelectItem value="periodontista">Periodontista</SelectItem>
+              <SelectItem value="implantodontista">Implantodontista</SelectItem>
+              <SelectItem value="protesista">Protesista</SelectItem>
+              <SelectItem value="odontopediatra">Odontopediatra</SelectItem>
+              <SelectItem value="cirurgiao_buco_maxilo">
+                Cirurgião Buco Maxilo
+              </SelectItem>
+              <SelectItem value="higienista">Higienista</SelectItem>
+              <SelectItem value="auxiliar_saude_bucal">
+                Auxiliar Saúde Bucal
+              </SelectItem>
+              <SelectItem value="tecnico_saude_bucal">
+                Técnico Saúde Bucal
+              </SelectItem>
+              <SelectItem value="recepcionista">Recepcionista</SelectItem>
+              <SelectItem value="atendente">Atendente</SelectItem>
+              <SelectItem value="secretaria">Secretária</SelectItem>
+              <SelectItem value="financeiro">Financeiro</SelectItem>
+              <SelectItem value="estoquista">Estoquista</SelectItem>
+              <SelectItem value="limpeza">Limpeza</SelectItem>
+              <SelectItem value="estagiario">Estagiário</SelectItem>
+              <SelectItem value="suporte_tecnico">Suporte Técnico</SelectItem>
+              <SelectItem value="marketing">Marketing</SelectItem>
+              <SelectItem value="rh">RH</SelectItem>
             </SelectContent>
           </Select>
           <Select
@@ -111,10 +139,55 @@ export const Filters: React.FC<FiltersProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas especialidades</SelectItem>
-              <SelectItem value="Ortodontia">Ortodontia</SelectItem>
-              <SelectItem value="Endodontia">Endodontia</SelectItem>
-              <SelectItem value="Periodontia">Periodontia</SelectItem>
-              <SelectItem value="Implantodontia">Implantodontia</SelectItem>
+              <SelectItem value="clinico_geral">Clínico Geral</SelectItem>
+              <SelectItem value="ortodontista">Ortodontista</SelectItem>
+              <SelectItem value="endodontista">Endodontista</SelectItem>
+              <SelectItem value="implantodontista">Implantodontista</SelectItem>
+              <SelectItem value="periodontista">Periodontista</SelectItem>
+              <SelectItem value="protesista">Protesista</SelectItem>
+              <SelectItem value="odontopediatra">Odontopediatra</SelectItem>
+              <SelectItem value="cirurgiao_buco_maxilo">
+                Cirurgião Buco Maxilo
+              </SelectItem>
+              <SelectItem value="radiologista">Radiologista</SelectItem>
+              <SelectItem value="patologista_bucal">
+                Patologista Bucal
+              </SelectItem>
+              <SelectItem value="dentistica">Dentística</SelectItem>
+              <SelectItem value="estomatologista">Estomatologista</SelectItem>
+              <SelectItem value="disfuncoes_temporomandibulares">
+                Disfunções Temporomandibulares
+              </SelectItem>
+              <SelectItem value="odontogeriatra">Odontogeriatra</SelectItem>
+              <SelectItem value="odontologia_do_trabalho">
+                Odontologia do Trabalho
+              </SelectItem>
+              <SelectItem value="odontologia_legal">
+                Odontologia Legal
+              </SelectItem>
+              <SelectItem value="odontologia_hospitalar">
+                Odontologia Hospitalar
+              </SelectItem>
+              <SelectItem value="odontologia_do_esporte">
+                Odontologia do Esporte
+              </SelectItem>
+              <SelectItem value="necessidades_especiais">
+                Necessidades Especiais
+              </SelectItem>
+              <SelectItem value="ortopedia_funcional">
+                Ortopedia Funcional
+              </SelectItem>
+              <SelectItem value="saude_coletiva">Saúde Coletiva</SelectItem>
+              <SelectItem value="acupuntura_odonto">
+                Acupuntura Odontológica
+              </SelectItem>
+              <SelectItem value="homeopatia_odonto">
+                Homeopatia Odontológica
+              </SelectItem>
+              <SelectItem value="laserterapia">Laserterapia</SelectItem>
+              <SelectItem value="odontologia_estetica">
+                Odontologia Estética
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>

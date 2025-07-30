@@ -20,7 +20,14 @@ import {
 } from "@/components/ui/select";
 import { employeeService } from "@/services/employeeService";
 import { toast } from "sonner";
-import { applyPhoneMask, applyCpfMask, onlyNumbers, isValidPhone, isValidCpf, getPhoneInfo } from "@/lib/utils";
+import {
+  applyPhoneMask,
+  applyCpfMask,
+  onlyNumbers,
+  isValidPhone,
+  isValidCpf,
+  getPhoneInfo,
+} from "@/lib/utils";
 import { X, Check } from "lucide-react";
 
 interface AddEmployeeDialogProps {
@@ -32,7 +39,7 @@ interface AddEmployeeDialogProps {
 export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   isOpen,
   onClose,
-  onEmployeeAdded
+  onEmployeeAdded,
 }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -52,7 +59,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     notes: "",
     workDays: ["Seg", "Ter", "Qua", "Qui", "Sex"], // Dias de trabalho padrão
     startHour: "08:00",
-    endHour: "18:00"
+    endHour: "18:00",
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -75,7 +82,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
       notes: "",
       workDays: ["Seg", "Ter", "Qua", "Qui", "Sex"],
       startHour: "08:00",
-      endHour: "18:00"
+      endHour: "18:00",
     });
   };
 
@@ -91,19 +98,19 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
 
     // Validar CPF se fornecido
     if (formData.cpf && !isValidCpf(formData.cpf)) {
-      toast.error('CPF inválido');
+      toast.error("CPF inválido");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      console.log('📝 Dados do formulário:', formData);
-      
+      console.log("📝 Dados do formulário:", formData);
+
       // Convert salary to number
       const employeeData = {
         fullName: formData.name,
-        cpf: formData.cpf ? formData.cpf.replace(/\D/g, '') : '', // Limpar CPF
+        cpf: formData.cpf ? formData.cpf.replace(/\D/g, "") : "", // Limpar CPF
         role: formData.role,
         status: formData.status,
         specialty: formData.specialty || undefined,
@@ -114,28 +121,28 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         hiredAt: formData.hireDate,
         workDays: formData.workDays,
         startHour: formData.startHour,
-        endHour: formData.endHour
+        endHour: formData.endHour,
       };
 
-      console.log('🔧 Dados processados para o serviço:', employeeData);
+      console.log("🔧 Dados processados para o serviço:", employeeData);
 
       // Validate form data
       const validation = employeeService.validateEmployeeData(employeeData);
       if (!validation.isValid) {
-        console.error('❌ Validação falhou:', validation.errors);
+        console.error("❌ Validação falhou:", validation.errors);
         toast.error(validation.errors[0]);
         return;
       }
 
-      console.log('✅ Validação passou, criando funcionário...');
+      console.log("✅ Validação passou, criando funcionário...");
       await employeeService.createEmployeeWithSchedule(employeeData);
-      console.log('✅ Funcionário criado com sucesso!');
-      
+      console.log("✅ Funcionário criado com sucesso!");
+
       onEmployeeAdded();
       resetForm();
       onClose();
     } catch (error) {
-      console.error('❌ Erro no formulário:', error);
+      console.error("❌ Erro no formulário:", error);
       // Error handling is already done in the service
     } finally {
       setIsLoading(false);
@@ -146,13 +153,13 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     if (field === "phone") {
       // Aplicar máscara de telefone
       const maskedValue = applyPhoneMask(value as string);
-      setFormData(prev => ({ ...prev, [field]: maskedValue }));
+      setFormData((prev) => ({ ...prev, [field]: maskedValue }));
     } else if (field === "cpf") {
       // Aplicar máscara de CPF
       const maskedValue = applyCpfMask(value as string);
-      setFormData(prev => ({ ...prev, [field]: maskedValue }));
+      setFormData((prev) => ({ ...prev, [field]: maskedValue }));
     } else {
-      setFormData(prev => ({ ...prev, [field]: value }));
+      setFormData((prev) => ({ ...prev, [field]: value }));
     }
   };
 
@@ -161,8 +168,18 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3">
           <DialogTitle className="flex items-center gap-2 text-xl">
-            <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            <svg
+              className="w-5 h-5 text-primary"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
             </svg>
             Novo Funcionário
           </DialogTitle>
@@ -176,8 +193,18 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <svg
+                  className="w-5 h-5 text-primary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
                 </svg>
                 Informações Pessoais
               </CardTitle>
@@ -196,16 +223,55 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
 
                 <div className="space-y-2">
                   <Label htmlFor="role">Cargo *</Label>
-                  <Select value={formData.role} onValueChange={(value) => handleChange("role", value)}>
+                  <Select
+                    value={formData.role}
+                    onValueChange={(value) => handleChange("role", value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o cargo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Dentista">Dentista</SelectItem>
-                      <SelectItem value="Assistente">Assistente</SelectItem>
-                      <SelectItem value="Recepcionista">Recepcionista</SelectItem>
-                      <SelectItem value="Gerente">Gerente</SelectItem>
-                      <SelectItem value="Auxiliar">Auxiliar</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="diretor">Diretor</SelectItem>
+                      <SelectItem value="gerente">Gerente</SelectItem>
+                      <SelectItem value="coordenador">Coordenador</SelectItem>
+                      <SelectItem value="dentista">Dentista</SelectItem>
+                      <SelectItem value="ortodontista">Ortodontista</SelectItem>
+                      <SelectItem value="endodontista">Endodontista</SelectItem>
+                      <SelectItem value="periodontista">
+                        Periodontista
+                      </SelectItem>
+                      <SelectItem value="implantodontista">
+                        Implantodontista
+                      </SelectItem>
+                      <SelectItem value="protesista">Protesista</SelectItem>
+                      <SelectItem value="odontopediatra">
+                        Odontopediatra
+                      </SelectItem>
+                      <SelectItem value="cirurgiao_buco_maxilo">
+                        Cirurgião Buco Maxilo
+                      </SelectItem>
+                      <SelectItem value="higienista">Higienista</SelectItem>
+                      <SelectItem value="auxiliar_saude_bucal">
+                        Auxiliar Saúde Bucal
+                      </SelectItem>
+                      <SelectItem value="tecnico_saude_bucal">
+                        Técnico Saúde Bucal
+                      </SelectItem>
+                      <SelectItem value="recepcionista">
+                        Recepcionista
+                      </SelectItem>
+                      <SelectItem value="atendente">Atendente</SelectItem>
+                      <SelectItem value="secretaria">Secretária</SelectItem>
+                      <SelectItem value="financeiro">Financeiro</SelectItem>
+                      <SelectItem value="estoquista">Estoquista</SelectItem>
+                      <SelectItem value="limpeza">Limpeza</SelectItem>
+                      <SelectItem value="estagiario">Estagiário</SelectItem>
+                      <SelectItem value="suporte_tecnico">
+                        Suporte Técnico
+                      </SelectItem>
+                      <SelectItem value="marketing">Marketing</SelectItem>
+                      <SelectItem value="rh">RH</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -216,19 +282,78 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                   <Label htmlFor="specialty">Especialidade</Label>
                   <Select
                     value={formData.specialty || undefined}
-                    onValueChange={(value) => handleChange("specialty", value === "none" ? "" : value)}
+                    onValueChange={(value) =>
+                      handleChange("specialty", value === "none" ? "" : value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a especialidade" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">Nenhuma</SelectItem>
-                      <SelectItem value="Ortodontia">Ortodontia</SelectItem>
-                      <SelectItem value="Endodontia">Endodontia</SelectItem>
-                      <SelectItem value="Periodontia">Periodontia</SelectItem>
-                      <SelectItem value="Implantodontia">Implantodontia</SelectItem>
-                      <SelectItem value="Cirurgia Oral">Cirurgia Oral</SelectItem>
-                      <SelectItem value="Clínica Geral">Clínica Geral</SelectItem>
+                      <SelectItem value="clinico_geral">
+                        Clínico Geral
+                      </SelectItem>
+                      <SelectItem value="ortodontista">Ortodontista</SelectItem>
+                      <SelectItem value="endodontista">Endodontista</SelectItem>
+                      <SelectItem value="implantodontista">
+                        Implantodontista
+                      </SelectItem>
+                      <SelectItem value="periodontista">
+                        Periodontista
+                      </SelectItem>
+                      <SelectItem value="protesista">Protesista</SelectItem>
+                      <SelectItem value="odontopediatra">
+                        Odontopediatra
+                      </SelectItem>
+                      <SelectItem value="cirurgiao_buco_maxilo">
+                        Cirurgião Buco Maxilo
+                      </SelectItem>
+                      <SelectItem value="radiologista">Radiologista</SelectItem>
+                      <SelectItem value="patologista_bucal">
+                        Patologista Bucal
+                      </SelectItem>
+                      <SelectItem value="dentistica">Dentística</SelectItem>
+                      <SelectItem value="estomatologista">
+                        Estomatologista
+                      </SelectItem>
+                      <SelectItem value="disfuncoes_temporomandibulares">
+                        Disfunções Temporomandibulares
+                      </SelectItem>
+                      <SelectItem value="odontogeriatra">
+                        Odontogeriatra
+                      </SelectItem>
+                      <SelectItem value="odontologia_do_trabalho">
+                        Odontologia do Trabalho
+                      </SelectItem>
+                      <SelectItem value="odontologia_legal">
+                        Odontologia Legal
+                      </SelectItem>
+                      <SelectItem value="odontologia_hospitalar">
+                        Odontologia Hospitalar
+                      </SelectItem>
+                      <SelectItem value="odontologia_do_esporte">
+                        Odontologia do Esporte
+                      </SelectItem>
+                      <SelectItem value="necessidades_especiais">
+                        Necessidades Especiais
+                      </SelectItem>
+                      <SelectItem value="ortopedia_funcional">
+                        Ortopedia Funcional
+                      </SelectItem>
+                      <SelectItem value="saude_coletiva">
+                        Saúde Coletiva
+                      </SelectItem>
+                      <SelectItem value="acupuntura_odonto">
+                        Acupuntura Odontológica
+                      </SelectItem>
+                      <SelectItem value="homeopatia_odonto">
+                        Homeopatia Odontológica
+                      </SelectItem>
+                      <SelectItem value="laserterapia">Laserterapia</SelectItem>
+                      <SelectItem value="odontologia_estetica">
+                        Odontologia Estética
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -251,8 +376,18 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                <svg
+                  className="w-5 h-5 text-primary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
                 </svg>
                 Informações de Contato
               </CardTitle>
@@ -300,7 +435,9 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                   <Input
                     id="registrationNumber"
                     value={formData.registrationNumber}
-                    onChange={(e) => handleChange("registrationNumber", e.target.value)}
+                    onChange={(e) =>
+                      handleChange("registrationNumber", e.target.value)
+                    }
                     placeholder="CRO, COREM, etc."
                   />
                 </div>
@@ -312,10 +449,38 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <rect x="3" y="7" width="18" height="12" rx="2" ry="2" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" />
-                  <line x1="12" y1="11" x2="12" y2="15" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                <svg
+                  className="w-5 h-5 text-primary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <rect
+                    x="3"
+                    y="7"
+                    width="18"
+                    height="12"
+                    rx="2"
+                    ry="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"
+                  />
+                  <line
+                    x1="12"
+                    y1="11"
+                    x2="12"
+                    y2="15"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                  />
                 </svg>
                 Informações Profissionais
               </CardTitle>
@@ -336,7 +501,10 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
 
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) => handleChange("status", value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o status" />
                     </SelectTrigger>
@@ -355,8 +523,18 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                <svg
+                  className="w-5 h-5 text-primary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
                 </svg>
                 Observações
               </CardTitle>
@@ -379,8 +557,18 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-5 h-5 text-primary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 Horários de Trabalho
               </CardTitle>
@@ -389,27 +577,30 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
               <div className="space-y-2">
                 <Label>Dias de Trabalho *</Label>
                 <div className="flex flex-wrap gap-2">
-                  {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(day => {
-                    const selected = formData.workDays.includes(day);
-                    return (
-                      <button
-                        key={day}
-                        type="button"
-                        className={`px-3 py-1 rounded-full border text-sm transition-colors ${selected
-                          ? 'bg-primary text-white border-primary shadow'
-                          : 'bg-muted text-foreground border-muted-foreground hover:bg-primary/10'
+                  {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map(
+                    (day) => {
+                      const selected = formData.workDays.includes(day);
+                      return (
+                        <button
+                          key={day}
+                          type="button"
+                          className={`px-3 py-1 rounded-full border text-sm transition-colors ${
+                            selected
+                              ? "bg-primary text-white border-primary shadow"
+                              : "bg-muted text-foreground border-muted-foreground hover:bg-primary/10"
                           }`}
-                        onClick={() => {
-                          const workDays = formData.workDays.includes(day)
-                            ? formData.workDays.filter(d => d !== day)
-                            : [...formData.workDays, day];
-                          handleChange("workDays", workDays);
-                        }}
-                      >
-                        {day}
-                      </button>
-                    );
-                  })}
+                          onClick={() => {
+                            const workDays = formData.workDays.includes(day)
+                              ? formData.workDays.filter((d) => d !== day)
+                              : [...formData.workDays, day];
+                            handleChange("workDays", workDays);
+                          }}
+                        >
+                          {day}
+                        </button>
+                      );
+                    }
+                  )}
                 </div>
               </div>
 
@@ -453,7 +644,14 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
             </Button>
             <Button
               type="submit"
-              disabled={isLoading || !formData.name || !formData.role || !formData.phone || !formData.email || !formData.hireDate}
+              disabled={
+                isLoading ||
+                !formData.name ||
+                !formData.role ||
+                !formData.phone ||
+                !formData.email ||
+                !formData.hireDate
+              }
               className="min-w-[120px] flex items-center gap-2"
             >
               {isLoading ? (

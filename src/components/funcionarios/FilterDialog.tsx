@@ -41,18 +41,18 @@ interface FilterDialogProps {
 export const FilterDialog: React.FC<FilterDialogProps> = ({
   isOpen,
   onClose,
-  onApplyFilters
+  onApplyFilters,
 }) => {
   const [filters, setFilters] = useState({
     dateRange: {
       start: null as Date | null,
-      end: null as Date | null
+      end: null as Date | null,
     },
     role: "",
     specialty: "",
     status: "",
     location: "",
-    performance: ""
+    performance: "",
   });
 
   const handleApply = () => {
@@ -67,7 +67,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
       specialty: "",
       status: "",
       location: "",
-      performance: ""
+      performance: "",
     };
     setFilters(clearedFilters);
     onApplyFilters(clearedFilters);
@@ -101,11 +101,22 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
                   <Label>Data Inicial</Label>
                   <Input
                     type="date"
-                    value={filters.dateRange.start ? filters.dateRange.start.toISOString().split('T')[0] : ''}
-                    onChange={(e) => setFilters(prev => ({
-                      ...prev,
-                      dateRange: { ...prev.dateRange, start: e.target.value ? new Date(e.target.value) : null }
-                    }))}
+                    value={
+                      filters.dateRange.start
+                        ? filters.dateRange.start.toISOString().split("T")[0]
+                        : ""
+                    }
+                    onChange={(e) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        dateRange: {
+                          ...prev.dateRange,
+                          start: e.target.value
+                            ? new Date(e.target.value)
+                            : null,
+                        },
+                      }))
+                    }
                     placeholder="Selecione a data inicial"
                   />
                 </div>
@@ -113,11 +124,20 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
                   <Label>Data Final</Label>
                   <Input
                     type="date"
-                    value={filters.dateRange.end ? filters.dateRange.end.toISOString().split('T')[0] : ''}
-                    onChange={(e) => setFilters(prev => ({
-                      ...prev,
-                      dateRange: { ...prev.dateRange, end: e.target.value ? new Date(e.target.value) : null }
-                    }))}
+                    value={
+                      filters.dateRange.end
+                        ? filters.dateRange.end.toISOString().split("T")[0]
+                        : ""
+                    }
+                    onChange={(e) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        dateRange: {
+                          ...prev.dateRange,
+                          end: e.target.value ? new Date(e.target.value) : null,
+                        },
+                      }))
+                    }
                     placeholder="Selecione a data final"
                   />
                 </div>
@@ -139,18 +159,59 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
                   <Label>Cargo</Label>
                   <Select
                     value={filters.role || undefined}
-                    onValueChange={(value) => setFilters(prev => ({ ...prev, role: value === "all" ? "" : value }))}
+                    onValueChange={(value) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        role: value === "all" ? "" : value,
+                      }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Todos os cargos" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todos os cargos</SelectItem>
-                      <SelectItem value="Dentista">Dentista</SelectItem>
-                      <SelectItem value="Assistente">Assistente</SelectItem>
-                      <SelectItem value="Recepcionista">Recepcionista</SelectItem>
-                      <SelectItem value="Gerente">Gerente</SelectItem>
-                      <SelectItem value="Auxiliar">Auxiliar</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="diretor">Diretor</SelectItem>
+                      <SelectItem value="gerente">Gerente</SelectItem>
+                      <SelectItem value="coordenador">Coordenador</SelectItem>
+                      <SelectItem value="dentista">Dentista</SelectItem>
+                      <SelectItem value="ortodontista">Ortodontista</SelectItem>
+                      <SelectItem value="endodontista">Endodontista</SelectItem>
+                      <SelectItem value="periodontista">
+                        Periodontista
+                      </SelectItem>
+                      <SelectItem value="implantodontista">
+                        Implantodontista
+                      </SelectItem>
+                      <SelectItem value="protesista">Protesista</SelectItem>
+                      <SelectItem value="odontopediatra">
+                        Odontopediatra
+                      </SelectItem>
+                      <SelectItem value="cirurgiao_buco_maxilo">
+                        Cirurgião Buco Maxilo
+                      </SelectItem>
+                      <SelectItem value="higienista">Higienista</SelectItem>
+                      <SelectItem value="auxiliar_saude_bucal">
+                        Auxiliar Saúde Bucal
+                      </SelectItem>
+                      <SelectItem value="tecnico_saude_bucal">
+                        Técnico Saúde Bucal
+                      </SelectItem>
+                      <SelectItem value="recepcionista">
+                        Recepcionista
+                      </SelectItem>
+                      <SelectItem value="atendente">Atendente</SelectItem>
+                      <SelectItem value="secretaria">Secretária</SelectItem>
+                      <SelectItem value="financeiro">Financeiro</SelectItem>
+                      <SelectItem value="estoquista">Estoquista</SelectItem>
+                      <SelectItem value="limpeza">Limpeza</SelectItem>
+                      <SelectItem value="estagiario">Estagiário</SelectItem>
+                      <SelectItem value="suporte_tecnico">
+                        Suporte Técnico
+                      </SelectItem>
+                      <SelectItem value="marketing">Marketing</SelectItem>
+                      <SelectItem value="rh">RH</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -158,19 +219,83 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
                   <Label>Especialidade</Label>
                   <Select
                     value={filters.specialty || undefined}
-                    onValueChange={(value) => setFilters(prev => ({ ...prev, specialty: value === "all" ? "" : value }))}
+                    onValueChange={(value) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        specialty: value === "all" ? "" : value,
+                      }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Todas as especialidades" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todas as especialidades</SelectItem>
-                      <SelectItem value="Ortodontia">Ortodontia</SelectItem>
-                      <SelectItem value="Endodontia">Endodontia</SelectItem>
-                      <SelectItem value="Periodontia">Periodontia</SelectItem>
-                      <SelectItem value="Implantodontia">Implantodontia</SelectItem>
-                      <SelectItem value="Cirurgia Oral">Cirurgia Oral</SelectItem>
-                      <SelectItem value="Clínica Geral">Clínica Geral</SelectItem>
+                      <SelectItem value="all">
+                        Todas as especialidades
+                      </SelectItem>
+                      <SelectItem value="clinico_geral">
+                        Clínico Geral
+                      </SelectItem>
+                      <SelectItem value="ortodontista">Ortodontista</SelectItem>
+                      <SelectItem value="endodontista">Endodontista</SelectItem>
+                      <SelectItem value="implantodontista">
+                        Implantodontista
+                      </SelectItem>
+                      <SelectItem value="periodontista">
+                        Periodontista
+                      </SelectItem>
+                      <SelectItem value="protesista">Protesista</SelectItem>
+                      <SelectItem value="odontopediatra">
+                        Odontopediatra
+                      </SelectItem>
+                      <SelectItem value="cirurgiao_buco_maxilo">
+                        Cirurgião Buco Maxilo
+                      </SelectItem>
+                      <SelectItem value="radiologista">Radiologista</SelectItem>
+                      <SelectItem value="patologista_bucal">
+                        Patologista Bucal
+                      </SelectItem>
+                      <SelectItem value="dentistica">Dentística</SelectItem>
+                      <SelectItem value="estomatologista">
+                        Estomatologista
+                      </SelectItem>
+                      <SelectItem value="disfuncoes_temporomandibulares">
+                        Disfunções Temporomandibulares
+                      </SelectItem>
+                      <SelectItem value="odontogeriatra">
+                        Odontogeriatra
+                      </SelectItem>
+                      <SelectItem value="odontologia_do_trabalho">
+                        Odontologia do Trabalho
+                      </SelectItem>
+                      <SelectItem value="odontologia_legal">
+                        Odontologia Legal
+                      </SelectItem>
+                      <SelectItem value="odontologia_hospitalar">
+                        Odontologia Hospitalar
+                      </SelectItem>
+                      <SelectItem value="odontologia_do_esporte">
+                        Odontologia do Esporte
+                      </SelectItem>
+                      <SelectItem value="necessidades_especiais">
+                        Necessidades Especiais
+                      </SelectItem>
+                      <SelectItem value="ortopedia_funcional">
+                        Ortopedia Funcional
+                      </SelectItem>
+                      <SelectItem value="saude_coletiva">
+                        Saúde Coletiva
+                      </SelectItem>
+                      <SelectItem value="acupuntura_odonto">
+                        Acupuntura Odontológica
+                      </SelectItem>
+                      <SelectItem value="homeopatia_odonto">
+                        Homeopatia Odontológica
+                      </SelectItem>
+                      <SelectItem value="laserterapia">Laserterapia</SelectItem>
+                      <SelectItem value="odontologia_estetica">
+                        Odontologia Estética
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -192,7 +317,12 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
                   <Label>Status</Label>
                   <Select
                     value={filters.status || undefined}
-                    onValueChange={(value) => setFilters(prev => ({ ...prev, status: value === "all" ? "" : value }))}
+                    onValueChange={(value) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        status: value === "all" ? "" : value,
+                      }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Todos os status" />
@@ -210,16 +340,27 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
                   <Label>Localização</Label>
                   <Select
                     value={filters.location || undefined}
-                    onValueChange={(value) => setFilters(prev => ({ ...prev, location: value === "all" ? "" : value }))}
+                    onValueChange={(value) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        location: value === "all" ? "" : value,
+                      }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Todas as localizações" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todas as localizações</SelectItem>
-                      <SelectItem value="Unidade Centro">Unidade Centro</SelectItem>
-                      <SelectItem value="Unidade Zona Norte">Unidade Zona Norte</SelectItem>
-                      <SelectItem value="Unidade Zona Sul">Unidade Zona Sul</SelectItem>
+                      <SelectItem value="Unidade Centro">
+                        Unidade Centro
+                      </SelectItem>
+                      <SelectItem value="Unidade Zona Norte">
+                        Unidade Zona Norte
+                      </SelectItem>
+                      <SelectItem value="Unidade Zona Sul">
+                        Unidade Zona Sul
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -240,7 +381,12 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
                 <Label>Nível de Performance</Label>
                 <Select
                   value={filters.performance || undefined}
-                  onValueChange={(value) => setFilters(prev => ({ ...prev, performance: value === "all" ? "" : value }))}
+                  onValueChange={(value) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      performance: value === "all" ? "" : value,
+                    }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Todos os níveis" />
@@ -263,9 +409,7 @@ export const FilterDialog: React.FC<FilterDialogProps> = ({
             <Button variant="classic" onClick={handleClear}>
               Limpar Filtros
             </Button>
-            <Button onClick={handleApply}>
-              Aplicar Filtros
-            </Button>
+            <Button onClick={handleApply}>Aplicar Filtros</Button>
           </div>
         </div>
       </DialogContent>
