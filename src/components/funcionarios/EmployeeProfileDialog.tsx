@@ -24,10 +24,15 @@ import {
   ChevronRight,
   MapPin,
   DollarSign,
-  X
+  X,
 } from "lucide-react";
 import type { Employee } from "@/types/employee";
-import { formatPhone, formatRole, formatSpecialty, formatStatus } from "@/lib/utils";
+import {
+  formatPhone,
+  formatRole,
+  formatSpecialty,
+  formatStatus,
+} from "@/lib/utils";
 import { getEmployeeStatusBadge, getSpecialtyBadge } from "@/lib/badgeUtils";
 
 interface EmployeeProfileDialogProps {
@@ -43,10 +48,12 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
   isOpen,
   onClose,
   onOpenEdit,
-  onOpenDelete
+  onOpenDelete,
 }) => {
   const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    new Date()
+  );
 
   if (!employee) return null;
 
@@ -61,26 +68,28 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
       return `${diffDays} dias`;
     } else if (diffDays < 365) {
       const months = Math.floor(diffDays / 30);
-      return `${months} ${months === 1 ? 'mês' : 'meses'}`;
+      return `${months} ${months === 1 ? "mês" : "meses"}`;
     } else {
       const years = Math.floor(diffDays / 365);
       const remainingMonths = Math.floor((diffDays % 365) / 30);
       if (remainingMonths === 0) {
-        return `${years} ${years === 1 ? 'ano' : 'anos'}`;
+        return `${years} ${years === 1 ? "ano" : "anos"}`;
       }
-      return `${years} ${years === 1 ? 'ano' : 'anos'} e ${remainingMonths} ${remainingMonths === 1 ? 'mês' : 'meses'}`;
+      return `${years} ${years === 1 ? "ano" : "anos"} e ${remainingMonths} ${
+        remainingMonths === 1 ? "mês" : "meses"
+      }`;
     }
   };
 
   // Corrigir para usar hiredAt (não hireDate)
   const formatDate = (dateString: string) => {
     if (!dateString) return "Não informado";
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
   const formatCPF = (cpf: string) => {
     if (!cpf) return "Não informado";
-    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
   };
 
   const formatPhoneDisplay = (phone: string) => {
@@ -90,7 +99,11 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
 
   // Corrigir para usar fullName
   const getInitials = (fullName: string) => {
-    return fullName.split(' ').map(n => n[0]).join('').slice(0, 2);
+    return fullName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2);
   };
 
   const handleViewSchedule = () => {
@@ -105,7 +118,7 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
       time: "09:00",
       patient: "Maria Silva",
       type: "Consulta",
-      status: "confirmado"
+      status: "confirmado",
     },
     {
       id: 2,
@@ -113,7 +126,7 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
       time: "14:30",
       patient: "João Santos",
       type: "Limpeza",
-      status: "confirmado"
+      status: "confirmado",
     },
     {
       id: 3,
@@ -121,21 +134,21 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
       time: "10:00",
       patient: "Ana Costa",
       type: "Tratamento",
-      status: "pendente"
-    }
+      status: "pendente",
+    },
   ];
 
   // Verificar se uma data tem compromissos
   const hasAppointments = (date: Date) => {
-    return mockAppointments.some(appointment =>
-      appointment.date.toDateString() === date.toDateString()
+    return mockAppointments.some(
+      (appointment) => appointment.date.toDateString() === date.toDateString()
     );
   };
 
   // Obter compromissos de uma data específica
   const getAppointmentsForDate = (date: Date) => {
-    return mockAppointments.filter(appointment =>
-      appointment.date.toDateString() === date.toDateString()
+    return mockAppointments.filter(
+      (appointment) => appointment.date.toDateString() === date.toDateString()
     );
   };
 
@@ -171,23 +184,37 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-sm"></div>
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="text-3xl font-bold text-gray-900 mb-2 truncate">{employee.fullName}</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2 truncate">
+                  {employee.fullName}
+                </h2>
                 <div className="flex flex-wrap items-center gap-2 mb-3">
-                  <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                  <Badge
+                    variant="outline"
+                    className="bg-gray-50 text-gray-700 border-gray-200"
+                  >
                     {formatRole(employee.role)}
                   </Badge>
                   {employee.specialty && (
-                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                    <Badge
+                      variant="outline"
+                      className="bg-blue-50 text-blue-700 border-blue-200"
+                    >
                       {formatSpecialty(employee.specialty)}
                     </Badge>
                   )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <Badge variant="success" className="bg-green-100 text-green-800 border-green-200">
+                  <Badge
+                    variant="success"
+                    className="bg-green-100 text-green-800 border-green-200"
+                  >
                     <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                     Ativo
                   </Badge>
-                  <Badge variant="info" className="bg-blue-100 text-blue-800 border-blue-200">
+                  <Badge
+                    variant="info"
+                    className="bg-blue-100 text-blue-800 border-blue-200"
+                  >
                     <Clock className="w-3 h-3 mr-1" />
                     {calculateWorkTime(employee.hiredAt)}
                   </Badge>
@@ -207,7 +234,7 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
               <Button
                 variant="outline"
                 onClick={() => onOpenDelete(employee)}
-                className="px-6 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                className="px-4 text-red-600 border-red-200 hover:text-red-600 hover:bg-red-50 hover:border-red-300"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -224,18 +251,30 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm font-medium text-gray-500 mb-1">Email</p>
-                    <p className="text-gray-900 font-medium break-all">{employee.email}</p>
+                    <p className="text-sm font-medium text-gray-500 mb-1">
+                      Email
+                    </p>
+                    <p className="text-gray-900 font-medium break-all">
+                      {employee.email}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-500 mb-1">Telefone</p>
-                    <p className="text-gray-900 font-medium">{formatPhoneDisplay(employee.phone)}</p>
+                    <p className="text-sm font-medium text-gray-500 mb-1">
+                      Telefone
+                    </p>
+                    <p className="text-gray-900 font-medium">
+                      {formatPhoneDisplay(employee.phone)}
+                    </p>
                   </div>
                 </div>
                 {employee.cpf && (
                   <div>
-                    <p className="text-sm font-medium text-gray-500 mb-1">CPF</p>
-                    <p className="text-gray-900 font-medium break-all">{formatCPF(employee.cpf)}</p>
+                    <p className="text-sm font-medium text-gray-500 mb-1">
+                      CPF
+                    </p>
+                    <p className="text-gray-900 font-medium break-all">
+                      {formatCPF(employee.cpf)}
+                    </p>
                   </div>
                 )}
               </div>
@@ -250,18 +289,33 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm font-medium text-gray-500 mb-1">Data de Contratação</p>
-                    <p className="text-gray-900 font-medium">{formatDate(employee.hiredAt)}</p>
+                    <p className="text-sm font-medium text-gray-500 mb-1">
+                      Data de Contratação
+                    </p>
+                    <p className="text-gray-900 font-medium">
+                      {formatDate(employee.hiredAt)}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-500 mb-1">Tempo na Empresa</p>
-                    <p className="text-gray-900 font-medium">{calculateWorkTime(employee.hiredAt)}</p>
+                    <p className="text-sm font-medium text-gray-500 mb-1">
+                      Tempo na Empresa
+                    </p>
+                    <p className="text-gray-900 font-medium">
+                      {calculateWorkTime(employee.hiredAt)}
+                    </p>
                   </div>
                 </div>
                 {employee.salary && (
                   <div>
-                    <p className="text-sm font-medium text-gray-500 mb-1">Salário</p>
-                    <p className="text-gray-900 font-medium break-all">R$ {employee.salary.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                    <p className="text-sm font-medium text-gray-500 mb-1">
+                      Salário
+                    </p>
+                    <p className="text-gray-900 font-medium break-all">
+                      R${" "}
+                      {employee.salary.toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </p>
                   </div>
                 )}
               </div>
@@ -284,7 +338,9 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
             {/* Calendar */}
             <div className="lg:col-span-1 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Calendário</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Calendário
+              </h3>
               <div className="flex justify-center">
                 <div className="w-full max-w-sm min-h-[350px]">
                   <Calendar
@@ -293,15 +349,15 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                     onSelect={setSelectedDate}
                     className="rounded-lg border shadow-sm w-full"
                     modifiers={{
-                      hasAppointments: (date) => hasAppointments(date)
+                      hasAppointments: (date) => hasAppointments(date),
                     }}
                     modifiersStyles={{
                       hasAppointments: {
-                        backgroundColor: '#22c55e',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        borderRadius: '6px'
-                      }
+                        backgroundColor: "#22c55e",
+                        color: "white",
+                        fontWeight: "bold",
+                        borderRadius: "6px",
+                      },
                     }}
                     fixedWeeks={true}
                     showOutsideDays={true}
@@ -319,24 +375,45 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
             {/* Appointments for selected date */}
             <div className="lg:col-span-2 space-y-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                Compromissos {selectedDate ? `- ${selectedDate.toLocaleDateString('pt-BR')}` : ''}
+                Compromissos{" "}
+                {selectedDate
+                  ? `- ${selectedDate.toLocaleDateString("pt-BR")}`
+                  : ""}
               </h3>
 
-              {selectedDate && getAppointmentsForDate(selectedDate).length > 0 ? (
+              {selectedDate &&
+              getAppointmentsForDate(selectedDate).length > 0 ? (
                 <div className="space-y-3 max-h-96 overflow-y-auto">
                   {getAppointmentsForDate(selectedDate).map((appointment) => (
-                    <div key={appointment.id} className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div
+                      key={appointment.id}
+                      className="bg-blue-50 border border-blue-200 rounded-lg p-4"
+                    >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-semibold text-gray-900">{appointment.time}</span>
+                        <span className="font-semibold text-gray-900">
+                          {appointment.time}
+                        </span>
                         <Badge
-                          variant={appointment.status === 'confirmado' ? 'success' : 'warning'}
-                          className={appointment.status === 'confirmado' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}
+                          variant={
+                            appointment.status === "confirmado"
+                              ? "success"
+                              : "warning"
+                          }
+                          className={
+                            appointment.status === "confirmado"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }
                         >
                           {appointment.status}
                         </Badge>
                       </div>
-                      <p className="text-gray-700 font-medium">{appointment.patient}</p>
-                      <p className="text-sm text-gray-600">{appointment.type}</p>
+                      <p className="text-gray-700 font-medium">
+                        {appointment.patient}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {appointment.type}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -349,18 +426,33 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
 
               {/* Summary */}
               <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
-                <h4 className="font-semibold text-gray-900 mb-3">Resumo Geral</h4>
+                <h4 className="font-semibold text-gray-900 mb-3">
+                  Resumo Geral
+                </h4>
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <p className="text-2xl font-bold text-blue-600">{mockAppointments.length}</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {mockAppointments.length}
+                    </p>
                     <p className="text-sm text-gray-600">Total</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-green-600">{mockAppointments.filter(a => a.status === 'confirmado').length}</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {
+                        mockAppointments.filter(
+                          (a) => a.status === "confirmado"
+                        ).length
+                      }
+                    </p>
                     <p className="text-sm text-gray-600">Confirmados</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-yellow-600">{mockAppointments.filter(a => a.status === 'pendente').length}</p>
+                    <p className="text-2xl font-bold text-yellow-600">
+                      {
+                        mockAppointments.filter((a) => a.status === "pendente")
+                          .length
+                      }
+                    </p>
                     <p className="text-sm text-gray-600">Pendentes</p>
                   </div>
                 </div>

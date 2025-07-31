@@ -18,6 +18,7 @@ import {
   FileText,
   Edit,
   X,
+  Trash,
 } from "lucide-react";
 // Função para capitalizar a primeira letra
 function capitalizeFirstLetter(str: string) {
@@ -124,6 +125,23 @@ export const AppointmentProfileDialog: React.FC<
                 >
                   <Edit className="w-4 h-4 mr-2" />
                   Editar Consulta
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="px-4 text-red-600 border-red-200 hover:text-red-600 hover:bg-red-50 hover:border-red-300"
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        "Tem certeza que deseja deletar esta consulta?"
+                      )
+                    ) {
+                      // TODO: Adicionar lógica de deleção aqui
+                    }
+                  }}
+                  title="Deletar Consulta"
+                >
+                  <Trash className="w-4 h-4" />
                 </Button>
               </div>
               <Separator />
