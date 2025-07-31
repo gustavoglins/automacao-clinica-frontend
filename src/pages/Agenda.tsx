@@ -397,14 +397,28 @@ const Agenda = () => {
                             formatDate(date)
                         ),
                     }}
-                    modifiersStyles={{
-                      hasAppointments: {
-                        backgroundColor: "#3b82f6",
-                        color: "white",
-                        borderRadius: "50%",
-                      },
+                    modifiersClassNames={{
+                      hasAppointments: "has-appointment-day",
                     }}
                   />
+                  <style>{`
+                    .has-appointment-day {
+                      position: relative;
+                    }
+                    .has-appointment-day::after {
+                      content: '';
+                      position: absolute;
+                      left: 50%;
+                      top: 70%;
+                      transform: translateX(-50%);
+                      width: 7px;
+                      height: 7px;
+                      background: #326dec;
+                      border-radius: 50%;
+                      pointer-events: none;
+                      z-index: 2;
+                    }
+                  `}</style>
                 </div>
                 {/* View Mode Selector */}
                 <div className="flex items-center justify-center gap-1 w-full p-1 bg-muted rounded-lg">
