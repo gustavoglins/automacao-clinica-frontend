@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { applyPhoneMask, onlyNumbers, applyCpfMask } from "@/lib/utils";
+import {
+  applyPhoneMask,
+  onlyNumbers,
+  applyCpfMask,
+  getPhoneInfo,
+  isValidCpf,
+} from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +25,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserPlus, X, Check, Phone, MapPin, CreditCard, FileText } from "lucide-react";
+import {
+  UserPlus,
+  X,
+  Check,
+  Phone,
+  MapPin,
+  CreditCard,
+  FileText,
+} from "lucide-react";
 import { Patient, CreatePatientData } from "@/types/patient";
 
 interface AddPatientDialogProps {
@@ -37,12 +51,10 @@ interface PatientFormData {
   address: string;
 }
 
-
-
 const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
   open,
   onOpenChange,
-  onAddPatient
+  onAddPatient,
 }) => {
   const [formData, setFormData] = useState<PatientFormData>({
     fullName: "",
@@ -50,27 +62,28 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
     birthDate: "",
     phone: "",
     email: "",
-    address: ""
+    address: "",
   });
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ phone?: string; cpf?: string }>({});
 
   const handleInputChange = (field: keyof PatientFormData, value: string) => {
     if (field === "phone") {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [field]: applyPhoneMask(value)
+        [field]: applyPhoneMask(value),
       }));
     } else if (field === "cpf") {
       // Aceita apenas números, limita a 11 dígitos e aplica máscara visual
       const onlyNums = onlyNumbers(value).slice(0, 11);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        cpf: applyCpfMask(onlyNums)
+        cpf: applyCpfMask(onlyNums),
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [field]: value
+        [field]: value,
       }));
     }
   };
@@ -82,14 +95,29 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
       birthDate: "",
       phone: "",
       email: "",
-      address: ""
+      address: "",
     });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
+    const localErrors: { phone?: string; cpf?: string } = {};
+    // Validação de telefone
+    const phoneInfo = getPhoneInfo(formData.phone);
+    if (!phoneInfo.isValid) {
+      localErrors.phone = phoneInfo.message;
+    }
+    // Validação de CPF
+    if (formData.cpf && !isValidCpf(formData.cpf)) {
+      localErrors.cpf = "CPF inválido";
+    }
+    setErrors(localErrors);
+    if (Object.keys(localErrors).length > 0) {
+      return;
+    }
+
+    setLoading(true);
     try {
       const newPatient: CreatePatientData = {
         fullName: formData.fullName,
@@ -97,14 +125,13 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
         birthDate: formData.birthDate,
         phone: onlyNumbers(formData.phone),
         email: formData.email,
-        address: formData.address
+        address: formData.address,
       };
-
       await onAddPatient(newPatient);
       resetForm();
       onOpenChange(false);
     } catch (error) {
-      console.error('Erro ao adicionar paciente:', error);
+      console.error("Erro ao adicionar paciente:", error);
     } finally {
       setLoading(false);
     }
@@ -145,7 +172,9 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
                     id="fullName"
                     placeholder="Digite o nome completo"
                     value={formData.fullName}
-                    onChange={(e) => handleInputChange("fullName", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("fullName", e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -161,6 +190,9 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
                     onChange={(e) => handleInputChange("cpf", e.target.value)}
                     required
                   />
+                  {errors.cpf && (
+                    <span className="text-red-500 text-xs">{errors.cpf}</span>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -169,7 +201,9 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
                     id="birthDate"
                     type="date"
                     value={formData.birthDate}
-                    onChange={(e) => handleInputChange("birthDate", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("birthDate", e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -196,6 +230,9 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
                     onChange={(e) => handleInputChange("phone", e.target.value)}
                     required
                   />
+                  {errors.phone && (
+                    <span className="text-red-500 text-xs">{errors.phone}</span>
+                  )}
                 </div>
 
                 <div className="space-y-2">
