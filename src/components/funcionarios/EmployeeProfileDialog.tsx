@@ -189,6 +189,14 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                 </h2>
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                   <Badge
+                    variant="success"
+                    className="bg-green-100 text-green-800 border-green-200"
+                  >
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    {employee.status.charAt(0).toUpperCase() +
+                      employee.status.slice(1)}
+                  </Badge>
+                  <Badge
                     variant="outline"
                     className="bg-gray-50 text-gray-700 border-gray-200"
                   >
@@ -204,20 +212,13 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                   )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <Badge
-                    variant="success"
-                    className="bg-green-100 text-green-800 border-green-200"
-                  >
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    Ativo
-                  </Badge>
-                  <Badge
+                  {/* <Badge
                     variant="info"
                     className="bg-blue-100 text-blue-800 border-blue-200"
                   >
                     <Clock className="w-3 h-3 mr-1" />
                     {calculateWorkTime(employee.hiredAt)}
-                  </Badge>
+                  </Badge> */}
                 </div>
               </div>
             </div>
