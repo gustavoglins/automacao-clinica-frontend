@@ -34,6 +34,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { AddEmployeeDialog } from "@/components/funcionarios/AddEmployeeDialog";
+import AddPatientDialog from "@/components/pacientes/AddPatientDialog";
 import ServiceFormDialog from "@/components/servicos/ServiceFormDialog";
 import {
   AddAppointmentDialog,
@@ -99,6 +100,21 @@ export function Dashboard() {
   const [openServiceFormDialog, setOpenServiceFormDialog] = useState(false);
   const [openAddAppointmentDialog, setOpenAddAppointmentDialog] =
     useState(false);
+  const [openAddPatientDialog, setOpenAddPatientDialog] = useState(false);
+  // Listener para eventos globais de abrir dialogs
+  React.useEffect(() => {
+    const handlerPatient = () => setOpenAddPatientDialog(true);
+    const handlerService = () => setOpenServiceFormDialog(true);
+    const handlerEmployee = () => setOpenAddEmployeeDialog(true);
+    window.addEventListener("openAddPatientDialog", handlerPatient);
+    window.addEventListener("openAddServiceDialog", handlerService);
+    window.addEventListener("openAddEmployeeDialog", handlerEmployee);
+    return () => {
+      window.removeEventListener("openAddPatientDialog", handlerPatient);
+      window.removeEventListener("openAddServiceDialog", handlerService);
+      window.removeEventListener("openAddEmployeeDialog", handlerEmployee);
+    };
+  }, []);
 
   // Estado para dialog de detalhes da consulta
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
@@ -532,6 +548,13 @@ export function Dashboard() {
         open={openAddAppointmentDialog}
         onOpenChange={setOpenAddAppointmentDialog}
         onAddAppointment={() => setOpenAddAppointmentDialog(false)}
+      />
+
+      {/* Dialog: Novo Paciente */}
+      <AddPatientDialog
+        open={openAddPatientDialog}
+        onOpenChange={setOpenAddPatientDialog}
+        onAddPatient={() => setOpenAddPatientDialog(false)}
       />
 
       {/* Dialog: Agenda Completa */}

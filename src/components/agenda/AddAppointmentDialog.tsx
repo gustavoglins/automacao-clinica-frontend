@@ -97,6 +97,22 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
     notes: "",
   });
 
+  // Fallback para abrir dialogs via window ou via callback/context
+  function openDialog(eventName: string, fallback?: () => void) {
+    let dispatched = false;
+    try {
+      if (window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent(eventName));
+        dispatched = true;
+      }
+    } catch (e) {
+      dispatched = false;
+    }
+    if (!dispatched && typeof fallback === "function") {
+      fallback();
+    }
+  }
+
   // Atualiza formData se initialPatientId/initialPhone mudarem (ex: ao abrir para outro paciente)
   React.useEffect(() => {
     setFormData((prev) => ({
@@ -226,13 +242,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                       variant="link"
                       size="xs"
                       className="text-primary underline p-0 h-auto min-h-0"
-                      onClick={() => {
-                        if (window.dispatchEvent) {
-                          window.dispatchEvent(
-                            new CustomEvent("openAddPatientDialog")
-                          );
-                        }
-                      }}
+                      onClick={() => openDialog("openAddPatientDialog")}
                     >
                       Novo Paciente
                     </Button>
@@ -297,13 +307,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                       variant="link"
                       size="xs"
                       className="text-primary underline p-0 h-auto min-h-0"
-                      onClick={() => {
-                        if (window.dispatchEvent) {
-                          window.dispatchEvent(
-                            new CustomEvent("openAddServiceDialog")
-                          );
-                        }
-                      }}
+                      onClick={() => openDialog("openAddServiceDialog")}
                     >
                       Novo Serviço
                     </Button>
@@ -340,13 +344,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                       variant="link"
                       size="xs"
                       className="text-primary underline p-0 h-auto min-h-0"
-                      onClick={() => {
-                        if (window.dispatchEvent) {
-                          window.dispatchEvent(
-                            new CustomEvent("openAddEmployeeDialog")
-                          );
-                        }
-                      }}
+                      onClick={() => openDialog("openAddEmployeeDialog")}
                     >
                       Novo Profissional
                     </Button>
