@@ -182,9 +182,10 @@ const Servicos = () => {
       setServices((prev) => [...prev, newService]);
       setIsAddDialogOpen(false);
       resetForm();
-      toast.success("Serviço adicionado com sucesso!");
+      // Toast de sucesso já é disparado pelo service
     } catch (error) {
       console.error("Erro ao adicionar serviço:", error);
+      // Toast de erro já é disparado pelo service
     }
   };
 
@@ -221,9 +222,10 @@ const Servicos = () => {
       setIsEditDialogOpen(false);
       setSelectedService(null);
       resetForm();
-      toast.success("Serviço atualizado com sucesso!");
+      // Toast de sucesso já é disparado pelo service
     } catch (error) {
       console.error("Erro ao atualizar serviço:", error);
+      // Toast de erro já é disparado pelo service
     }
   };
 
@@ -238,9 +240,10 @@ const Servicos = () => {
         );
         setIsDeleteDialogOpen(false);
         setSelectedService(null);
+        // Toast de sucesso/erro já é disparado pelo service
       } catch (error) {
         console.error("Erro ao deletar serviço:", error);
-        // Não mostrar toast de sucesso aqui pois o service já mostra
+        // Toast de erro já é disparado pelo service
       }
     }
   };
@@ -293,7 +296,7 @@ const Servicos = () => {
       setStatusFilter(filters.status === "active" ? "active" : "inactive");
     }
 
-    toast.success("Filtros aplicados com sucesso!");
+    // Não mostrar toast de sucesso ao aplicar filtros
   };
 
   const handleClearAdvancedFilters = () => {

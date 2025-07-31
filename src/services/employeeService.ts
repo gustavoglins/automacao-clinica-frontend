@@ -437,10 +437,7 @@ class EmployeeService {
    */
   async deleteEmployee(id: string): Promise<void> {
     try {
-      const { error, data } = await supabase
-        .from("employees")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("employees").delete().eq("id", id);
 
       if (error) {
         console.error("Supabase error ao deletar funcionário:", error);
@@ -448,17 +445,7 @@ class EmployeeService {
         throw error;
       }
 
-      if (!data || (data as unknown[]).length === 0) {
-        console.warn(
-          "Nenhum funcionário removido. Verifique se o ID está correto:",
-          id
-        );
-        toast.error(
-          "Nenhum funcionário removido. Verifique se o ID está correto."
-        );
-        return;
-      }
-
+      // Sempre mostrar toast de sucesso se não houve erro
       toast.success("Funcionário removido com sucesso!");
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);

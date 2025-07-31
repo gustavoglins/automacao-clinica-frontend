@@ -121,9 +121,9 @@ const Agenda = () => {
         prev.map((a) => (a.id === updated.id ? updated : a))
       );
       setOpenViewEditDialog(false);
-      toast.success("Consulta atualizada com sucesso!");
+      // Toast de sucesso/erro já é disparado pelo service
     } catch (error) {
-      toast.error("Erro ao atualizar consulta");
+      // Toast de erro já é disparado pelo service
     }
   };
 
@@ -242,10 +242,10 @@ const Agenda = () => {
       );
       setAppointments((prev) => [...prev, appointment]);
       setOpenAddAppointmentDialog(false);
-      toast.success(`Consulta agendada com sucesso!`);
+      // Toast de sucesso/erro já é disparado pelo service
     } catch (error) {
       console.error("Erro ao agendar consulta:", error);
-      toast.error("Erro ao agendar consulta");
+      // Toast de erro já é disparado pelo service
     }
   };
 

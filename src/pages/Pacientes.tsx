@@ -65,9 +65,10 @@ const Pacientes = () => {
     try {
       const patient = await patientService.createPatient(newPatient);
       setPatients((prev) => [...prev, patient]);
-      toast.success(`Paciente ${patient.fullName} adicionado com sucesso!`);
+      // Toast de sucesso/erro já é disparado pelo service
     } catch (error) {
       console.error("Erro ao adicionar paciente:", error);
+      // Toast de erro já é disparado pelo service
     }
   };
 
@@ -137,11 +138,10 @@ const Pacientes = () => {
             try {
               const patient = await patientService.createPatient(newPatient);
               setPatients((prev: Patient[]) => [...prev, patient]);
-              toast.success(
-                `Paciente ${patient.fullName} adicionado com sucesso!`
-              );
+              // Toast de sucesso/erro já é disparado pelo service
             } catch (error) {
               console.error("Erro ao adicionar paciente:", error);
+              // Toast de erro já é disparado pelo service
             }
           }}
         />

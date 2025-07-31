@@ -69,6 +69,7 @@ const Configuracoes = () => {
 
       if (fetchError) {
         console.error("Erro ao buscar horários existentes:", fetchError);
+        toast.error("Erro ao buscar horários existentes");
         return;
       }
 

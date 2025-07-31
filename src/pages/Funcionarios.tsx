@@ -155,8 +155,9 @@ function Funcionarios() {
       await employeeService.createEmployeeWithSchedule(employeeData);
       fetchEmployees();
       setAddDialogOpen(false);
+      // Toast de sucesso/erro já é disparado pelo service
     } catch (error) {
-      // Error is already handled in the service
+      // Toast de erro já é disparado pelo service
     }
   };
 
