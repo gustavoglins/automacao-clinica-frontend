@@ -116,6 +116,16 @@ export function Dashboard() {
     };
   }, []);
 
+  // Estado do formulário de serviço
+  const [serviceFormData, setServiceFormData] = useState({
+    name: "",
+    description: "",
+    price: "",
+    duration: "",
+    category: "",
+    isActive: true,
+  });
+
   // Estado para dialog de detalhes da consulta
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const [profileDialogLoading, setProfileDialogLoading] = useState(false);
@@ -547,14 +557,22 @@ export function Dashboard() {
       <AddAppointmentDialog
         open={openAddAppointmentDialog}
         onOpenChange={setOpenAddAppointmentDialog}
-        onAddAppointment={() => setOpenAddAppointmentDialog(false)}
+        onAddAppointment={async (appointmentData) => {
+          // Adicione aqui a lógica para salvar a consulta se necessário
+          setOpenAddAppointmentDialog(false);
+          await fetchDashboardData();
+        }}
       />
 
       {/* Dialog: Novo Paciente */}
       <AddPatientDialog
         open={openAddPatientDialog}
         onOpenChange={setOpenAddPatientDialog}
-        onAddPatient={() => setOpenAddPatientDialog(false)}
+        onAddPatient={async (patientData) => {
+          await patientService.createPatient(patientData);
+          setOpenAddPatientDialog(false);
+          await fetchDashboardData();
+        }}
       />
 
       {/* Dialog: Agenda Completa */}
@@ -611,9 +629,10 @@ export function Dashboard() {
       <AddEmployeeDialog
         isOpen={openAddEmployeeDialog}
         onClose={() => setOpenAddEmployeeDialog(false)}
-        onEmployeeAdded={() => {
+        onEmployeeAdded={async (employeeData) => {
+          await employeeService.createEmployee(employeeData);
           setOpenAddEmployeeDialog(false);
-          // Aqui você pode adicionar lógica para atualizar a lista de funcionários
+          await fetchDashboardData();
         }}
       />
 
@@ -622,20 +641,32 @@ export function Dashboard() {
         isOpen={openServiceFormDialog}
         onOpenChange={setOpenServiceFormDialog}
         title="Novo Serviço"
-        formData={{
-          name: "",
-          description: "",
-          price: "",
-          duration: "",
-          category: "",
-          isActive: true,
-        }}
-        onFormDataChange={() => {}}
-        onSubmit={() => {
+        formData={serviceFormData}
+        onFormDataChange={setServiceFormData}
+        onSubmit={async (serviceData) => {
+          await serviceService.createService(serviceData);
           setOpenServiceFormDialog(false);
-          // Aqui você pode adicionar lógica para salvar o serviço
+          setServiceFormData({
+            name: "",
+            description: "",
+            price: "",
+            duration: "",
+            category: "",
+            isActive: true,
+          });
+          await fetchDashboardData();
         }}
-        onCancel={() => setOpenServiceFormDialog(false)}
+        onCancel={() => {
+          setOpenServiceFormDialog(false);
+          setServiceFormData({
+            name: "",
+            description: "",
+            price: "",
+            duration: "",
+            category: "",
+            isActive: true,
+          });
+        }}
         submitLabel="Criar Serviço"
       />
     </div>

@@ -30,10 +30,12 @@ import {
 } from "@/lib/utils";
 import { X, Check } from "lucide-react";
 
+import { CreateEmployeeData } from "@/types/employee";
+
 interface AddEmployeeDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onEmployeeAdded: () => void;
+  onEmployeeAdded: (employeeData: CreateEmployeeData) => void;
 }
 
 export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
@@ -138,7 +140,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
       await employeeService.createEmployeeWithSchedule(employeeData);
       console.log("✅ Funcionário criado com sucesso!");
 
-      onEmployeeAdded();
+      onEmployeeAdded(employeeData);
       resetForm();
       onClose();
     } catch (error) {

@@ -38,13 +38,15 @@ interface ServiceFormData {
   isActive: boolean;
 }
 
+import { CreateServiceData } from "@/types/service";
+
 interface ServiceFormDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
   formData: ServiceFormData;
   onFormDataChange: (data: ServiceFormData) => void;
-  onSubmit: () => void;
+  onSubmit: (serviceData: CreateServiceData) => void;
   onCancel: () => void;
   loading?: boolean;
   submitLabel?: string;
@@ -104,7 +106,16 @@ const ServiceFormDialog: React.FC<ServiceFormDialogProps> = ({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            onSubmit();
+            // Monta o objeto CreateServiceData
+            const serviceData = {
+              name: formData.name,
+              category: formData.category,
+              description: formData.description,
+              durationMinutes: Number(formData.duration),
+              price: Number(formData.price),
+              active: formData.isActive,
+            };
+            onSubmit(serviceData);
           }}
           className="space-y-6 mt-6"
         >
