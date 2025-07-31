@@ -91,11 +91,13 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validar telefone com mensagem específica
-    const phoneInfo = getPhoneInfo(formData.phone);
-    if (!phoneInfo.isValid) {
-      toast.error(phoneInfo.message);
-      return;
+    // Validar telefone apenas se preenchido
+    if (formData.phone) {
+      const phoneInfo = getPhoneInfo(formData.phone);
+      if (!phoneInfo.isValid) {
+        toast.error(phoneInfo.message);
+        return;
+      }
     }
 
     // Validar CPF se fornecido
@@ -120,7 +122,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         salary: formData.salary ? parseFloat(formData.salary) : undefined,
         phone: onlyNumbers(formData.phone), // Salvar apenas os números
         email: formData.email,
-        hiredAt: formData.hireDate,
+        hiredAt: formData.hireDate ? formData.hireDate : null,
         workDays: formData.workDays,
         startHour: formData.startHour,
         endHour: formData.endHour,
