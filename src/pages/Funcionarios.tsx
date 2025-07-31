@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { employeeService } from "@/services/employeeService";
-import type { Employee } from "@/types/employee";
+import type { Employee, CreateEmployeeData } from "@/types/employee";
 import { onlyNumbers } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -150,9 +150,14 @@ function Funcionarios() {
     setDeleteDialogOpen(false);
   };
 
-  const handleEmployeeAdded = () => {
-    fetchEmployees();
-    setAddDialogOpen(false);
+  const handleEmployeeAdded = async (employeeData: CreateEmployeeData) => {
+    try {
+      await employeeService.createEmployeeWithSchedule(employeeData);
+      fetchEmployees();
+      setAddDialogOpen(false);
+    } catch (error) {
+      // Error is already handled in the service
+    }
   };
 
   const handleFiltersChange = (newFilters: FilterState) => {

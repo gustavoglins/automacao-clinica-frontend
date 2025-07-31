@@ -136,9 +136,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         return;
       }
 
-      console.log("✅ Validação passou, criando funcionário...");
-      await employeeService.createEmployeeWithSchedule(employeeData);
-      console.log("✅ Funcionário criado com sucesso!");
+      console.log("✅ Validação passou, enviando dados...");
 
       onEmployeeAdded(employeeData);
       resetForm();

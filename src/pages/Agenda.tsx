@@ -551,9 +551,15 @@ const Agenda = () => {
         <AddEmployeeDialog
           isOpen={openAddEmployeeDialog}
           onClose={() => setOpenAddEmployeeDialog(false)}
-          onEmployeeAdded={() => {
-            setOpenAddEmployeeDialog(false);
-            toast.success("Profissional cadastrado com sucesso!");
+          onEmployeeAdded={async (employeeData) => {
+            try {
+              await employeeService.createEmployeeWithSchedule(employeeData);
+              setOpenAddEmployeeDialog(false);
+              // Recarrega a página para atualizar os dados
+              window.location.reload();
+            } catch (error) {
+              // Error is already handled in the service
+            }
           }}
         />
 

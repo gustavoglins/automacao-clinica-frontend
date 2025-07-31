@@ -106,13 +106,19 @@ export function Dashboard() {
     const handlerPatient = () => setOpenAddPatientDialog(true);
     const handlerService = () => setOpenServiceFormDialog(true);
     const handlerEmployee = () => setOpenAddEmployeeDialog(true);
+    const handlerAppointment = () => setOpenAddAppointmentDialog(true);
     window.addEventListener("openAddPatientDialog", handlerPatient);
     window.addEventListener("openAddServiceDialog", handlerService);
     window.addEventListener("openAddEmployeeDialog", handlerEmployee);
+    window.addEventListener("openAddAppointmentDialog", handlerAppointment);
     return () => {
       window.removeEventListener("openAddPatientDialog", handlerPatient);
       window.removeEventListener("openAddServiceDialog", handlerService);
       window.removeEventListener("openAddEmployeeDialog", handlerEmployee);
+      window.removeEventListener(
+        "openAddAppointmentDialog",
+        handlerAppointment
+      );
     };
   }, []);
 
@@ -571,7 +577,11 @@ export function Dashboard() {
         onAddPatient={async (patientData) => {
           await patientService.createPatient(patientData);
           setOpenAddPatientDialog(false);
-          await fetchDashboardData();
+          // Recarrega a página e abre o dialog de Nova Consulta
+          window.location.reload();
+          setTimeout(() => {
+            window.dispatchEvent(new Event("openAddAppointmentDialog"));
+          }, 500);
         }}
       />
 
@@ -630,9 +640,17 @@ export function Dashboard() {
         isOpen={openAddEmployeeDialog}
         onClose={() => setOpenAddEmployeeDialog(false)}
         onEmployeeAdded={async (employeeData) => {
-          await employeeService.createEmployee(employeeData);
-          setOpenAddEmployeeDialog(false);
-          await fetchDashboardData();
+          try {
+            await employeeService.createEmployeeWithSchedule(employeeData);
+            setOpenAddEmployeeDialog(false);
+            // Recarrega a página e abre o dialog de Nova Consulta
+            window.location.reload();
+            setTimeout(() => {
+              window.dispatchEvent(new Event("openAddAppointmentDialog"));
+            }, 500);
+          } catch (error) {
+            // Error is already handled in the service
+          }
         }}
       />
 
@@ -654,7 +672,11 @@ export function Dashboard() {
             category: "",
             isActive: true,
           });
-          await fetchDashboardData();
+          // Recarrega a página e abre o dialog de Nova Consulta
+          window.location.reload();
+          setTimeout(() => {
+            window.dispatchEvent(new Event("openAddAppointmentDialog"));
+          }, 500);
         }}
         onCancel={() => {
           setOpenServiceFormDialog(false);
