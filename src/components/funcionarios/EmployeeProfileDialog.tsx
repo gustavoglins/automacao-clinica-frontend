@@ -255,7 +255,7 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                       Email
                     </p>
                     <p className="text-gray-900 font-medium break-all">
-                      {employee.email}
+                      {employee.email ?? "Não informado"}
                     </p>
                   </div>
                   <div>
