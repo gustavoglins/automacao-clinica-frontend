@@ -49,6 +49,7 @@ import {
 import { employeeService } from "@/services/employeeService";
 import { serviceService } from "@/services/servicesService";
 import { patientService } from "@/services/patientService";
+import { appointmentService } from "@/services/appointmentService";
 import { useDashboard } from "@/context/DashboardContext";
 
 export function Dashboard() {
@@ -564,7 +565,7 @@ export function Dashboard() {
         open={openAddAppointmentDialog}
         onOpenChange={setOpenAddAppointmentDialog}
         onAddAppointment={async (appointmentData) => {
-          // Adicione aqui a lógica para salvar a consulta se necessário
+          await appointmentService.createAppointment(appointmentData);
           setOpenAddAppointmentDialog(false);
           await fetchDashboardData();
         }}
