@@ -186,10 +186,11 @@ const ServiceFormDialog: React.FC<ServiceFormDialogProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="duration">Duração (minutos)</Label>
+                  <Label htmlFor="duration">Duração (minutos) *</Label>
                   <Select
                     value={formData.duration}
                     onValueChange={(value) => updateFormData("duration", value)}
+                    required
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a duração" />
@@ -272,7 +273,8 @@ const ServiceFormDialog: React.FC<ServiceFormDialogProps> = ({
                 loading ||
                 !formData.name ||
                 !formData.category ||
-                !formData.price
+                !formData.price ||
+                !formData.duration
               }
               className="min-w-[120px] flex items-center gap-2"
             >

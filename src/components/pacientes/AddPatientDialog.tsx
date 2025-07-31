@@ -222,13 +222,12 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Telefone *</Label>
+                  <Label htmlFor="phone">Telefone</Label>
                   <Input
                     id="phone"
                     placeholder="(11) 99999-9999"
                     value={formData.phone}
                     onChange={(e) => handleInputChange("phone", e.target.value)}
-                    required
                   />
                   {errors.phone && (
                     <span className="text-red-500 text-xs">{errors.phone}</span>
@@ -285,7 +284,7 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
             </Button>
             <Button
               type="submit"
-              disabled={loading || !formData.fullName || !formData.phone}
+              disabled={loading || !formData.fullName}
               className="min-w-[120px] flex items-center gap-2"
             >
               {loading ? (

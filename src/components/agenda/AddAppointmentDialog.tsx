@@ -93,7 +93,6 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
     phone: initialPhone || "",
     date: undefined as Date | undefined,
     time: "",
-    duration: "",
     notes: "",
   });
 
@@ -151,8 +150,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
       !formData.serviceId ||
       !formData.phone ||
       !formData.date ||
-      !formData.time ||
-      !formData.duration
+      !formData.time
     ) {
       return;
     }
@@ -164,10 +162,11 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
       const [hour, minute] = formData.time.split(":");
       const startDate = new Date(formData.date!);
       startDate.setHours(Number(hour), Number(minute), 0, 0);
-      let durationMinutes = 30;
-      if (formData.duration === "1h") durationMinutes = 60;
-      else if (formData.duration === "1h30min") durationMinutes = 90;
-      else if (formData.duration === "2h") durationMinutes = 120;
+      // Buscar duração do serviço selecionado
+      const selectedService = services.find(
+        (s) => s.id.toString() === formData.serviceId
+      );
+      const durationMinutes = selectedService?.durationMinutes || 30;
       const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
 
       const appointment: CreateAppointmentData = {
@@ -195,7 +194,6 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
       phone: "",
       date: undefined,
       time: "",
-      duration: "",
       notes: "",
     });
     onOpenChange(false);
@@ -207,8 +205,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
     formData.serviceId &&
     formData.phone &&
     formData.date &&
-    formData.time &&
-    formData.duration;
+    formData.time;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -449,26 +446,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="duration">Duração *</Label>
-                  <Select
-                    value={formData.duration}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, duration: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Duração" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {durations.map((duration) => (
-                        <SelectItem key={duration.value} value={duration.value}>
-                          {duration.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Campo de duração removido, duração será definida pelo serviço selecionado */}
               </div>
             </CardContent>
           </Card>

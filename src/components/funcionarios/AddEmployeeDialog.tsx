@@ -359,13 +359,12 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="hireDate">Data de Contratação *</Label>
+                  <Label htmlFor="hireDate">Data de Contratação</Label>
                   <Input
                     id="hireDate"
                     type="date"
                     value={formData.hireDate}
                     onChange={(e) => handleChange("hireDate", e.target.value)}
-                    required
                   />
                 </div>
               </div>
@@ -395,31 +394,29 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Telefone *</Label>
+                  <Label htmlFor="phone">Telefone</Label>
                   <Input
                     id="phone"
                     value={formData.phone}
                     onChange={(e) => handleChange("phone", e.target.value)}
                     placeholder="(11) 99999-9999"
-                    required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email *</Label>
+                  <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleChange("email", e.target.value)}
-                    required
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="cpf">CPF</Label>
+                  <Label htmlFor="cpf">CPF *</Label>
                   <Input
                     id="cpf"
                     type="text"
@@ -427,6 +424,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                     onChange={(e) => handleChange("cpf", e.target.value)}
                     placeholder="000.000.000-00"
                     maxLength={14}
+                    required
                   />
                 </div>
 
@@ -645,12 +643,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
             <Button
               type="submit"
               disabled={
-                isLoading ||
-                !formData.name ||
-                !formData.role ||
-                !formData.phone ||
-                !formData.email ||
-                !formData.hireDate
+                isLoading || !formData.name || !formData.role || !formData.cpf
               }
               className="min-w-[120px] flex items-center gap-2"
             >
