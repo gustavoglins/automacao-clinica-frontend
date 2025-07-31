@@ -22,7 +22,7 @@ export const DeleteEmployeeDialog: React.FC<DeleteEmployeeDialogProps> = ({
   employee,
   isOpen,
   onClose,
-  onEmployeeDeleted
+  onEmployeeDeleted,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,7 +37,7 @@ export const DeleteEmployeeDialog: React.FC<DeleteEmployeeDialogProps> = ({
       onEmployeeDeleted();
       onClose();
     } catch (error) {
-      console.error('Error deleting employee:', error);
+      console.error("Error deleting employee:", error);
       toast.error("Erro ao excluir funcionário");
     } finally {
       setIsLoading(false);
@@ -53,8 +53,9 @@ export const DeleteEmployeeDialog: React.FC<DeleteEmployeeDialogProps> = ({
             <DialogTitle>Confirmar Exclusão</DialogTitle>
           </div>
           <DialogDescription>
-            Esta ação não pode ser desfeita. Isso excluirá permanentemente o funcionário{" "}
-            <strong>{employee?.name}</strong> e todos os seus dados associados.
+            Esta ação não pode ser desfeita. Isso excluirá permanentemente o
+            funcionário <strong>{employee?.fullName}</strong> e todos os seus
+            dados associados.
           </DialogDescription>
         </DialogHeader>
 
