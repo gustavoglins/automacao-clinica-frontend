@@ -177,7 +177,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const CategoryIcon = categoryInfo.icon;
   const statusBadge = getServiceStatusBadge(service.active);
   const categoryBadge = getCategoryBadge(service.category);
-  const iconColorClass = getCategoryIconColor(service.category);
+  // O ícone agora usará as mesmas classes de cor da badge de categoria
+  const iconColorClass = categoryBadge.className;
 
   return (
     <Card>
