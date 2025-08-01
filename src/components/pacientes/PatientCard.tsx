@@ -32,6 +32,11 @@ export const PatientCard = ({ patient, onViewRecord }: PatientCardProps) => {
     return age;
   };
 
+  const formatCPF = (cpf: string) => {
+    if (!cpf) return "Não informado";
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  };
+
   const statusBadge = getPatientStatusBadge("ativo");
   const planBadge = getPlanBadge();
 
@@ -71,10 +76,7 @@ export const PatientCard = ({ patient, onViewRecord }: PatientCardProps) => {
             )}
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs text-gray-500">
-            <span className="truncate">CPF: {patient.cpf}</span>
-            {patient.address && (
-              <span className="text-gray-500 truncate">{patient.address}</span>
-            )}
+            <span className="truncate">CPF: {formatCPF(patient.cpf)}</span>
           </div>
         </div>
       </div>
