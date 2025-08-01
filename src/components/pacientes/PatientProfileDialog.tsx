@@ -80,6 +80,11 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
     return age;
   };
 
+  const formatCPF = (cpf: string) => {
+    if (!cpf) return "Não informado";
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  };
+
   const statusBadge = getPatientStatusBadge(patient.status || "");
   const planBadge = getPlanBadge();
 
@@ -135,7 +140,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                     variant="outline"
                     className="bg-green-100 text-green-600 border-green-200"
                   >
-                    {patient.cpf}
+                    {formatCPF(patient.cpf)}
                   </Badge>
                 </div>
                 <div className="flex items-center gap-3">

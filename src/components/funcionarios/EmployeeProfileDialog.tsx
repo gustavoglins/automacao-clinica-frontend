@@ -200,6 +200,13 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                     variant="outline"
                     className="bg-gray-50 text-gray-700 border-gray-200"
                   >
+                    <CreditCard className="w-3 h-3 mr-1" />
+                    {formatCPF(employee.cpf)}
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className="bg-gray-50 text-gray-700 border-gray-200"
+                  >
                     {formatRole(employee.role)}
                   </Badge>
                   {employee.specialty && (
