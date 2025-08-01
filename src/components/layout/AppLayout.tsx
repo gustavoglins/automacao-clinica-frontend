@@ -65,27 +65,56 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
-  // Exemplo: buscar pacientes e funcionários (mock)
-  const pacientes = [
-    { id: 1, name: "Maria Silva", type: "Paciente" },
-    { id: 2, name: "Carlos Santos", type: "Paciente" },
-    { id: 3, name: "Ana Costa", type: "Paciente" },
-    { id: 4, name: "Pedro Lima", type: "Paciente" },
-  ];
-  const funcionarios = [
-    { id: 1, name: "Dra. Juliana Ferreira", type: "Funcionário" },
-    { id: 2, name: "Dr. Rafael Oliveira", type: "Funcionário" },
-    { id: 3, name: "Camila Souza", type: "Funcionário" },
-    { id: 4, name: "Fernanda Lima", type: "Funcionário" },
-  ];
-  const results = [
-    ...pacientes.filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase())
-    ),
-    ...funcionarios.filter((f) =>
-      f.name.toLowerCase().includes(search.toLowerCase())
-    ),
-  ];
+  // Busca real de pacientes e funcionários
+  const [results, setResults] = React.useState<
+    Array<{ id: string; name: string; type: string }>
+  >([]);
+  const [loading, setLoading] = React.useState(false);
+  React.useEffect(() => {
+    let ignore = false;
+    async function fetchResults() {
+      if (!search) {
+        setResults([]);
+        return;
+      }
+      setLoading(true);
+      try {
+        const [patients, employees]: [
+          import("@/types/patient").Patient[],
+          import("@/types/employee").Employee[]
+        ] = await Promise.all([
+          (
+            await import("@/services/patientService")
+          ).patientService.searchPatients(search),
+          (
+            await import("@/services/employeeService")
+          ).employeeService.searchEmployees(search),
+        ]);
+        if (ignore) return;
+        const mapped = [
+          ...patients.map((p) => ({
+            id: p.id,
+            name: p.fullName,
+            type: "Paciente",
+          })),
+          ...employees.map((e) => ({
+            id: e.id,
+            name: e.fullName,
+            type: "Funcionário",
+          })),
+        ];
+        setResults(mapped);
+      } catch (e) {
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchResults();
+    return () => {
+      ignore = true;
+    };
+  }, [search]);
 
   React.useEffect(() => {
     setShowResults(!!search);
