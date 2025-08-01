@@ -136,8 +136,25 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
       setEmployees(employeesData);
       setServices(servicesData);
     }
-    fetchData();
-  }, []);
+
+    if (open) {
+      fetchData();
+    }
+
+    // Listener para recarregar dados quando solicitado via evento
+    const handleRefreshData = () => {
+      fetchData();
+    };
+
+    window.addEventListener("refreshAppointmentDialogData", handleRefreshData);
+
+    return () => {
+      window.removeEventListener(
+        "refreshAppointmentDialogData",
+        handleRefreshData
+      );
+    };
+  }, [open]);
 
   const [isLoading, setIsLoading] = useState(false);
 

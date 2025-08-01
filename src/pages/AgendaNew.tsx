@@ -31,6 +31,9 @@ import {
   FilterDialog,
   AppointmentProfileDialog,
 } from "@/components/agenda";
+import { AddEmployeeDialog } from "@/components/funcionarios/AddEmployeeDialog";
+import AddPatientDialog from "@/components/pacientes/AddPatientDialog";
+import ServiceFormDialog from "@/components/servicos/ServiceFormDialog";
 import { toast } from "sonner";
 import { appointmentService } from "@/services/appointmentService";
 import {
@@ -55,6 +58,38 @@ const Agenda = () => {
   const [filterDoctor, setFilterDoctor] = useState("");
   const [filterTimeRange, setFilterTimeRange] = useState("");
   const [filterService, setFilterService] = useState("");
+
+  // Estados para os dialogs dos atalhos
+  const [openAddEmployeeDialog, setOpenAddEmployeeDialog] = useState(false);
+  const [openAddPatientDialog, setOpenAddPatientDialog] = useState(false);
+  const [openServiceFormDialog, setOpenServiceFormDialog] = useState(false);
+
+  // Listener para eventos globais de abrir dialogs (igual ao Dashboard)
+  useEffect(() => {
+    const handlerPatient = () => setOpenAddPatientDialog(true);
+    const handlerService = () => setOpenServiceFormDialog(true);
+    const handlerEmployee = () => setOpenAddEmployeeDialog(true);
+
+    window.addEventListener("openAddPatientDialog", handlerPatient);
+    window.addEventListener("openAddServiceDialog", handlerService);
+    window.addEventListener("openAddEmployeeDialog", handlerEmployee);
+
+    return () => {
+      window.removeEventListener("openAddPatientDialog", handlerPatient);
+      window.removeEventListener("openAddServiceDialog", handlerService);
+      window.removeEventListener("openAddEmployeeDialog", handlerEmployee);
+    };
+  }, []);
+
+  // Estado do formulário de serviço (igual ao Dashboard)
+  const [serviceFormData, setServiceFormData] = useState({
+    name: "",
+    description: "",
+    price: "",
+    duration: "",
+    category: "",
+    isActive: true,
+  });
 
   // Estados para controle de data e visualização
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -435,6 +470,81 @@ const Agenda = () => {
           employees={employees}
           services={services}
           onSave={handleUpdateAppointment}
+        />
+
+        {/* Dialogs para os atalhos */}
+        <AddEmployeeDialog
+          isOpen={openAddEmployeeDialog}
+          onClose={() => setOpenAddEmployeeDialog(false)}
+          onEmployeeAdded={async (employeeData) => {
+            try {
+              await employeeService.createEmployeeWithSchedule(employeeData);
+              setOpenAddEmployeeDialog(false);
+              // Notifica o AddAppointmentDialog para recarregar seus dados
+              window.dispatchEvent(
+                new CustomEvent("refreshAppointmentDialogData")
+              );
+            } catch (error) {
+              // Error is already handled in the service
+            }
+          }}
+        />
+
+        <AddPatientDialog
+          open={openAddPatientDialog}
+          onOpenChange={setOpenAddPatientDialog}
+          onAddPatient={async (patientData) => {
+            try {
+              await patientService.createPatient(patientData);
+              setOpenAddPatientDialog(false);
+              // Notifica o AddAppointmentDialog para recarregar seus dados
+              window.dispatchEvent(
+                new CustomEvent("refreshAppointmentDialogData")
+              );
+            } catch (error) {
+              console.error("Erro ao criar paciente:", error);
+            }
+          }}
+        />
+
+        <ServiceFormDialog
+          isOpen={openServiceFormDialog}
+          onOpenChange={setOpenServiceFormDialog}
+          title="Novo Serviço"
+          formData={serviceFormData}
+          onFormDataChange={setServiceFormData}
+          onSubmit={async (serviceData) => {
+            try {
+              await serviceService.createService(serviceData);
+              setOpenServiceFormDialog(false);
+              setServiceFormData({
+                name: "",
+                description: "",
+                price: "",
+                duration: "",
+                category: "",
+                isActive: true,
+              });
+              // Notifica o AddAppointmentDialog para recarregar seus dados
+              window.dispatchEvent(
+                new CustomEvent("refreshAppointmentDialogData")
+              );
+            } catch (error) {
+              console.error("Erro ao criar serviço:", error);
+            }
+          }}
+          onCancel={() => {
+            setOpenServiceFormDialog(false);
+            setServiceFormData({
+              name: "",
+              description: "",
+              price: "",
+              duration: "",
+              category: "",
+              isActive: true,
+            });
+          }}
+          submitLabel="Criar Serviço"
         />
       </div>
     </AppLayout>

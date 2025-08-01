@@ -543,9 +543,18 @@ const Agenda = () => {
         <AddPatientDialog
           open={openAddPatientDialog}
           onOpenChange={setOpenAddPatientDialog}
-          onAddPatient={async (patient) => {
-            setOpenAddPatientDialog(false);
-            toast.success("Paciente cadastrado com sucesso!");
+          onAddPatient={async (patientData) => {
+            try {
+              await patientService.createPatient(patientData);
+              setOpenAddPatientDialog(false);
+              // Notifica o AddAppointmentDialog para recarregar seus dados
+              window.dispatchEvent(
+                new CustomEvent("refreshAppointmentDialogData")
+              );
+              toast.success("Paciente cadastrado com sucesso!");
+            } catch (error) {
+              console.error("Erro ao criar paciente:", error);
+            }
           }}
         />
 
@@ -555,9 +564,26 @@ const Agenda = () => {
           title="Novo Serviço"
           formData={serviceFormData}
           onFormDataChange={setServiceFormData}
-          onSubmit={() => {
-            setOpenAddServiceDialog(false);
-            toast.success("Serviço cadastrado com sucesso!");
+          onSubmit={async (serviceData) => {
+            try {
+              await serviceService.createService(serviceData);
+              setOpenAddServiceDialog(false);
+              setServiceFormData({
+                name: "",
+                description: "",
+                price: "",
+                duration: "",
+                category: "",
+                isActive: true,
+              });
+              // Notifica o AddAppointmentDialog para recarregar seus dados
+              window.dispatchEvent(
+                new CustomEvent("refreshAppointmentDialogData")
+              );
+              toast.success("Serviço cadastrado com sucesso!");
+            } catch (error) {
+              console.error("Erro ao criar serviço:", error);
+            }
           }}
           onCancel={() => setOpenAddServiceDialog(false)}
         />
@@ -569,8 +595,10 @@ const Agenda = () => {
             try {
               await employeeService.createEmployeeWithSchedule(employeeData);
               setOpenAddEmployeeDialog(false);
-              // Recarrega a página para atualizar os dados
-              window.location.reload();
+              // Notifica o AddAppointmentDialog para recarregar seus dados
+              window.dispatchEvent(
+                new CustomEvent("refreshAppointmentDialogData")
+              );
             } catch (error) {
               // Error is already handled in the service
             }
