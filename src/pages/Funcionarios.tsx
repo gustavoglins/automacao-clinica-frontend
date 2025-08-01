@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
 import { useLocation } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { UserX } from "lucide-react";
@@ -42,6 +43,8 @@ interface FilterState {
 }
 
 function Funcionarios() {
+  // Estado para armazenar os dias de trabalho do funcionário selecionado
+  const [employeeWorkDays, setEmployeeWorkDays] = useState<number[]>([]);
   const location = useLocation();
   // Usar contexto global de funcionários
   const { employees, setEmployees, loading, fetchEmployees } = useEmployees();
@@ -124,10 +127,24 @@ function Funcionarios() {
     setModernProfileDialogOpen(true);
   };
 
-  const handleOpenEdit = (employee: Employee) => {
+  const handleOpenEdit = async (employee: Employee) => {
     setSelectedEmployee(employee);
-    setEditDialogOpen(true);
     setModernProfileDialogOpen(false);
+    // Buscar dias de trabalho do funcionário
+    if (employee?.id) {
+      const { data, error } = await supabase
+        .from("work_hours")
+        .select("weekday")
+        .eq("employee_id", employee.id);
+      if (!error && data) {
+        setEmployeeWorkDays(data.map((w: { weekday: number }) => w.weekday));
+      } else {
+        setEmployeeWorkDays([]);
+      }
+    } else {
+      setEmployeeWorkDays([]);
+    }
+    setEditDialogOpen(true);
   };
 
   const handleOpenDelete = (employee: Employee) => {
@@ -259,6 +276,7 @@ function Funcionarios() {
           isOpen={editDialogOpen}
           onClose={() => setEditDialogOpen(false)}
           onEmployeeUpdated={handleEmployeeUpdated}
+          employeeWorkDays={employeeWorkDays}
         />
         <DeleteEmployeeDialog
           employee={selectedEmployee}

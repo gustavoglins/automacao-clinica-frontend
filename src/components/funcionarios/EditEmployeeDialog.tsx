@@ -47,13 +47,14 @@ interface EditEmployeeDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onEmployeeUpdated: () => void;
+  employeeWorkDays?: number[]; // 0=Dom, 1=Seg, ...
 }
-
 export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
   employee,
   isOpen,
   onClose,
   onEmployeeUpdated,
+  employeeWorkDays,
 }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -80,6 +81,54 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
 
   React.useEffect(() => {
     if (employee) {
+      // Ordem dos botões e mapeamento: [Seg, Ter, Qua, Qui, Sex, Sáb, Dom]
+      const diasPadrao = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+      let workDays: string[] = [];
+      if (Array.isArray(employeeWorkDays) && employeeWorkDays.length > 0) {
+        // 0=Dom, 1=Seg, ..., 6=Sáb
+        // Para marcar corretamente, converte cada número para a string do botão correspondente
+        // 0->Dom, 1->Seg, ..., 6->Sáb
+        const mapNumToStr = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+        workDays = employeeWorkDays
+          .map((n) => mapNumToStr[n] ?? "")
+          .filter(Boolean);
+      } else if (Array.isArray(employee.workDays)) {
+        // fallback para compatibilidade antiga
+        const normalizarDia = (dia: string) => {
+          const mapa: Record<string, string> = {
+            seg: "Seg",
+            segunda: "Seg",
+            "segunda-feira": "Seg",
+            ter: "Ter",
+            terca: "Ter",
+            terça: "Ter",
+            "terça-feira": "Ter",
+            qua: "Qua",
+            quarta: "Qua",
+            "quarta-feira": "Qua",
+            qui: "Qui",
+            quinta: "Qui",
+            "quinta-feira": "Qui",
+            sex: "Sex",
+            sexta: "Sex",
+            "sexta-feira": "Sex",
+            sab: "Sáb",
+            sabado: "Sáb",
+            sábado: "Sáb",
+            dom: "Dom",
+            domingo: "Dom",
+          };
+          const key = dia.toLowerCase().replace(/[-_\s]/g, "");
+          for (const k in mapa) {
+            if (key.startsWith(k)) return mapa[k];
+          }
+          if (diasPadrao.includes(dia)) return dia;
+          return null;
+        };
+        workDays = employee.workDays
+          .map((dia) => normalizarDia(dia))
+          .filter((d): d is string => !!d);
+      }
       setFormData((prev) => ({
         ...prev,
         name: employee.fullName || "",
@@ -92,15 +141,12 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
         hireDate: employee.hiredAt || "",
         salary: employee.salary?.toString() || "",
         status: employee.status || "ativo",
-        workDays:
-          Array.isArray(employee.workDays) && employee.workDays.length > 0
-            ? employee.workDays
-            : ["Seg", "Ter", "Qua", "Qui", "Sex"],
+        workDays,
         startHour: employee.startHour || "08:00",
         endHour: employee.endHour || "18:00",
       }));
     }
-  }, [employee]);
+  }, [employee, employeeWorkDays]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,7 +180,8 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
         workDays: formData.workDays,
         startHour: formData.startHour,
         endHour: formData.endHour,
-        hiredAt: employee.hiredAt, // manter data original
+        crmNumber: formData.registrationNumber,
+        hiredAt: formData.hireDate ? formData.hireDate : null,
       };
 
       await employeeService.updateEmployeeWithSchedule(updatedEmployee);
