@@ -150,10 +150,22 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                 </h2>
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                   <Badge
-                    variant="success"
-                    className="bg-green-100 text-green-800 border-green-200"
+                    variant={
+                      employee.status === "ativo" ? "success" : "outline"
+                    }
+                    className={
+                      employee.status === "ativo"
+                        ? "bg-green-100 text-green-800 border-green-200"
+                        : "bg-gray-100 text-gray-600 border-gray-200"
+                    }
                   >
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    <div
+                      className={`w-2 h-2 rounded-full mr-2 ${
+                        employee.status === "ativo"
+                          ? "bg-green-500"
+                          : "bg-gray-400"
+                      }`}
+                    ></div>
                     {employee.status.charAt(0).toUpperCase() +
                       employee.status.slice(1)}
                   </Badge>

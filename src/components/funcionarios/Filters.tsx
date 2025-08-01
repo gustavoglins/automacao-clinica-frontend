@@ -84,6 +84,25 @@ export const Filters: React.FC<FiltersProps> = ({
               className="pl-10"
             />
           </div>
+          {/* Filtro de status */}
+          <Select
+            value={filters.status || "all"}
+            onValueChange={(value) =>
+              onFiltersChange({
+                ...filters,
+                status: value === "all" ? "" : value,
+              })
+            }
+          >
+            <SelectTrigger className="w-full sm:w-[140px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos status</SelectItem>
+              <SelectItem value="ativo">Ativo</SelectItem>
+              <SelectItem value="inativo">Inativo</SelectItem>
+            </SelectContent>
+          </Select>
           <Select
             value={filters.role}
             onValueChange={(value) =>
