@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import EditPatientDialog from "./EditPatientDialog";
 import { AddAppointmentDialog } from "@/components/agenda";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
   onViewRecord,
 }) => {
   const [openAddAppointment, setOpenAddAppointment] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
   if (!patient) return null;
 
   const formatDate = (dateString: string) => {
@@ -168,11 +170,20 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
               </Button>
               <Button
                 variant="outline"
-                onClick={() => onEdit(patient)}
+                onClick={() => setOpenEditDialog(true)}
                 className="px-6 text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
               >
                 <Edit className="w-4 h-4" />
               </Button>
+              <EditPatientDialog
+                open={openEditDialog}
+                onOpenChange={setOpenEditDialog}
+                patient={patient}
+                onEditPatient={(updatedPatient) => {
+                  onEdit({ ...patient, ...updatedPatient });
+                  setOpenEditDialog(false);
+                }}
+              />
             </div>
 
             <Separator />

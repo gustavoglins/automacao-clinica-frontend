@@ -48,7 +48,6 @@ interface PatientFormData {
   birthDate: string;
   phone: string;
   email: string;
-  address: string;
 }
 
 const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
@@ -62,7 +61,6 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
     birthDate: "",
     phone: "",
     email: "",
-    address: "",
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ phone?: string; cpf?: string }>({});
@@ -95,7 +93,6 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
       birthDate: "",
       phone: "",
       email: "",
-      address: "",
     });
   };
 
@@ -125,7 +122,6 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
         birthDate: formData.birthDate,
         phone: onlyNumbers(formData.phone),
         email: formData.email,
-        address: formData.address,
       };
       await onAddPatient(newPatient);
       resetForm();
@@ -222,7 +218,7 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Telefone</Label>
+                  <Label htmlFor="phone">Telefone *</Label>
                   <Input
                     id="phone"
                     placeholder="(11) 99999-9999"
@@ -244,28 +240,6 @@ const AddPatientDialog: React.FC<AddPatientDialogProps> = ({
                     onChange={(e) => handleInputChange("email", e.target.value)}
                   />
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Endereço */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <MapPin className="w-5 h-5 text-primary" />
-                Endereço
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Label htmlFor="address">Endereço</Label>
-                <Textarea
-                  id="address"
-                  placeholder="Digite o endereço completo"
-                  rows={3}
-                  value={formData.address}
-                  onChange={(e) => handleInputChange("address", e.target.value)}
-                />
               </div>
             </CardContent>
           </Card>
