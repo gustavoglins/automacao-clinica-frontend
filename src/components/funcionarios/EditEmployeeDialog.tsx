@@ -111,7 +111,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
 
     setIsLoading(true);
     try {
-      const updatedEmployee: Employee = {
+      const updatedEmployee = {
         ...employee,
         fullName: formData.name,
         email: formData.email,
@@ -127,8 +127,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
         hiredAt: employee.hiredAt, // manter data original
       };
 
-      await employeeService.updateEmployee(updatedEmployee);
-      toast.success("Funcionário atualizado com sucesso!");
+      await employeeService.updateEmployeeWithSchedule(updatedEmployee);
       onEmployeeUpdated();
       onClose();
     } catch (error) {
@@ -467,6 +466,36 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Dias de Trabalho *</Label>
+                <div className="flex flex-wrap gap-2">
+                  {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map(
+                    (day) => {
+                      const selected = formData.workDays.includes(day);
+                      return (
+                        <button
+                          key={day}
+                          type="button"
+                          className={`px-3 py-1 rounded-full border text-sm transition-colors ${
+                            selected
+                              ? "bg-primary text-white border-primary shadow"
+                              : "bg-muted text-foreground border-muted-foreground hover:bg-primary/10"
+                          }`}
+                          onClick={() => {
+                            const workDays = formData.workDays.includes(day)
+                              ? formData.workDays.filter((d) => d !== day)
+                              : [...formData.workDays, day];
+                            handleChange("workDays", workDays);
+                          }}
+                        >
+                          {day}
+                        </button>
+                      );
+                    }
+                  )}
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="startHour">
@@ -477,9 +506,9 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                     type="time"
                     value={formData.startHour}
                     onChange={(e) => handleChange("startHour", e.target.value)}
+                    required
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="endHour">
                     Horário de Saída <span className="text-gray-800">*</span>
@@ -489,11 +518,10 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                     type="time"
                     value={formData.endHour}
                     onChange={(e) => handleChange("endHour", e.target.value)}
+                    required
                   />
                 </div>
               </div>
-
-              {/* Campos de agendamento removidos conforme solicitado */}
             </CardContent>
           </Card>
 
