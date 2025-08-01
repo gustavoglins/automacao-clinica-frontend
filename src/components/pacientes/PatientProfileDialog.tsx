@@ -21,6 +21,7 @@ import {
   Trash2,
   FileText,
   Stethoscope,
+  IdCard,
   X,
 } from "lucide-react";
 import { Patient } from "@/types/patient";
@@ -138,8 +139,9 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                   </Badge> */}
                   <Badge
                     variant="outline"
-                    className="bg-green-100 text-green-600 border-green-200"
+                    className="bg-gray-50 text-gray-700 border-gray-200"
                   >
+                    <IdCard className="w-3 h-3 mr-1" />
                     {formatCPF(patient.cpf)}
                   </Badge>
                 </div>

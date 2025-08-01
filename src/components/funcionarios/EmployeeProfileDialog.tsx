@@ -24,6 +24,9 @@ import {
   ChevronRight,
   MapPin,
   DollarSign,
+  Stethoscope,
+  GraduationCap,
+  IdCard,
   X,
 } from "lucide-react";
 import type { Employee } from "@/types/employee";
@@ -110,48 +113,6 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
     setShowCalendar(true);
   };
 
-  // Dados mockados de compromissos - substituir por dados reais do backend
-  const mockAppointments = [
-    {
-      id: 1,
-      date: new Date(2025, 0, 15), // 15 de Janeiro
-      time: "09:00",
-      patient: "Maria Silva",
-      type: "Consulta",
-      status: "confirmado",
-    },
-    {
-      id: 2,
-      date: new Date(2025, 0, 15), // 15 de Janeiro
-      time: "14:30",
-      patient: "João Santos",
-      type: "Limpeza",
-      status: "confirmado",
-    },
-    {
-      id: 3,
-      date: new Date(2025, 0, 18), // 18 de Janeiro
-      time: "10:00",
-      patient: "Ana Costa",
-      type: "Tratamento",
-      status: "pendente",
-    },
-  ];
-
-  // Verificar se uma data tem compromissos
-  const hasAppointments = (date: Date) => {
-    return mockAppointments.some(
-      (appointment) => appointment.date.toDateString() === date.toDateString()
-    );
-  };
-
-  // Obter compromissos de uma data específica
-  const getAppointmentsForDate = (date: Date) => {
-    return mockAppointments.filter(
-      (appointment) => appointment.date.toDateString() === date.toDateString()
-    );
-  };
-
   return (
     <>
       {/* Dialog Principal do Perfil */}
@@ -200,32 +161,25 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                     variant="outline"
                     className="bg-gray-50 text-gray-700 border-gray-200"
                   >
-                    <CreditCard className="w-3 h-3 mr-1" />
+                    <IdCard className="w-3 h-3 mr-1" />
                     {formatCPF(employee.cpf)}
                   </Badge>
                   <Badge
                     variant="outline"
                     className="bg-gray-50 text-gray-700 border-gray-200"
                   >
+                    <GraduationCap className="w-3 h-3 mr-1" />
                     {formatRole(employee.role)}
                   </Badge>
                   {employee.specialty && (
                     <Badge
                       variant="outline"
-                      className="bg-blue-50 text-blue-700 border-blue-200"
+                      className="bg-gray-50 text-gray-700 border-gray-200"
                     >
+                      <Stethoscope className="w-3 h-3 mr-1" />
                       {formatSpecialty(employee.specialty)}
                     </Badge>
                   )}
-                </div>
-                <div className="flex items-center gap-3">
-                  {/* <Badge
-                    variant="info"
-                    className="bg-blue-100 text-blue-800 border-blue-200"
-                  >
-                    <Clock className="w-3 h-3 mr-1" />
-                    {calculateWorkTime(employee.hiredAt)}
-                  </Badge> */}
                 </div>
               </div>
             </div>
@@ -275,16 +229,6 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                     </p>
                   </div>
                 </div>
-                {employee.cpf && (
-                  <div>
-                    <p className="text-sm font-medium text-gray-500 mb-1">
-                      CPF
-                    </p>
-                    <p className="text-gray-900 font-medium break-all">
-                      {formatCPF(employee.cpf)}
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -295,6 +239,38 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                 Informações Profissionais
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-1">
+                      Cargo
+                    </p>
+                    <p className="text-gray-900 font-medium">
+                      {formatRole(employee.role)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-1">
+                      Especialidade
+                    </p>
+                    <p className="text-gray-900 font-medium">
+                      {employee.specialty
+                        ? formatSpecialty(employee.specialty)
+                        : "Não informado"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-1">
+                      Salário
+                    </p>
+                    <p className="text-gray-900 font-medium break-all">
+                      {typeof employee.salary === "number"
+                        ? `R$ ${employee.salary.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                          })}`
+                        : "Não informado"}
+                    </p>
+                  </div>
+                </div>
                 <div className="space-y-4">
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-1">
@@ -309,163 +285,20 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                       Tempo na Empresa
                     </p>
                     <p className="text-gray-900 font-medium">
-                      {calculateWorkTime(employee.hiredAt)}
+                      {(() => {
+                        if (!employee.hiredAt) return "Não informado";
+                        const hiredDate = new Date(employee.hiredAt);
+                        const now = new Date();
+                        if (hiredDate > now) return "Ainda não contratado";
+                        return calculateWorkTime(employee.hiredAt);
+                      })()}
                     </p>
                   </div>
                 </div>
-                {employee.salary && (
-                  <div>
-                    <p className="text-sm font-medium text-gray-500 mb-1">
-                      Salário
-                    </p>
-                    <p className="text-gray-900 font-medium break-all">
-                      R${" "}
-                      {employee.salary.toLocaleString("pt-BR", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
 
             <Separator />
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog do Calendário - Separado */}
-      <Dialog open={showCalendar} onOpenChange={setShowCalendar}>
-        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-gray-900">
-              Agenda de {employee.fullName}
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
-            {/* Calendar */}
-            <div className="lg:col-span-1 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Calendário
-              </h3>
-              <div className="flex justify-center">
-                <div className="w-full max-w-sm min-h-[350px]">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    className="rounded-lg border shadow-sm w-full"
-                    modifiers={{
-                      hasAppointments: (date) => hasAppointments(date),
-                    }}
-                    modifiersStyles={{
-                      hasAppointments: {
-                        backgroundColor: "#22c55e",
-                        color: "white",
-                        fontWeight: "bold",
-                        borderRadius: "6px",
-                      },
-                    }}
-                    fixedWeeks={true}
-                    showOutsideDays={true}
-                  />
-                </div>
-              </div>
-              <div className="text-sm text-gray-600 text-center">
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 bg-green-500 rounded"></div>
-                  <span>Datas com compromissos</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Appointments for selected date */}
-            <div className="lg:col-span-2 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Compromissos{" "}
-                {selectedDate
-                  ? `- ${selectedDate.toLocaleDateString("pt-BR")}`
-                  : ""}
-              </h3>
-
-              {selectedDate &&
-              getAppointmentsForDate(selectedDate).length > 0 ? (
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {getAppointmentsForDate(selectedDate).map((appointment) => (
-                    <div
-                      key={appointment.id}
-                      className="bg-blue-50 border border-blue-200 rounded-lg p-4"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-semibold text-gray-900">
-                          {appointment.time}
-                        </span>
-                        <Badge
-                          variant={
-                            appointment.status === "confirmado"
-                              ? "success"
-                              : "warning"
-                          }
-                          className={
-                            appointment.status === "confirmado"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }
-                        >
-                          {appointment.status}
-                        </Badge>
-                      </div>
-                      <p className="text-gray-700 font-medium">
-                        {appointment.patient}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {appointment.type}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12 text-gray-500">
-                  <CalendarIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <p className="text-lg">Nenhum compromisso para esta data</p>
-                </div>
-              )}
-
-              {/* Summary */}
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
-                <h4 className="font-semibold text-gray-900 mb-3">
-                  Resumo Geral
-                </h4>
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <p className="text-2xl font-bold text-blue-600">
-                      {mockAppointments.length}
-                    </p>
-                    <p className="text-sm text-gray-600">Total</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-green-600">
-                      {
-                        mockAppointments.filter(
-                          (a) => a.status === "confirmado"
-                        ).length
-                      }
-                    </p>
-                    <p className="text-sm text-gray-600">Confirmados</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-yellow-600">
-                      {
-                        mockAppointments.filter((a) => a.status === "pendente")
-                          .length
-                      }
-                    </p>
-                    <p className="text-sm text-gray-600">Pendentes</p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
