@@ -79,9 +79,10 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
       }
       setLoading(true);
       try {
-        const [patients, employees]: [
+        const [patients, employees, services]: [
           import("@/types/patient").Patient[],
-          import("@/types/employee").Employee[]
+          import("@/types/employee").Employee[],
+          import("@/types/service").Service[]
         ] = await Promise.all([
           (
             await import("@/services/patientService")
@@ -89,6 +90,9 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
           (
             await import("@/services/employeeService")
           ).employeeService.searchEmployees(search),
+          (
+            await import("@/services/servicesService")
+          ).serviceService.searchServices(search),
         ]);
         if (ignore) return;
         const mapped = [
@@ -101,6 +105,11 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
             id: e.id,
             name: e.fullName,
             type: "Funcionário",
+          })),
+          ...services.map((s) => ({
+            id: s.id.toString(),
+            name: s.name,
+            type: "Serviço",
           })),
         ];
         setResults(mapped);
@@ -149,7 +158,7 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               ref={inputRef}
-              placeholder="Buscar pacientes, funcionários..."
+              placeholder="Buscar pacientes, funcionários, serviços..."
               className="pl-10 pr-4 py-2 w-full bg-gray-50/50 border-gray-200 rounded-lg focus:bg-white focus:border-blue-300 transition-all duration-200 text-sm"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -178,9 +187,13 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
                             navigate(
                               `/pacientes?q=${encodeURIComponent(item.name)}`
                             );
-                          } else {
+                          } else if (item.type === "Funcionário") {
                             navigate(
                               `/funcionarios?q=${encodeURIComponent(item.name)}`
+                            );
+                          } else if (item.type === "Serviço") {
+                            navigate(
+                              `/servicos?q=${encodeURIComponent(item.name)}`
                             );
                           }
                         }}

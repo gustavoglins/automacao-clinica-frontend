@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { UserX } from "lucide-react";
 import {
@@ -46,6 +46,7 @@ function Funcionarios() {
   // Estado para armazenar os dias de trabalho do funcionário selecionado
   const [employeeWorkDays, setEmployeeWorkDays] = useState<number[]>([]);
   const location = useLocation();
+  const navigate = useNavigate();
   // Usar contexto global de funcionários
   const { employees, setEmployees, loading, fetchEmployees } = useEmployees();
   const [filters, setFilters] = useState<FilterState>({
@@ -58,6 +59,17 @@ function Funcionarios() {
     location: "",
     performance: "",
   });
+
+  // Efeito para aplicar busca da URL e limpar após redirecionamento
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const urlQuery = params.get("q");
+    if (urlQuery) {
+      setFilters((prev) => ({ ...prev, search: urlQuery }));
+      // Limpar parâmetro da URL após aplicar o filtro
+      navigate("/funcionarios", { replace: true });
+    }
+  }, [location.search, navigate]);
 
   // Dialog states
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { Settings, TrendingUp, DollarSign, Activity } from "lucide-react";
@@ -35,6 +36,19 @@ const Servicos = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Efeito para aplicar busca da URL e limpar após redirecionamento
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const urlQuery = params.get("q");
+    if (urlQuery) {
+      setSearchTerm(urlQuery);
+      // Limpar parâmetro da URL após aplicar o filtro
+      navigate("/servicos", { replace: true });
+    }
+  }, [location.search, navigate]);
 
   // Estados para filtros avançados
   const [advancedFilters, setAdvancedFilters] = useState({
@@ -66,7 +80,10 @@ const Servicos = () => {
       filtered = filtered.filter(
         (service) =>
           service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          service.description.toLowerCase().includes(searchTerm.toLowerCase())
+          (service.description &&
+            service.description
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()))
       );
     }
 

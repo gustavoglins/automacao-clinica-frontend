@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   PatientsStats,
@@ -26,8 +26,20 @@ const Pacientes = () => {
   const [openEditPatientDialog, setOpenEditPatientDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
-  const query = params.get("q") || search;
+  const urlQuery = params.get("q");
+
+  // Efeito para aplicar busca da URL e limpar após redirecionamento
+  useEffect(() => {
+    if (urlQuery) {
+      setSearch(urlQuery);
+      // Limpar parâmetro da URL após aplicar o filtro
+      navigate("/pacientes", { replace: true });
+    }
+  }, [urlQuery, navigate]);
+
+  const query = search;
 
   // Usar contexto global de pacientes
   const { patients, setPatients, loading, fetchPatients } = usePatients();
