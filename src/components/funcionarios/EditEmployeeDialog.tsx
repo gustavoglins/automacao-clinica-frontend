@@ -106,10 +106,17 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
     e.preventDefault();
     if (!employee) return;
 
-    const phoneInfo = getPhoneInfo(formData.phone);
-    if (!phoneInfo.isValid) {
-      toast.error(phoneInfo.message);
-      return;
+    let phoneValue = null;
+    if (formData.phone) {
+      const phoneDigits = onlyNumbers(formData.phone);
+      if (phoneDigits.length === 11) {
+        phoneValue = phoneDigits;
+      } else if (phoneDigits.length > 0) {
+        toast.error(
+          "O telefone deve conter exatamente 11 dígitos (DDD + número)."
+        );
+        return;
+      }
     }
 
     setIsLoading(true);
@@ -118,8 +125,8 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
         ...employee,
         fullName: formData.name,
         email: formData.email,
-        phone: onlyNumbers(formData.phone),
-        cpf: formData.cpf,
+        phone: phoneValue,
+        cpf: onlyNumbers(formData.cpf),
         role: formData.role,
         specialty: formData.specialty,
         salary: formData.salary ? parseFloat(formData.salary) : null,
