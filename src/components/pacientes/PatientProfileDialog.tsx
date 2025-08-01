@@ -314,7 +314,11 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
         <AddAppointmentDialog
           open={openAddAppointment}
           onOpenChange={setOpenAddAppointment}
-          onAddAppointment={() => {
+          onAddAppointment={async (appointmentData) => {
+            await import("@/services/appointmentService").then(
+              ({ appointmentService }) =>
+                appointmentService.createAppointment(appointmentData)
+            );
             setOpenAddAppointment(false);
           }}
           initialPatientId={patient.id}
