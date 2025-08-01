@@ -11,6 +11,7 @@ import {
   PatientProfileDialog,
   AddPatientDialog,
 } from "@/components/pacientes";
+import EditPatientDialog from "@/components/pacientes/EditPatientDialog";
 import { Patient, PatientStatus } from "@/types/patient";
 import { patientService } from "@/services/patientService";
 import { usePatients } from "@/context/PatientContext";
@@ -22,6 +23,7 @@ const Pacientes = () => {
   const [openAllPatientsDialog, setOpenAllPatientsDialog] = useState(false);
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const [openAddPatientDialog, setOpenAddPatientDialog] = useState(false);
+  const [openEditPatientDialog, setOpenEditPatientDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -47,8 +49,9 @@ const Pacientes = () => {
   };
 
   const handleEdit = (patient: Patient) => {
-    console.log("Editar paciente:", patient.fullName);
-    // Implementar lógica de edição
+    setSelectedPatient(patient);
+    setOpenProfileDialog(false);
+    setOpenEditPatientDialog(true);
   };
 
   const handleViewRecord = (patient: Patient) => {
@@ -126,8 +129,31 @@ const Pacientes = () => {
           isOpen={openProfileDialog}
           onClose={() => setOpenProfileDialog(false)}
           onSchedule={handleSchedule}
-          onEdit={handleEdit}
+          onOpenEdit={(patient) => {
+            setSelectedPatient(patient);
+            setOpenProfileDialog(false);
+            setOpenEditPatientDialog(true);
+          }}
           onViewRecord={handleViewRecord}
+        />
+        <EditPatientDialog
+          open={openEditPatientDialog}
+          onOpenChange={setOpenEditPatientDialog}
+          patient={selectedPatient}
+          onEditPatient={async (updatedPatient) => {
+            try {
+              const updated = await patientService.updatePatient(
+                updatedPatient
+              );
+              setPatients((prev) =>
+                prev.map((p) => (p.id === updated.id ? updated : p))
+              );
+              setOpenEditPatientDialog(false);
+              setSelectedPatient(updated);
+            } catch (error) {
+              console.error("Erro ao atualizar paciente:", error);
+            }
+          }}
         />
 
         {/* Add Patient Dialog */}

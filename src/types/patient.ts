@@ -6,7 +6,6 @@ export interface Patient {
   birthDate: string; // DATE
   phone: string | null;
   email: string | null;
-  address: string | null;
   createdAt: string;
   updatedAt: string;
   // Campos opcionais para compatibilidade com UI
@@ -23,7 +22,6 @@ export interface CreatePatientData {
   birthDate: string;
   phone?: string;
   email?: string;
-  address?: string;
 }
 
 // Dados para atualizar um paciente
@@ -39,7 +37,6 @@ export interface SupabasePatient {
   birth_date: string;
   phone: string | null;
   email: string | null;
-  address: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -51,7 +48,6 @@ export interface SupabasePatientInsert {
   birth_date: string;
   phone: string | null;
   email: string | null;
-  address: string | null;
 }
 
 // Dados para atualizar no Supabase
@@ -61,7 +57,6 @@ export interface SupabasePatientUpdate {
   birth_date?: string;
   phone?: string | null;
   email?: string | null;
-  address?: string | null;
 }
 
 // Filtros para busca de pacientes
@@ -85,4 +80,4 @@ export interface ValidationResult {
 }
 
 // Status do paciente (para compatibilidade)
-export type PatientStatus = 'ativo' | 'inativo' | '';
+export type PatientStatus = "ativo" | "inativo" | "";

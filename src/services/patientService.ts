@@ -1,6 +1,6 @@
-import { supabase } from '@/lib/supabaseClient';
-import { toast } from 'sonner';
-import { isValidPhone, onlyNumbers } from '@/lib/utils';
+import { supabase } from "@/lib/supabaseClient";
+import { toast } from "sonner";
+import { isValidPhone, onlyNumbers } from "@/lib/utils";
 import type {
   Patient,
   CreatePatientData,
@@ -10,8 +10,8 @@ import type {
   SupabasePatientUpdate,
   PatientFilters,
   PatientStats,
-  ValidationResult
-} from '@/types/patient';
+  ValidationResult,
+} from "@/types/patient";
 
 // Re-export types for backward compatibility
 export type {
@@ -20,7 +20,7 @@ export type {
   UpdatePatientData,
   PatientFilters,
   PatientStats,
-  ValidationResult
+  ValidationResult,
 };
 
 /**
@@ -38,39 +38,44 @@ class PatientTransformer {
       birthDate: supabasePatient.birth_date,
       phone: supabasePatient.phone,
       email: supabasePatient.email,
-      address: supabasePatient.address,
       createdAt: supabasePatient.created_at,
-      updatedAt: supabasePatient.updated_at
+      updatedAt: supabasePatient.updated_at,
     };
   }
 
   /**
    * Transform CreatePatientData to Supabase insert format
    */
-  static toSupabaseInsert(patientData: CreatePatientData): SupabasePatientInsert {
+  static toSupabaseInsert(
+    patientData: CreatePatientData
+  ): SupabasePatientInsert {
     return {
       full_name: patientData.fullName,
       cpf: patientData.cpf,
       birth_date: patientData.birthDate,
       phone: patientData.phone || null,
       email: patientData.email || null,
-      address: patientData.address || null
     };
   }
 
   /**
    * Transform UpdatePatientData to Supabase update format
    */
-  static toSupabaseUpdate(patientData: UpdatePatientData): SupabasePatientUpdate {
+  static toSupabaseUpdate(
+    patientData: UpdatePatientData
+  ): SupabasePatientUpdate {
     const updateData: SupabasePatientUpdate = {};
 
     // Only include fields that are provided
-    if (patientData.fullName !== undefined) updateData.full_name = patientData.fullName;
+    if (patientData.fullName !== undefined)
+      updateData.full_name = patientData.fullName;
     if (patientData.cpf !== undefined) updateData.cpf = patientData.cpf;
-    if (patientData.birthDate !== undefined) updateData.birth_date = patientData.birthDate;
-    if (patientData.phone !== undefined) updateData.phone = patientData.phone || null;
-    if (patientData.email !== undefined) updateData.email = patientData.email || null;
-    if (patientData.address !== undefined) updateData.address = patientData.address || null;
+    if (patientData.birthDate !== undefined)
+      updateData.birth_date = patientData.birthDate;
+    if (patientData.phone !== undefined)
+      updateData.phone = patientData.phone || null;
+    if (patientData.email !== undefined)
+      updateData.email = patientData.email || null;
 
     return updateData;
   }
@@ -83,16 +88,16 @@ class PatientService {
   async getAllPatients(): Promise<Patient[]> {
     try {
       const { data, error } = await supabase
-        .from('patients')
-        .select('*')
-        .order('full_name');
+        .from("patients")
+        .select("*")
+        .order("full_name");
 
       if (error) throw error;
 
       return data.map(PatientTransformer.fromSupabase);
     } catch (error) {
-      console.error('Error fetching patients:', error);
-      toast.error('Erro ao carregar pacientes');
+      console.error("Error fetching patients:", error);
+      toast.error("Erro ao carregar pacientes");
       throw error;
     }
   }
@@ -103,9 +108,9 @@ class PatientService {
   async getPatientById(id: string): Promise<Patient | null> {
     try {
       const { data, error } = await supabase
-        .from('patients')
-        .select('*')
-        .eq('id', id)
+        .from("patients")
+        .select("*")
+        .eq("id", id)
         .single();
 
       if (error) throw error;
@@ -114,8 +119,8 @@ class PatientService {
 
       return PatientTransformer.fromSupabase(data);
     } catch (error) {
-      console.error('Error fetching patient by ID:', error);
-      toast.error('Erro ao carregar paciente');
+      console.error("Error fetching patient by ID:", error);
+      toast.error("Erro ao carregar paciente");
       throw error;
     }
   }
@@ -128,19 +133,19 @@ class PatientService {
       const insertData = PatientTransformer.toSupabaseInsert(patientData);
 
       const { data, error } = await supabase
-        .from('patients')
+        .from("patients")
         .insert(insertData)
         .select()
         .single();
 
       if (error) throw error;
 
-      toast.success('Paciente adicionado com sucesso!');
+      toast.success("Paciente adicionado com sucesso!");
 
       return PatientTransformer.fromSupabase(data);
     } catch (error) {
-      console.error('Error creating patient:', error);
-      toast.error('Erro ao adicionar paciente');
+      console.error("Error creating patient:", error);
+      toast.error("Erro ao adicionar paciente");
       throw error;
     }
   }
@@ -153,20 +158,20 @@ class PatientService {
       const updateData = PatientTransformer.toSupabaseUpdate(patientData);
 
       const { data, error } = await supabase
-        .from('patients')
+        .from("patients")
         .update(updateData)
-        .eq('id', patientData.id)
+        .eq("id", patientData.id)
         .select()
         .single();
 
       if (error) throw error;
 
-      toast.success('Paciente atualizado com sucesso!');
+      toast.success("Paciente atualizado com sucesso!");
 
       return PatientTransformer.fromSupabase(data);
     } catch (error) {
-      console.error('Error updating patient:', error);
-      toast.error('Erro ao atualizar paciente');
+      console.error("Error updating patient:", error);
+      toast.error("Erro ao atualizar paciente");
       throw error;
     }
   }
@@ -176,17 +181,14 @@ class PatientService {
    */
   async deletePatient(id: string): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('patients')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from("patients").delete().eq("id", id);
 
       if (error) throw error;
 
-      toast.success('Paciente removido com sucesso!');
+      toast.success("Paciente removido com sucesso!");
     } catch (error) {
-      console.error('Error deleting patient:', error);
-      toast.error('Erro ao remover paciente');
+      console.error("Error deleting patient:", error);
+      toast.error("Erro ao remover paciente");
       throw error;
     }
   }
@@ -201,17 +203,19 @@ class PatientService {
       }
 
       const { data, error } = await supabase
-        .from('patients')
-        .select('*')
-        .or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`)
-        .order('full_name');
+        .from("patients")
+        .select("*")
+        .or(
+          `full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`
+        )
+        .order("full_name");
 
       if (error) throw error;
 
       return data.map(PatientTransformer.fromSupabase);
     } catch (error) {
-      console.error('Error searching patients:', error);
-      toast.error('Erro ao buscar pacientes');
+      console.error("Error searching patients:", error);
+      toast.error("Erro ao buscar pacientes");
       throw error;
     }
   }
@@ -221,23 +225,23 @@ class PatientService {
    */
   async filterPatients(filters: PatientFilters): Promise<Patient[]> {
     try {
-      let query = supabase
-        .from('patients')
-        .select('*');
+      let query = supabase.from("patients").select("*");
 
       // Apply search filter
       if (filters.search) {
-        query = query.or(`full_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%,phone.ilike.%${filters.search}%`);
+        query = query.or(
+          `full_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%,phone.ilike.%${filters.search}%`
+        );
       }
 
-      const { data, error } = await query.order('full_name');
+      const { data, error } = await query.order("full_name");
 
       if (error) throw error;
 
       return data.map(PatientTransformer.fromSupabase);
     } catch (error) {
-      console.error('Error filtering patients:', error);
-      toast.error('Erro ao filtrar pacientes');
+      console.error("Error filtering patients:", error);
+      toast.error("Erro ao filtrar pacientes");
       throw error;
     }
   }
@@ -249,8 +253,8 @@ class PatientService {
     try {
       // Get total patients
       const { count: total, error: totalError } = await supabase
-        .from('patients')
-        .select('*', { count: 'exact', head: true });
+        .from("patients")
+        .select("*", { count: "exact", head: true });
 
       if (totalError) throw totalError;
 
@@ -260,18 +264,19 @@ class PatientService {
       startOfMonth.setHours(0, 0, 0, 0);
 
       const { count: newThisMonth, error: monthError } = await supabase
-        .from('patients')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', startOfMonth.toISOString());
+        .from("patients")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", startOfMonth.toISOString());
 
       if (monthError) throw monthError;
 
       // Get upcoming appointments count
-      const { count: upcomingAppointments, error: appointmentsError } = await supabase
-        .from('appointments')
-        .select('*', { count: 'exact', head: true })
-        .gte('appointment_at', new Date().toISOString())
-        .eq('status', 'agendada');
+      const { count: upcomingAppointments, error: appointmentsError } =
+        await supabase
+          .from("appointments")
+          .select("*", { count: "exact", head: true })
+          .gte("appointment_at", new Date().toISOString())
+          .eq("status", "agendada");
 
       if (appointmentsError) throw appointmentsError;
 
@@ -279,11 +284,11 @@ class PatientService {
         total: total || 0,
         active: total || 0, // All patients are considered active for now
         newThisMonth: newThisMonth || 0,
-        upcomingAppointments: upcomingAppointments || 0
+        upcomingAppointments: upcomingAppointments || 0,
       };
     } catch (error) {
-      console.error('Error getting patient stats:', error);
-      toast.error('Erro ao carregar estatísticas');
+      console.error("Error getting patient stats:", error);
+      toast.error("Erro ao carregar estatísticas");
       throw error;
     }
   }
@@ -291,42 +296,44 @@ class PatientService {
   /**
    * Validate patient data
    */
-  validatePatientData(data: CreatePatientData | UpdatePatientData): ValidationResult {
+  validatePatientData(
+    data: CreatePatientData | UpdatePatientData
+  ): ValidationResult {
     const errors: string[] = [];
 
     // Validate required fields
     if (!data.fullName?.trim()) {
-      errors.push('Nome completo é obrigatório');
+      errors.push("Nome completo é obrigatório");
     }
 
     if (!data.cpf?.trim()) {
-      errors.push('CPF é obrigatório');
+      errors.push("CPF é obrigatório");
     } else if (!this.isValidCPF(data.cpf)) {
-      errors.push('CPF inválido');
+      errors.push("CPF inválido");
     }
 
     if (!data.birthDate) {
-      errors.push('Data de nascimento é obrigatória');
+      errors.push("Data de nascimento é obrigatória");
     } else {
       const birthDate = new Date(data.birthDate);
       const today = new Date();
       if (birthDate > today) {
-        errors.push('Data de nascimento não pode ser no futuro');
+        errors.push("Data de nascimento não pode ser no futuro");
       }
     }
 
     // Validate optional fields
     if (data.phone && !isValidPhone(data.phone)) {
-      errors.push('Telefone inválido');
+      errors.push("Telefone inválido");
     }
 
     if (data.email && !this.isValidEmail(data.email)) {
-      errors.push('E-mail inválido');
+      errors.push("E-mail inválido");
     }
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
@@ -335,7 +342,7 @@ class PatientService {
    */
   private isValidCPF(cpf: string): boolean {
     // Remove non-numeric characters
-    const cleanCPF = cpf.replace(/\D/g, '');
+    const cleanCPF = cpf.replace(/\D/g, "");
 
     // Check if it has 11 digits
     if (cleanCPF.length !== 11) return false;
@@ -389,16 +396,16 @@ export const searchPatients = (patients: Patient[], searchTerm: string) => {
 
   const normalizedSearch = normalizeText(searchTerm);
 
-  return patients.filter(patient => {
+  return patients.filter((patient) => {
     // Campos pesquisáveis normalizados
     const searchableFields = [
       normalizeText(patient.fullName),
-      normalizeText(patient.email || ''),
-      patient.phone?.replace(/\D/g, "") || '', // Apenas números
+      normalizeText(patient.email || ""),
+      patient.phone?.replace(/\D/g, "") || "", // Apenas números
     ];
 
     // Verifica se o termo está presente em qualquer campo
-    return searchableFields.some(field => field.includes(normalizedSearch));
+    return searchableFields.some((field) => field.includes(normalizedSearch));
   });
 };
 

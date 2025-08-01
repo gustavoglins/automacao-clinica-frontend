@@ -33,7 +33,7 @@ interface PatientProfileDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSchedule: (patient: Patient) => void;
-  onEdit: (patient: Patient) => void;
+  onOpenEdit: (patient: Patient) => void;
   onViewRecord: (patient: Patient) => void;
 }
 
@@ -42,7 +42,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
   isOpen,
   onClose,
   onSchedule,
-  onEdit,
+  onOpenEdit,
   onViewRecord,
 }) => {
   const [openAddAppointment, setOpenAddAppointment] = useState(false);
@@ -162,7 +162,10 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
             {/* Quick Actions */}
             <div className="flex gap-3">
               <Button
-                onClick={() => setOpenAddAppointment(true)}
+                onClick={() => {
+                  setOpenAddAppointment(true);
+                  onClose();
+                }}
                 className="flex-1 bg-green-600 hover:bg-green-700 text-white shadow-sm transition-all duration-200 hover:shadow-md"
               >
                 <CalendarIcon className="w-4 h-4 mr-2" />
@@ -170,20 +173,11 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
               </Button>
               <Button
                 variant="outline"
-                onClick={() => setOpenEditDialog(true)}
+                onClick={() => onOpenEdit(patient)}
                 className="px-6 text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
               >
                 <Edit className="w-4 h-4" />
               </Button>
-              <EditPatientDialog
-                open={openEditDialog}
-                onOpenChange={setOpenEditDialog}
-                patient={patient}
-                onEditPatient={(updatedPatient) => {
-                  onEdit({ ...patient, ...updatedPatient });
-                  setOpenEditDialog(false);
-                }}
-              />
             </div>
 
             <Separator />
