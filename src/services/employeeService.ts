@@ -101,18 +101,37 @@ class EmployeeTransformer {
     const mapSpecialtyToEnum = (specialty: string): string | null => {
       if (!specialty) return null;
 
+      // Mapeamento completo para specialty_type
       const specialtyMap: Record<string, string> = {
+        "Clínico Geral": "clinico_geral",
         Ortodontia: "ortodontista",
         Endodontia: "endodontista",
-        Periodontia: "periodontista",
         Implantodontia: "implantodontista",
-        "Cirurgia Oral": "cirurgiao_buco_maxilo",
-        "Clínica Geral": "clinico_geral",
-        Odontopediatria: "odontopediatra",
+        Periodontia: "periodontista",
         Prótese: "protesista",
+        Odontopediatria: "odontopediatra",
+        "Cirurgia Buco-Maxilo": "cirurgiao_buco_maxilo",
         Radiologia: "radiologista",
-        Estética: "odontologia_estetica",
+        "Patologia Bucal": "patologista_bucal",
+        Dentística: "dentistica",
+        Estomatologia: "estomatologista",
+        "DTM (Disfunções Temporomandibulares)":
+          "disfuncoes_temporomandibulares",
+        Odontogeriatria: "odontogeriatra",
+        "Odontologia do Trabalho": "odontologia_do_trabalho",
+        "Odontologia Legal": "odontologia_legal",
+        "Odontologia Hospitalar": "odontologia_hospitalar",
+        "Odontologia do Esporte": "odontologia_do_esporte",
+        "Necessidades Especiais": "necessidades_especiais",
+        "Ortopedia Funcional": "ortopedia_funcional",
+        "Saúde Coletiva": "saude_coletiva",
+        "Acupuntura Odonto": "acupuntura_odonto",
+        "Homeopatia Odonto": "homeopatia_odonto",
+        Laserterapia: "laserterapia",
+        "Odontologia Estética": "odontologia_estetica",
       };
+      // Permitir salvar diretamente se já estiver no formato do banco
+      if (Object.values(specialtyMap).includes(specialty)) return specialty;
       return specialtyMap[specialty] || null;
     };
 

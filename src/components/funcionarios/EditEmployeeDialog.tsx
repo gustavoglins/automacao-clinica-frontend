@@ -87,12 +87,15 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
         phone: formatPhone(employee.phone || ""),
         cpf: applyCpfMask(employee.cpf || ""),
         role: typeof employee.role === "string" ? employee.role : "",
-        specialty:
-          typeof employee.specialty === "string" ? employee.specialty : "",
+        specialty: employee.specialty ?? "",
+        registrationNumber: employee.crmNumber || "",
+        hireDate: employee.hiredAt || "",
         salary: employee.salary?.toString() || "",
         status: employee.status || "ativo",
-        hireDate: employee.hiredAt || "",
-        workDays: employee.workDays || ["Seg", "Ter", "Qua", "Qui", "Sex"],
+        workDays:
+          Array.isArray(employee.workDays) && employee.workDays.length > 0
+            ? employee.workDays
+            : ["Seg", "Ter", "Qua", "Qui", "Sex"],
         startHour: employee.startHour || "08:00",
         endHour: employee.endHour || "18:00",
       }));
@@ -313,7 +316,11 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                 <div className="space-y-2">
                   <Label htmlFor="specialty">Especialidade</Label>
                   <Select
-                    value={formData.specialty || undefined}
+                    value={
+                      typeof formData.specialty === "string"
+                        ? formData.specialty
+                        : ""
+                    }
                     onValueChange={(value) => handleChange("specialty", value)}
                   >
                     <SelectTrigger>
