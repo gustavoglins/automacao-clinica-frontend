@@ -146,12 +146,67 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
       fetchData();
     };
 
+    // Listeners para selecionar automaticamente itens recém-criados
+    const handleNewPatientCreated = (event: CustomEvent) => {
+      fetchData().then(() => {
+        const newPatientId = event.detail?.patientId;
+        if (newPatientId) {
+          setFormData((prev) => ({ ...prev, patientId: newPatientId }));
+        }
+      });
+    };
+
+    const handleNewEmployeeCreated = (event: CustomEvent) => {
+      fetchData().then(() => {
+        const newEmployeeId = event.detail?.employeeId;
+        if (newEmployeeId) {
+          setFormData((prev) => ({ ...prev, employeeId: newEmployeeId }));
+        }
+      });
+    };
+
+    const handleNewServiceCreated = (event: CustomEvent) => {
+      fetchData().then(() => {
+        const newServiceId = event.detail?.serviceId;
+        if (newServiceId) {
+          setFormData((prev) => ({
+            ...prev,
+            serviceId: newServiceId.toString(),
+          }));
+        }
+      });
+    };
+
     window.addEventListener("refreshAppointmentDialogData", handleRefreshData);
+    window.addEventListener(
+      "newPatientCreated",
+      handleNewPatientCreated as EventListener
+    );
+    window.addEventListener(
+      "newEmployeeCreated",
+      handleNewEmployeeCreated as EventListener
+    );
+    window.addEventListener(
+      "newServiceCreated",
+      handleNewServiceCreated as EventListener
+    );
 
     return () => {
       window.removeEventListener(
         "refreshAppointmentDialogData",
         handleRefreshData
+      );
+      window.removeEventListener(
+        "newPatientCreated",
+        handleNewPatientCreated as EventListener
+      );
+      window.removeEventListener(
+        "newEmployeeCreated",
+        handleNewEmployeeCreated as EventListener
+      );
+      window.removeEventListener(
+        "newServiceCreated",
+        handleNewServiceCreated as EventListener
       );
     };
   }, [open]);
@@ -290,6 +345,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                   <Input
                     id="phone"
                     placeholder="(11) 99999-9999"
+                    readOnly
                     value={formatPhone(formData.phone)}
                     onChange={(e) => {
                       // Permite apenas números, mas exibe formatado

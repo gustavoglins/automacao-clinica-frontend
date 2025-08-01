@@ -328,10 +328,15 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
         onClose={() => setOpenAddEmployeeDialog(false)}
         onEmployeeAdded={async (employeeData) => {
           try {
-            await employeeService.createEmployeeWithSchedule(employeeData);
+            const newEmployee =
+              await employeeService.createEmployeeWithSchedule(employeeData);
             setOpenAddEmployeeDialog(false);
-            // Notifica o AddAppointmentDialog para recarregar seus dados
-            window.dispatchEvent(new CustomEvent("refreshAppointmentDialogData"));
+            // Notifica o AddAppointmentDialog para recarregar e selecionar o novo funcionário
+            window.dispatchEvent(
+              new CustomEvent("newEmployeeCreated", {
+                detail: { employeeId: newEmployee.id },
+              })
+            );
           } catch (error) {
             // Error is already handled in the service
           }
@@ -343,10 +348,14 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
         onOpenChange={setOpenAddPatientDialog}
         onAddPatient={async (patientData) => {
           try {
-            await patientService.createPatient(patientData);
+            const newPatient = await patientService.createPatient(patientData);
             setOpenAddPatientDialog(false);
-            // Notifica o AddAppointmentDialog para recarregar seus dados
-            window.dispatchEvent(new CustomEvent("refreshAppointmentDialogData"));
+            // Notifica o AddAppointmentDialog para recarregar e selecionar o novo paciente
+            window.dispatchEvent(
+              new CustomEvent("newPatientCreated", {
+                detail: { patientId: newPatient.id },
+              })
+            );
           } catch (error) {
             console.error("Erro ao criar paciente:", error);
           }
@@ -361,7 +370,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
         onFormDataChange={setServiceFormData}
         onSubmit={async (serviceData) => {
           try {
-            await serviceService.createService(serviceData);
+            const newService = await serviceService.createService(serviceData);
             setOpenServiceFormDialog(false);
             setServiceFormData({
               name: "",
@@ -371,8 +380,12 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
               category: "",
               isActive: true,
             });
-            // Notifica o AddAppointmentDialog para recarregar seus dados
-            window.dispatchEvent(new CustomEvent("refreshAppointmentDialogData"));
+            // Notifica o AddAppointmentDialog para recarregar e selecionar o novo serviço
+            window.dispatchEvent(
+              new CustomEvent("newServiceCreated", {
+                detail: { serviceId: newService.id },
+              })
+            );
           } catch (error) {
             console.error("Erro ao criar serviço:", error);
           }

@@ -576,13 +576,14 @@ export function Dashboard() {
         open={openAddPatientDialog}
         onOpenChange={setOpenAddPatientDialog}
         onAddPatient={async (patientData) => {
-          await patientService.createPatient(patientData);
+          const newPatient = await patientService.createPatient(patientData);
           setOpenAddPatientDialog(false);
-          // Recarrega a página e abre o dialog de Nova Consulta
-          window.location.reload();
-          setTimeout(() => {
-            window.dispatchEvent(new Event("openAddAppointmentDialog"));
-          }, 500);
+          // Notifica o AddAppointmentDialog para recarregar e selecionar o novo paciente
+          window.dispatchEvent(
+            new CustomEvent("newPatientCreated", {
+              detail: { patientId: newPatient.id },
+            })
+          );
         }}
       />
 
@@ -642,13 +643,15 @@ export function Dashboard() {
         onClose={() => setOpenAddEmployeeDialog(false)}
         onEmployeeAdded={async (employeeData) => {
           try {
-            await employeeService.createEmployeeWithSchedule(employeeData);
+            const newEmployee =
+              await employeeService.createEmployeeWithSchedule(employeeData);
             setOpenAddEmployeeDialog(false);
-            // Recarrega a página e abre o dialog de Nova Consulta
-            window.location.reload();
-            setTimeout(() => {
-              window.dispatchEvent(new Event("openAddAppointmentDialog"));
-            }, 500);
+            // Notifica o AddAppointmentDialog para recarregar e selecionar o novo funcionário
+            window.dispatchEvent(
+              new CustomEvent("newEmployeeCreated", {
+                detail: { employeeId: newEmployee.id },
+              })
+            );
           } catch (error) {
             // Error is already handled in the service
           }
@@ -663,7 +666,7 @@ export function Dashboard() {
         formData={serviceFormData}
         onFormDataChange={setServiceFormData}
         onSubmit={async (serviceData) => {
-          await serviceService.createService(serviceData);
+          const newService = await serviceService.createService(serviceData);
           setOpenServiceFormDialog(false);
           setServiceFormData({
             name: "",
@@ -673,11 +676,12 @@ export function Dashboard() {
             category: "",
             isActive: true,
           });
-          // Recarrega a página e abre o dialog de Nova Consulta
-          window.location.reload();
-          setTimeout(() => {
-            window.dispatchEvent(new Event("openAddAppointmentDialog"));
-          }, 500);
+          // Notifica o AddAppointmentDialog para recarregar e selecionar o novo serviço
+          window.dispatchEvent(
+            new CustomEvent("newServiceCreated", {
+              detail: { serviceId: newService.id },
+            })
+          );
         }}
         onCancel={() => {
           setOpenServiceFormDialog(false);
