@@ -261,15 +261,19 @@ export function Dashboard() {
                         appointmentEnd = end.toISOString();
                       }
                       const appointment = {
-                        ...nextAppointment,
+                        ...nextAppointment, // spread para nova referência
                         patient,
                         employee,
                         service,
                         appointmentAt: nextAppointment.appointmentAt,
                         appointmentEnd,
                         status: nextAppointment.status || "Agendado",
+                        // IDs para selects do dialog (garante preenchimento)
+                        patientId: patient?.id || "",
+                        employeeId: employee?.id || "",
+                        serviceId: service?.id || "",
                       };
-                      setProfileDialogAppointment(appointment);
+                      setProfileDialogAppointment({ ...appointment }); // força nova referência
                       setProfileDialogPatients(
                         patients.map((p) => ({
                           id: p.id,
