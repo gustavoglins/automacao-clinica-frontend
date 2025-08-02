@@ -1,9 +1,21 @@
+import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, FileText, Users, Calendar } from "lucide-react";
+import {
+  ClinicProductionDialog,
+  PatientReportDialog,
+  AppointmentReportDialog,
+  ExportDataDialog,
+} from "@/components/relatorios";
 
 const Relatorios = () => {
+  const [productionDialogOpen, setProductionDialogOpen] = useState(false);
+  const [patientDialogOpen, setPatientDialogOpen] = useState(false);
+  const [appointmentDialogOpen, setAppointmentDialogOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+
   return (
     <AppLayout>
       <div className="max-w-3xl mx-auto space-y-8">
@@ -15,9 +27,18 @@ const Relatorios = () => {
               <CardTitle>Produção da Clínica</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col flex-1">
-              <p className="text-muted-foreground mb-4">Veja o relatório de produção geral da clínica, incluindo faturamento, atendimentos e evolução mensal.</p>
+              <p className="text-muted-foreground mb-4">
+                Veja o relatório de produção geral da clínica, incluindo
+                faturamento, atendimentos e evolução mensal.
+              </p>
               <div className="flex-1" />
-              <Button variant="primary" className="w-full mt-2">Ver relatório</Button>
+              <Button
+                variant="primary"
+                className="w-full mt-2"
+                onClick={() => setProductionDialogOpen(true)}
+              >
+                Ver relatório
+              </Button>
             </CardContent>
           </Card>
           <Card className="flex flex-col h-64">
@@ -26,9 +47,18 @@ const Relatorios = () => {
               <CardTitle>Pacientes</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col flex-1">
-              <p className="text-muted-foreground mb-4">Relatório detalhado de pacientes ativos, novos cadastros e evolução do quadro de pacientes.</p>
+              <p className="text-muted-foreground mb-4">
+                Relatório detalhado de pacientes ativos, novos cadastros e
+                evolução do quadro de pacientes.
+              </p>
               <div className="flex-1" />
-              <Button variant="primary" className="w-full mt-2">Ver relatório</Button>
+              <Button
+                variant="primary"
+                className="w-full mt-2"
+                onClick={() => setPatientDialogOpen(true)}
+              >
+                Ver relatório
+              </Button>
             </CardContent>
           </Card>
           <Card className="flex flex-col h-64">
@@ -37,9 +67,18 @@ const Relatorios = () => {
               <CardTitle>Consultas & Agenda</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col flex-1">
-              <p className="text-muted-foreground mb-4">Acompanhe o histórico de consultas, taxa de comparecimento e horários mais movimentados.</p>
+              <p className="text-muted-foreground mb-4">
+                Acompanhe o histórico de consultas, taxa de comparecimento e
+                horários mais movimentados.
+              </p>
               <div className="flex-1" />
-              <Button variant="primary" className="w-full mt-2">Ver relatório</Button>
+              <Button
+                variant="primary"
+                className="w-full mt-2"
+                onClick={() => setAppointmentDialogOpen(true)}
+              >
+                Ver relatório
+              </Button>
             </CardContent>
           </Card>
           <Card className="flex flex-col h-64">
@@ -48,12 +87,39 @@ const Relatorios = () => {
               <CardTitle>Exportar Dados</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col flex-1">
-              <p className="text-muted-foreground mb-4">Exporte relatórios em PDF, Excel ou CSV para análise externa e backups.</p>
+              <p className="text-muted-foreground mb-4">
+                Exporte relatórios em PDF, Excel ou CSV para análise externa e
+                backups.
+              </p>
               <div className="flex-1" />
-              <Button variant="outline-primary" className="w-full mt-2">Exportar</Button>
+              <Button
+                variant="outline-primary"
+                className="w-full mt-2"
+                onClick={() => setExportDialogOpen(true)}
+              >
+                Exportar
+              </Button>
             </CardContent>
           </Card>
         </div>
+
+        {/* Diálogos de Relatórios */}
+        <ClinicProductionDialog
+          open={productionDialogOpen}
+          onOpenChange={setProductionDialogOpen}
+        />
+        <PatientReportDialog
+          open={patientDialogOpen}
+          onOpenChange={setPatientDialogOpen}
+        />
+        <AppointmentReportDialog
+          open={appointmentDialogOpen}
+          onOpenChange={setAppointmentDialogOpen}
+        />
+        <ExportDataDialog
+          open={exportDialogOpen}
+          onOpenChange={setExportDialogOpen}
+        />
       </div>
     </AppLayout>
   );
