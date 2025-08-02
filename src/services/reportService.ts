@@ -55,6 +55,7 @@ export interface AppointmentReport {
 
 // Funções auxiliares
 async function getMonthlyData() {
+  console.log("Obtendo dados mensais...");
   const months = [];
   const currentDate = new Date();
 
@@ -82,7 +83,7 @@ async function getMonthlyData() {
       .gte("appointment_at", date.toISOString())
       .lt("appointment_at", nextMonth.toISOString());
 
-    months.push({
+    const monthData = {
       month: date.toLocaleDateString("pt-BR", {
         month: "short",
         year: "numeric",
@@ -95,7 +96,10 @@ async function getMonthlyData() {
             : apt.services;
           return sum + (service?.price || 0);
         }, 0) || 0,
-    });
+    };
+
+    console.log(`Dados para ${monthData.month}:`, monthData);
+    months.push(monthData);
   }
 
   return months;
@@ -274,6 +278,8 @@ async function getMonthlyAppointments() {
 export const reportService = {
   async getClinicProductionReport(): Promise<ClinicProductionReport> {
     try {
+      console.log("Iniciando busca de relatório de produção...");
+
       // Buscar agendamentos com serviços
       const { data: appointments, error: appointmentsError } = await supabase
         .from("appointments")
@@ -290,7 +296,12 @@ export const reportService = {
         )
         .eq("status", "realizada");
 
-      if (appointmentsError) throw appointmentsError;
+      if (appointmentsError) {
+        console.error("Erro ao buscar agendamentos:", appointmentsError);
+        throw appointmentsError;
+      }
+
+      console.log("Agendamentos encontrados:", appointments?.length || 0);
 
       const totalAppointments = appointments?.length || 0;
       const totalRevenue =
@@ -303,19 +314,52 @@ export const reportService = {
       const averageAppointmentValue =
         totalAppointments > 0 ? totalRevenue / totalAppointments : 0;
 
+      console.log("Calculando dados mensais...");
       // Dados mensais dos últimos 6 meses
       const monthlyData = await getMonthlyData();
 
+      console.log("Calculando dados por categoria...");
       // Dados por categoria de serviço
       const servicesByCategory = await getServicesByCategory();
 
-      return {
+      const result = {
         totalAppointments,
         totalRevenue,
         averageAppointmentValue,
         monthlyData,
         servicesByCategory,
       };
+
+      console.log("Relatório de produção gerado:", result);
+
+      // Se não há dados, retornar dados de exemplo para demonstração
+      if (
+        totalAppointments === 0 &&
+        monthlyData.length === 0 &&
+        servicesByCategory.length === 0
+      ) {
+        console.log("Nenhum dado encontrado, retornando dados de exemplo...");
+        return {
+          totalAppointments: 0,
+          totalRevenue: 0,
+          averageAppointmentValue: 0,
+          monthlyData: [
+            { month: "Jan 2025", appointments: 0, revenue: 0 },
+            { month: "Fev 2025", appointments: 0, revenue: 0 },
+            { month: "Mar 2025", appointments: 0, revenue: 0 },
+            { month: "Abr 2025", appointments: 0, revenue: 0 },
+            { month: "Mai 2025", appointments: 0, revenue: 0 },
+            { month: "Jun 2025", appointments: 0, revenue: 0 },
+          ],
+          servicesByCategory: [
+            { category: "Limpeza", count: 0, revenue: 0 },
+            { category: "Restauração", count: 0, revenue: 0 },
+            { category: "Ortodontia", count: 0, revenue: 0 },
+          ],
+        };
+      }
+
+      return result;
     } catch (error) {
       console.error("Erro ao buscar relatório de produção:", error);
       throw error;

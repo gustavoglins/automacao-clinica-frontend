@@ -33,9 +33,12 @@ export const ClinicProductionDialog = ({
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
+      console.log("Carregando dados do relatório de produção...");
       const report = await reportService.getClinicProductionReport();
+      console.log("Dados carregados:", report);
       setData(report);
     } catch (error) {
+      console.error("Erro ao carregar relatório:", error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar os dados do relatório.",
@@ -47,6 +50,7 @@ export const ClinicProductionDialog = ({
   }, [toast]);
 
   useEffect(() => {
+    console.log("Dialog open state changed:", open);
     if (open) {
       loadData();
     }
@@ -104,7 +108,21 @@ export const ClinicProductionDialog = ({
   }
 
   if (!data) {
-    return null;
+    console.log("No data available, data is:", data);
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <div className="flex items-center justify-center p-8">
+            <div className="text-center">
+              <p>Nenhum dado disponível para o relatório.</p>
+              <Button onClick={loadData} className="mt-4">
+                Tentar Novamente
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
   }
 
   return (
@@ -261,7 +279,6 @@ export const ClinicProductionDialog = ({
             </Button> */}
             <Button
               onClick={handleExportExcel}
-              variant="primary"
               className="w-full flex items-center gap-2"
             >
               <Download className="h-4 w-4" />

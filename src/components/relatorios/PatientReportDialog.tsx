@@ -136,7 +136,7 @@ export const PatientReportDialog = ({
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {data.totalActivePatients}
+                  {data.totalRegisteredPatients}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Pacientes ativos
@@ -271,9 +271,9 @@ export const PatientReportDialog = ({
                         <td className="p-2">{age.ageRange}</td>
                         <td className="text-right p-2">{age.count}</td>
                         <td className="text-right p-2">
-                          {data.totalActivePatients > 0
+                          {data.totalRegisteredPatients > 0
                             ? (
-                                (age.count / data.totalActivePatients) *
+                                (age.count / data.totalRegisteredPatients) *
                                 100
                               ).toFixed(1)
                             : "0"}
