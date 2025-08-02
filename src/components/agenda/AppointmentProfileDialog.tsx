@@ -34,7 +34,7 @@ interface AppointmentProfileDialogProps {
   open: boolean;
   onClose: () => void;
   patients: Array<{ id: string; fullName: string; phone?: string }>;
-  employees: Array<{ id: string; fullName: string }>;
+  employees: Array<{ id: string; fullName: string; status?: string }>;
   services: Array<{ id: number; name: string; durationMinutes?: number }>;
   onSave: (data: UpdateAppointmentData) => Promise<void>;
 }
@@ -234,7 +234,7 @@ export const AppointmentProfileDialog: React.FC<
                   </CardContent>
                 </Card>
                 {/* Observações */}
-                <Card>
+                {/* <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg">
                       <FileText className="w-5 h-5 text-blue-600" />
@@ -246,7 +246,7 @@ export const AppointmentProfileDialog: React.FC<
                       Nenhuma observação registrada.
                     </div>
                   </CardContent>
-                </Card>
+                </Card> */}
               </>
             ) : (
               <ViewEditAppointmentDialog
@@ -257,7 +257,9 @@ export const AppointmentProfileDialog: React.FC<
                 }}
                 appointment={appointment}
                 patients={patients}
-                employees={employees}
+                employees={employees.filter(
+                  (employee) => employee.status === "ativo"
+                )}
                 services={services}
                 onSave={async (data) => {
                   await onSave(data);

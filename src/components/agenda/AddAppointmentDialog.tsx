@@ -453,11 +453,13 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                         <SelectValue placeholder="Selecione o profissional" />
                       </SelectTrigger>
                       <SelectContent>
-                        {employees.map((employee) => (
-                          <SelectItem key={employee.id} value={employee.id}>
-                            {employee.fullName}
-                          </SelectItem>
-                        ))}
+                        {employees
+                          .filter((employee) => employee.status === "ativo")
+                          .map((employee) => (
+                            <SelectItem key={employee.id} value={employee.id}>
+                              {employee.fullName}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>

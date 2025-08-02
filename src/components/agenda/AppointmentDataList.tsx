@@ -132,11 +132,11 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
   const getTitle = () => {
     switch (viewMode) {
       case "day":
-        return "Consultas do Dia";
+        return "Consultas Agendadas";
       case "week":
-        return "Consultas da Semana";
+        return "Consultas Agendadas";
       case "month":
-        return "Consultas do Mês";
+        return "Consultas Agendadas";
       default:
         return "Consultas Agendadas";
     }

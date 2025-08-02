@@ -46,7 +46,7 @@ interface ViewEditAppointmentDialogProps {
   onOpenChange: (open: boolean) => void;
   appointment: Appointment | null;
   patients: Array<{ id: string; fullName: string; phone?: string }>; // minimal patient info
-  employees: Array<{ id: string; fullName: string }>; // minimal employee info
+  employees: Array<{ id: string; fullName: string; status?: string }>; // minimal employee info
   services: Array<{ id: number; name: string; durationMinutes?: number }>; // minimal service info
   onSave: (data: UpdateAppointmentData) => Promise<void>;
 }
@@ -306,11 +306,13 @@ export const ViewEditAppointmentDialog: React.FC<
                         <SelectValue placeholder="Selecione o profissional" />
                       </SelectTrigger>
                       <SelectContent>
-                        {employees.map((employee) => (
-                          <SelectItem key={employee.id} value={employee.id}>
-                            {employee.fullName}
-                          </SelectItem>
-                        ))}
+                        {employees
+                          .filter((employee) => employee.status === "ativo")
+                          .map((employee) => (
+                            <SelectItem key={employee.id} value={employee.id}>
+                              {employee.fullName}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -411,7 +413,7 @@ export const ViewEditAppointmentDialog: React.FC<
               </CardContent>
             </Card>
             {/* Observações */}
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <FileText className="w-5 h-5 text-primary" />
@@ -432,7 +434,7 @@ export const ViewEditAppointmentDialog: React.FC<
                   />
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
             {/* Botões */}
             <div className="flex items-center justify-end gap-3 pt-6 border-t">
               <Button
