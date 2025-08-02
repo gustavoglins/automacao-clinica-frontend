@@ -60,6 +60,7 @@ export function Dashboard() {
     nextAppointment,
     activeEmployees,
     activeServices,
+    allScheduledAppointments,
     loading,
     fetchDashboardData,
   } = useDashboard();
@@ -67,7 +68,7 @@ export function Dashboard() {
   const todayStats = [
     {
       title: "Consultas Agendadas",
-      value: stats.totalAppointments,
+      value: allScheduledAppointments,
       icon: Calendar,
       change: { value: "", type: "increase" as const },
     },
