@@ -30,19 +30,34 @@ interface ServiceCardProps {
   onDelete: (service: Service) => void;
 }
 
+// const serviceCategories = [
+//   { value: "clinico_geral", label: "Clínico Geral", icon: Stethoscope },
+//   { value: "ortodontia", label: "Ortodontia", icon: Zap },
+//   { value: "endodontia", label: "Endodontia", icon: Star },
+//   { value: "implantodontia", label: "Implantodontia", icon: Shield },
+//   { value: "periodontia", label: "Periodontia", icon: Heart },
+//   { value: "proteses", label: "Próteses", icon: Star },
+//   { value: "odontopediatria", label: "Odontopediatria", icon: Heart },
+//   { value: "cirurgia", label: "Cirurgia", icon: Stethoscope },
+//   { value: "radiologia", label: "Radiologia", icon: Zap },
+//   { value: "estetica", label: "Estética", icon: Star },
+//   { value: "preventivo", label: "Preventivo", icon: Shield },
+//   { value: "outros", label: "Outros", icon: Eye },
+// ];
+
 const serviceCategories = [
   { value: "clinico_geral", label: "Clínico Geral", icon: Stethoscope },
-  { value: "ortodontia", label: "Ortodontia", icon: Zap },
-  { value: "endodontia", label: "Endodontia", icon: Star },
-  { value: "implantodontia", label: "Implantodontia", icon: Shield },
-  { value: "periodontia", label: "Periodontia", icon: Heart },
-  { value: "proteses", label: "Próteses", icon: Star },
-  { value: "odontopediatria", label: "Odontopediatria", icon: Heart },
+  { value: "ortodontia", label: "Ortodontia", icon: Stethoscope },
+  { value: "endodontia", label: "Endodontia", icon: Stethoscope },
+  { value: "implantodontia", label: "Implantodontia", icon: Stethoscope },
+  { value: "periodontia", label: "Periodontia", icon: Stethoscope },
+  { value: "proteses", label: "Próteses", icon: Stethoscope },
+  { value: "odontopediatria", label: "Odontopediatria", icon: Stethoscope },
   { value: "cirurgia", label: "Cirurgia", icon: Stethoscope },
-  { value: "radiologia", label: "Radiologia", icon: Zap },
-  { value: "estetica", label: "Estética", icon: Star },
-  { value: "preventivo", label: "Preventivo", icon: Shield },
-  { value: "outros", label: "Outros", icon: Eye },
+  { value: "radiologia", label: "Radiologia", icon: Stethoscope },
+  { value: "estetica", label: "Estética", icon: Stethoscope },
+  { value: "preventivo", label: "Preventivo", icon: Stethoscope },
+  { value: "outros", label: "Outros", icon: Stethoscope },
 ];
 
 // Função para obter a badge de status do serviço
