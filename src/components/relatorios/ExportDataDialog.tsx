@@ -8,10 +8,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Download, FileSpreadsheet, FileText, Database } from "lucide-react";
+import { Download, FileSpreadsheet, Database } from "lucide-react";
 import { reportService } from "@/services/reportService";
 import { exportUtils } from "@/lib/exportUtils";
 import { useToast } from "@/hooks/use-toast";
@@ -21,14 +20,12 @@ interface ExportDataDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type ExportFormat = "pdf" | "excel";
 type DataType = "producao" | "pacientes" | "consultas" | "all";
 
 export const ExportDataDialog = ({
   open,
   onOpenChange,
 }: ExportDataDialogProps) => {
-  const [format, setFormat] = useState<ExportFormat>("pdf");
   const [dataTypes, setDataTypes] = useState<DataType[]>(["all"]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -65,31 +62,19 @@ export const ExportDataDialog = ({
           case "producao": {
             const productionData =
               await reportService.getClinicProductionReport();
-            if (format === "pdf") {
-              exportUtils.exportClinicProductionToPDF(productionData);
-            } else {
-              exportUtils.exportClinicProductionToExcel(productionData);
-            }
+            exportUtils.exportClinicProductionToExcel(productionData);
             break;
           }
 
           case "pacientes": {
             const patientData = await reportService.getPatientReport();
-            if (format === "pdf") {
-              exportUtils.exportPatientReportToPDF(patientData);
-            } else {
-              exportUtils.exportPatientReportToExcel(patientData);
-            }
+            exportUtils.exportPatientReportToExcel(patientData);
             break;
           }
 
           case "consultas": {
             const appointmentData = await reportService.getAppointmentReport();
-            if (format === "pdf") {
-              exportUtils.exportAppointmentReportToPDF(appointmentData);
-            } else {
-              exportUtils.exportAppointmentReportToExcel(appointmentData);
-            }
+            exportUtils.exportAppointmentReportToExcel(appointmentData);
             break;
           }
         }
@@ -97,7 +82,7 @@ export const ExportDataDialog = ({
 
       toast({
         title: "Sucesso",
-        description: `Relatórios exportados em ${format.toUpperCase()} com sucesso!`,
+        description: "Relatórios exportados em Excel com sucesso!",
       });
 
       onOpenChange(false);
@@ -117,55 +102,24 @@ export const ExportDataDialog = ({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <Download className="text-blue-600" />
+            <FileSpreadsheet className="text-green-600" />
             <div>
-              <DialogTitle>Exportar Dados</DialogTitle>
+              <DialogTitle>Exportar Dados para Excel</DialogTitle>
               <DialogDescription>
-                Escolha o formato e os dados que deseja exportar
+                Escolha os dados que deseja exportar em formato Excel (.xlsx)
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Seleção de Formato */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Formato de Exportação</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <RadioGroup
-                value={format}
-                onValueChange={(value) => setFormat(value as ExportFormat)}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="pdf" id="pdf" />
-                  <Label
-                    htmlFor="pdf"
-                    className="flex items-center gap-2 cursor-pointer"
-                  >
-                    <FileText className="h-4 w-4 text-red-600" />
-                    PDF
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="excel" id="excel" />
-                  <Label
-                    htmlFor="excel"
-                    className="flex items-center gap-2 cursor-pointer"
-                  >
-                    <FileSpreadsheet className="h-4 w-4 text-green-600" />
-                    Excel (XLSX)
-                  </Label>
-                </div>
-              </RadioGroup>
-            </CardContent>
-          </Card>
-
           {/* Seleção de Dados */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm">Dados para Exportar</CardTitle>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <FileSpreadsheet className="h-4 w-4 text-green-600" />
+                Dados para Exportar (Excel)
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center space-x-2">
