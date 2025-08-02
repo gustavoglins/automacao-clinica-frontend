@@ -111,6 +111,7 @@ export const AppointmentProfileDialog: React.FC<
                         variant="outline"
                         className="bg-gray-50 text-gray-700 border-gray-200"
                       >
+                        <Stethoscope className="w-3 h-3 mr-1" />
                         {appointment.service?.name || "Serviço"}
                       </Badge>
                     </div>
@@ -205,7 +206,7 @@ export const AppointmentProfileDialog: React.FC<
                     </div>
                     <div className="text-sm text-gray-600">
                       <span className="font-semibold">Email:</span>{" "}
-                      {appointment.patient?.email || "-"}
+                      {appointment.patient?.email || "Não Informado"}
                     </div>
                   </CardContent>
                 </Card>

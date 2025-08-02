@@ -364,7 +364,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                 </div>
 
                 <div className="flex flex-col gap-2 justify-end h-full">
-                  <Label htmlFor="phone">Telefone *</Label>
+                  <Label htmlFor="phone">Telefone</Label>
                   <Input
                     id="phone"
                     placeholder="(11) 99999-9999"
@@ -564,7 +564,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
           </Card>
 
           {/* Observações */}
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <FileText className="w-5 h-5 text-primary" />
@@ -585,7 +585,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                 />
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Botões */}
           <div className="flex items-center justify-end gap-3 pt-6 border-t">
