@@ -14,6 +14,7 @@ import {
   CalendarRange,
   Calendar1,
   CalendarMinus2,
+  CalendarFold,
 } from "lucide-react";
 import {
   Card,
@@ -268,11 +269,13 @@ const Agenda = () => {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           <StatsCard
             title="Consultas Agendadas"
-            value={appointments.length}
+            value={
+              filteredAppointments.filter((a) => a.status === "agendada").length
+            }
             icon={CalendarIcon}
           />
           <StatsCard
-            title="Confirmadas"
+            title="Consultas Confirmadas"
             value={
               filteredAppointments.filter((a) => a.status === "confirmada")
                 .length
@@ -280,19 +283,20 @@ const Agenda = () => {
             icon={CalendarCheck2}
           />
           <StatsCard
-            title="Pendentes"
-            value={
-              filteredAppointments.filter((a) => a.status === "pendente").length
-            }
-            icon={CalendarClock}
-          />
-          <StatsCard
-            title="Reagendadas"
+            title="Consultas Reagendadas"
             value={
               filteredAppointments.filter((a) => a.status === "reagendada")
                 .length
             }
             icon={CalendarSync}
+          />
+          <StatsCard
+            title="Consultas Realizadas"
+            value={
+              filteredAppointments.filter((a) => a.status === "realizada")
+                .length
+            }
+            icon={CalendarFold}
           />
         </div>
 

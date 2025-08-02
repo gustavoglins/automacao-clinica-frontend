@@ -316,6 +316,32 @@ export const ViewEditAppointmentDialog: React.FC<
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="status">Status da Consulta *</Label>
+                    <Select
+                      value={formData.status}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, status: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="agendada">Agendada</SelectItem>
+                        <SelectItem value="confirmada">Confirmada</SelectItem>
+                        <SelectItem value="reagendada">Reagendada</SelectItem>
+                        <SelectItem value="cancelada">Cancelada</SelectItem>
+                        <SelectItem value="nao_compareceu">
+                          Não compareceu
+                        </SelectItem>
+                        <SelectItem value="em_andamento">
+                          Em andamento
+                        </SelectItem>
+                        <SelectItem value="realizada">Realizada</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </CardContent>
             </Card>

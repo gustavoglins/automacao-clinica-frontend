@@ -32,11 +32,13 @@ interface FilterDialogProps {
 }
 
 const appointmentStatuses = [
+  { value: "agendada", label: "Agendada" },
   { value: "confirmada", label: "Confirmada" },
-  { value: "pendente", label: "Pendente" },
   { value: "reagendada", label: "Reagendada" },
   { value: "cancelada", label: "Cancelada" },
-  { value: "concluida", label: "Concluída" },
+  { value: "nao_compareceu", label: "Não compareceu" },
+  { value: "em_andamento", label: "Em andamento" },
+  { value: "realizada", label: "Realizada" },
 ];
 
 const timeRanges = [
