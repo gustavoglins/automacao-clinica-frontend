@@ -37,7 +37,7 @@ export const PatientCard = ({ patient, onViewRecord }: PatientCardProps) => {
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
   };
 
-  const statusBadge = getPatientStatusBadge("ativo");
+  const statusBadge = getPatientStatusBadge(patient.status || "ativo");
   const planBadge = getPlanBadge();
 
   return (
@@ -57,7 +57,11 @@ export const PatientCard = ({ patient, onViewRecord }: PatientCardProps) => {
               variant={statusBadge.variant}
               className={`${statusBadge.className} text-xs`}
             >
-              Ativo
+              {patient.status === "ativo"
+                ? "Ativo"
+                : patient.status === "inativo"
+                ? "Inativo"
+                : "Ativo"}
             </Badge>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-gray-600">

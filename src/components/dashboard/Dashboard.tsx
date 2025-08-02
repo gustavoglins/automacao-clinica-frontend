@@ -73,7 +73,7 @@ export function Dashboard() {
     },
     {
       title: "Pacientes Ativos",
-      value: stats.totalPatients,
+      value: stats.activePatients,
       icon: Users,
       change: { value: "", type: "increase" as const },
     },

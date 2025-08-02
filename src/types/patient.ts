@@ -41,6 +41,19 @@ export interface SupabasePatient {
   updated_at: string;
 }
 
+// Dados da view patients_with_status
+export interface SupabasePatientWithStatus {
+  id: string;
+  full_name: string;
+  cpf: string;
+  birth_date: string;
+  phone: string | null;
+  email: string | null;
+  created_at: string;
+  updated_at: string;
+  status: string;
+}
+
 // Dados para inserir no Supabase
 export interface SupabasePatientInsert {
   full_name: string;

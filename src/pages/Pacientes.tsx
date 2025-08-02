@@ -44,7 +44,7 @@ const Pacientes = () => {
   // Usar contexto global de pacientes
   const { patients, setPatients, loading, fetchPatients } = usePatients();
 
-  // Aplicar filtros (sem planos)
+  // Aplicar filtros
   const searchFiltered = patients.filter(
     (patient) =>
       patient.fullName.toLowerCase().includes(query.toLowerCase()) ||
@@ -52,7 +52,10 @@ const Pacientes = () => {
         patient.email.toLowerCase().includes(query.toLowerCase())) ||
       (patient.phone && patient.phone.includes(query))
   );
-  const filteredPatients = filterStatus ? searchFiltered : searchFiltered;
+
+  const filteredPatients = filterStatus
+    ? searchFiltered.filter((patient) => patient.status === filterStatus)
+    : searchFiltered;
 
   // Handlers para ações dos pacientes
   const handleSchedule = (patient: Patient) => {
@@ -107,9 +110,9 @@ const Pacientes = () => {
         <PatientsFilters
           search={query}
           onSearchChange={setSearch}
-          filterStatus={""}
-          onFilterStatusChange={() => {}}
-          onOpenFilters={() => {}}
+          filterStatus={filterStatus}
+          onFilterStatusChange={setFilterStatus}
+          onOpenFilters={() => setOpenFilterDialog(true)}
           onOpenAddPatient={handleAddPatient}
           filteredPatientsCount={filteredPatients.length}
           totalPatientsCount={patients.length}
@@ -133,6 +136,14 @@ const Pacientes = () => {
           onSchedule={handleSchedule}
           onEdit={handleEdit}
           onViewRecord={handleViewRecord}
+        />
+
+        {/* Filter Dialog */}
+        <FilterDialog
+          open={openFilterDialog}
+          onOpenChange={setOpenFilterDialog}
+          filterStatus={filterStatus}
+          onFilterStatusChange={setFilterStatus}
         />
 
         {/* Patient Profile Dialog */}

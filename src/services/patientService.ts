@@ -6,6 +6,7 @@ import type {
   CreatePatientData,
   UpdatePatientData,
   SupabasePatient,
+  SupabasePatientWithStatus,
   SupabasePatientInsert,
   SupabasePatientUpdate,
   PatientFilters,
@@ -83,18 +84,28 @@ class PatientTransformer {
 
 class PatientService {
   /**
-   * Fetch all patients from database
+   * Fetch all patients from database with status
    */
   async getAllPatients(): Promise<Patient[]> {
     try {
       const { data, error } = await supabase
-        .from("patients")
+        .from("patients_with_status")
         .select("*")
         .order("full_name");
 
       if (error) throw error;
 
-      return data.map(PatientTransformer.fromSupabase);
+      return data.map((patient: SupabasePatientWithStatus) => ({
+        id: patient.id,
+        fullName: patient.full_name,
+        cpf: patient.cpf,
+        birthDate: patient.birth_date,
+        phone: patient.phone,
+        email: patient.email,
+        createdAt: patient.created_at,
+        updatedAt: patient.updated_at,
+        status: patient.status, // Campo vindo da view
+      }));
     } catch (error) {
       console.error("Error fetching patients:", error);
       toast.error("Erro ao carregar pacientes");
@@ -251,12 +262,20 @@ class PatientService {
    */
   async getPatientStats(): Promise<PatientStats> {
     try {
-      // Get total patients
+      // Get total patients from the new view
       const { count: total, error: totalError } = await supabase
-        .from("patients")
+        .from("patients_with_status")
         .select("*", { count: "exact", head: true });
 
       if (totalError) throw totalError;
+
+      // Get active patients from the new view
+      const { count: active, error: activeError } = await supabase
+        .from("patients_with_status")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "ativo");
+
+      if (activeError) throw activeError;
 
       // Get patients created this month
       const startOfMonth = new Date();
@@ -264,7 +283,7 @@ class PatientService {
       startOfMonth.setHours(0, 0, 0, 0);
 
       const { count: newThisMonth, error: monthError } = await supabase
-        .from("patients")
+        .from("patients_with_status")
         .select("*", { count: "exact", head: true })
         .gte("created_at", startOfMonth.toISOString());
 
@@ -282,7 +301,7 @@ class PatientService {
 
       return {
         total: total || 0,
-        active: total || 0, // All patients are considered active for now
+        active: active || 0, // Now using the real active count from the view
         newThisMonth: newThisMonth || 0,
         upcomingAppointments: upcomingAppointments || 0,
       };
