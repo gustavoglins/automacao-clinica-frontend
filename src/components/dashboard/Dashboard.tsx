@@ -50,6 +50,7 @@ import { employeeService } from "@/services/employeeService";
 import { serviceService } from "@/services/servicesService";
 import { patientService } from "@/services/patientService";
 import { appointmentService } from "@/services/appointmentService";
+import { UpdateAppointmentData } from "@/types/appointment";
 import { useDashboard } from "@/context/DashboardContext";
 
 export function Dashboard() {
@@ -124,6 +125,19 @@ export function Dashboard() {
     };
   }, []);
 
+  // Função para atualizar consulta
+  const handleUpdateAppointment = async (data: UpdateAppointmentData) => {
+    try {
+      await appointmentService.updateAppointment(data);
+      // Atualiza os dados do dashboard após a edição
+      await fetchDashboardData();
+      setOpenProfileDialog(false);
+      // Toast de sucesso/erro já é disparado pelo service
+    } catch (error) {
+      // Toast de erro já é disparado pelo service
+    }
+  };
+
   // Estado do formulário de serviço
   const [serviceFormData, setServiceFormData] = useState({
     name: "",
@@ -177,9 +191,7 @@ export function Dashboard() {
         patients={profileDialogPatients}
         employees={profileDialogEmployees}
         services={profileDialogServices}
-        onSave={async () => {
-          setOpenProfileDialog(false);
-        }}
+        onSave={handleUpdateAppointment}
       />
       {/* Header */}
       <div className="px-1">
