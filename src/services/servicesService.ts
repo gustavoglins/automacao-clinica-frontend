@@ -1,5 +1,5 @@
-import { supabase } from '@/lib/supabaseClient';
-import { toast } from 'sonner';
+import { supabase } from "@/lib/supabaseClient";
+import { toast } from "sonner";
 import type {
   Service,
   CreateServiceData,
@@ -11,8 +11,8 @@ import type {
   ServiceStats,
   ValidationResult,
   ServiceCategory,
-  SERVICE_CATEGORY_LABELS
-} from '@/types/service';
+  SERVICE_CATEGORY_LABELS,
+} from "@/types/service";
 
 // Re-export types for backward compatibility
 export type {
@@ -22,7 +22,7 @@ export type {
   ServiceFilters,
   ServiceStats,
   ValidationResult,
-  ServiceCategory
+  ServiceCategory,
 };
 
 export { SERVICE_CATEGORY_LABELS };
@@ -45,37 +45,45 @@ class ServiceTransformer {
       active: supabaseService.active,
       createdAt: supabaseService.created_at,
       updatedAt: supabaseService.updated_at,
-      times_used: supabaseService.times_used ?? 0
+      times_used: supabaseService.times_used ?? 0,
     };
   }
 
   /**
    * Transform CreateServiceData to Supabase insert format
    */
-  static toSupabaseInsert(serviceData: CreateServiceData): SupabaseServiceInsert {
+  static toSupabaseInsert(
+    serviceData: CreateServiceData
+  ): SupabaseServiceInsert {
     return {
       name: serviceData.name,
       category: serviceData.category,
       description: serviceData.description || null,
       duration_minutes: serviceData.durationMinutes,
       price: serviceData.price,
-      active: serviceData.active ?? true
+      active: serviceData.active ?? true,
     };
   }
 
   /**
    * Transform UpdateServiceData to Supabase update format
    */
-  static toSupabaseUpdate(serviceData: UpdateServiceData): SupabaseServiceUpdate {
+  static toSupabaseUpdate(
+    serviceData: UpdateServiceData
+  ): SupabaseServiceUpdate {
     const updateData: SupabaseServiceUpdate = {};
 
     // Only include fields that are provided
     if (serviceData.name !== undefined) updateData.name = serviceData.name;
-    if (serviceData.category !== undefined) updateData.category = serviceData.category;
-    if (serviceData.description !== undefined) updateData.description = serviceData.description || null;
-    if (serviceData.durationMinutes !== undefined) updateData.duration_minutes = serviceData.durationMinutes;
+    if (serviceData.category !== undefined)
+      updateData.category = serviceData.category;
+    if (serviceData.description !== undefined)
+      updateData.description = serviceData.description || null;
+    if (serviceData.durationMinutes !== undefined)
+      updateData.duration_minutes = serviceData.durationMinutes;
     if (serviceData.price !== undefined) updateData.price = serviceData.price;
-    if (serviceData.active !== undefined) updateData.active = serviceData.active;
+    if (serviceData.active !== undefined)
+      updateData.active = serviceData.active;
 
     return updateData;
   }
@@ -88,16 +96,16 @@ class ServiceService {
   async getAllServices(): Promise<Service[]> {
     try {
       const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .order('name');
+        .from("services")
+        .select("*")
+        .order("name");
 
       if (error) throw error;
 
       return data.map(ServiceTransformer.fromSupabase);
     } catch (error) {
-      console.error('Error fetching services:', error);
-      toast.error('Erro ao carregar serviços');
+      console.error("Error fetching services:", error);
+      toast.error("Erro ao carregar serviços");
       throw error;
     }
   }
@@ -108,9 +116,9 @@ class ServiceService {
   async getServiceById(id: number): Promise<Service | null> {
     try {
       const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .eq('id', id)
+        .from("services")
+        .select("*")
+        .eq("id", id)
         .single();
 
       if (error) throw error;
@@ -119,8 +127,8 @@ class ServiceService {
 
       return ServiceTransformer.fromSupabase(data);
     } catch (error) {
-      console.error('Error fetching service by ID:', error);
-      toast.error('Erro ao carregar serviço');
+      console.error("Error fetching service by ID:", error);
+      toast.error("Erro ao carregar serviço");
       throw error;
     }
   }
@@ -133,19 +141,19 @@ class ServiceService {
       const insertData = ServiceTransformer.toSupabaseInsert(serviceData);
 
       const { data, error } = await supabase
-        .from('services')
+        .from("services")
         .insert(insertData)
         .select()
         .single();
 
       if (error) throw error;
 
-      toast.success('Serviço adicionado com sucesso!');
+      toast.success("Serviço adicionado com sucesso!");
 
       return ServiceTransformer.fromSupabase(data);
     } catch (error) {
-      console.error('Error creating service:', error);
-      toast.error('Erro ao adicionar serviço');
+      console.error("Error creating service:", error);
+      toast.error("Erro ao adicionar serviço");
       throw error;
     }
   }
@@ -158,20 +166,20 @@ class ServiceService {
       const updateData = ServiceTransformer.toSupabaseUpdate(serviceData);
 
       const { data, error } = await supabase
-        .from('services')
+        .from("services")
         .update(updateData)
-        .eq('id', serviceData.id)
+        .eq("id", serviceData.id)
         .select()
         .single();
 
       if (error) throw error;
 
-      toast.success('Serviço atualizado com sucesso!');
+      toast.success("Serviço atualizado com sucesso!");
 
       return ServiceTransformer.fromSupabase(data);
     } catch (error) {
-      console.error('Error updating service:', error);
-      toast.error('Erro ao atualizar serviço');
+      console.error("Error updating service:", error);
+      toast.error("Erro ao atualizar serviço");
       throw error;
     }
   }
@@ -181,24 +189,50 @@ class ServiceService {
    */
   async deleteService(id: number): Promise<void> {
     try {
-      console.log('🔄 Tentando deletar serviço com ID:', id);
+      console.log("🔄 Tentando deletar serviço com ID:", id);
+
+      // Primeiro, verificar se o serviço está sendo usado em agendamentos
+      const { data: appointments, error: appointmentsError } = await supabase
+        .from("appointments")
+        .select("id")
+        .eq("service_id", id)
+        .limit(1);
+
+      if (appointmentsError) {
+        console.error("Erro ao verificar agendamentos:", appointmentsError);
+        throw appointmentsError;
+      }
+
+      if (appointments && appointments.length > 0) {
+        const errorMessage =
+          "Este serviço não pode ser removido pois está sendo usado em agendamentos. Cancele ou remova os agendamentos primeiro.";
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      }
 
       const { data, error } = await supabase
-        .from('services')
+        .from("services")
         .delete()
-        .eq('id', id)
+        .eq("id", id)
         .select(); // Adicionar select para verificar se algo foi deletado
 
       if (error) {
-        console.error('❌ Erro do Supabase ao deletar serviço:', error);
+        console.error("❌ Erro do Supabase ao deletar serviço:", error);
+        if (error.code === "23503") {
+          toast.error(
+            "Este serviço não pode ser removido pois está sendo usado em agendamentos."
+          );
+        } else {
+          toast.error("Erro ao remover serviço");
+        }
         throw error;
       }
 
-      console.log('✅ Serviço deletado com sucesso. Dados retornados:', data);
-      toast.success('Serviço removido com sucesso!');
+      console.log("✅ Serviço deletado com sucesso. Dados retornados:", data);
+      toast.success("Serviço removido com sucesso!");
     } catch (error) {
-      console.error('❌ Erro ao deletar serviço:', error);
-      toast.error('Erro ao remover serviço');
+      console.error("❌ Erro ao deletar serviço:", error);
+      // Toast já foi mostrado acima, não duplicar
       throw error;
     }
   }
@@ -213,17 +247,17 @@ class ServiceService {
       }
 
       const { data, error } = await supabase
-        .from('services')
-        .select('*')
+        .from("services")
+        .select("*")
         .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
-        .order('name');
+        .order("name");
 
       if (error) throw error;
 
       return data.map(ServiceTransformer.fromSupabase);
     } catch (error) {
-      console.error('Error searching services:', error);
-      toast.error('Erro ao buscar serviços');
+      console.error("Error searching services:", error);
+      toast.error("Erro ao buscar serviços");
       throw error;
     }
   }
@@ -233,55 +267,55 @@ class ServiceService {
    */
   async filterServices(filters: ServiceFilters): Promise<Service[]> {
     try {
-      let query = supabase
-        .from('services')
-        .select('*');
+      let query = supabase.from("services").select("*");
 
       // Apply search filter
       if (filters.search) {
-        query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
+        query = query.or(
+          `name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`
+        );
       }
 
       // Apply category filter
-      if (filters.category && filters.category !== 'all') {
-        query = query.eq('category', filters.category);
+      if (filters.category && filters.category !== "all") {
+        query = query.eq("category", filters.category);
       }
 
       // Apply active filter
       if (filters.active !== undefined) {
-        query = query.eq('active', filters.active);
+        query = query.eq("active", filters.active);
       }
 
       // Apply price range filter
       if (filters.priceRange) {
-        const [min, max] = filters.priceRange.split('-').map(Number);
+        const [min, max] = filters.priceRange.split("-").map(Number);
         if (min !== undefined && !isNaN(min)) {
-          query = query.gte('price', min);
+          query = query.gte("price", min);
         }
         if (max !== undefined && !isNaN(max)) {
-          query = query.lte('price', max);
+          query = query.lte("price", max);
         }
       }
 
       // Apply duration filter
       if (filters.duration) {
-        const [min, max] = filters.duration.split('-').map(Number);
+        const [min, max] = filters.duration.split("-").map(Number);
         if (min !== undefined && !isNaN(min)) {
-          query = query.gte('duration_minutes', min);
+          query = query.gte("duration_minutes", min);
         }
         if (max !== undefined && !isNaN(max)) {
-          query = query.lte('duration_minutes', max);
+          query = query.lte("duration_minutes", max);
         }
       }
 
-      const { data, error } = await query.order('name');
+      const { data, error } = await query.order("name");
 
       if (error) throw error;
 
       return data.map(ServiceTransformer.fromSupabase);
     } catch (error) {
-      console.error('Error filtering services:', error);
-      toast.error('Erro ao filtrar serviços');
+      console.error("Error filtering services:", error);
+      toast.error("Erro ao filtrar serviços");
       throw error;
     }
   }
@@ -293,51 +327,53 @@ class ServiceService {
     try {
       // Get total services
       const { count: total, error: totalError } = await supabase
-        .from('services')
-        .select('*', { count: 'exact', head: true });
+        .from("services")
+        .select("*", { count: "exact", head: true });
 
       if (totalError) throw totalError;
 
       // Get active services
       const { count: active, error: activeError } = await supabase
-        .from('services')
-        .select('*', { count: 'exact', head: true })
-        .eq('active', true);
+        .from("services")
+        .select("*", { count: "exact", head: true })
+        .eq("active", true);
 
       if (activeError) throw activeError;
 
       // Get services by category
       const { data: categoryData, error: categoryError } = await supabase
-        .from('services')
-        .select('category');
+        .from("services")
+        .select("category");
 
       if (categoryError) throw categoryError;
 
       const byCategory: Record<string, number> = {};
-      categoryData?.forEach(service => {
+      categoryData?.forEach((service) => {
         byCategory[service.category] = (byCategory[service.category] || 0) + 1;
       });
 
       // Get average price
       const { data: priceData, error: priceError } = await supabase
-        .from('services')
-        .select('price');
+        .from("services")
+        .select("price");
 
       if (priceError) throw priceError;
 
-      const averagePrice = priceData && priceData.length > 0
-        ? priceData.reduce((sum, service) => sum + service.price, 0) / priceData.length
-        : 0;
+      const averagePrice =
+        priceData && priceData.length > 0
+          ? priceData.reduce((sum, service) => sum + service.price, 0) /
+            priceData.length
+          : 0;
 
       return {
         total: total || 0,
         active: active || 0,
         byCategory,
-        averagePrice
+        averagePrice,
       };
     } catch (error) {
-      console.error('Error getting service stats:', error);
-      toast.error('Erro ao carregar estatísticas');
+      console.error("Error getting service stats:", error);
+      toast.error("Erro ao carregar estatísticas");
       throw error;
     }
   }
@@ -348,17 +384,17 @@ class ServiceService {
   async getActiveServices(): Promise<Service[]> {
     try {
       const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .eq('active', true)
-        .order('name');
+        .from("services")
+        .select("*")
+        .eq("active", true)
+        .order("name");
 
       if (error) throw error;
 
       return data.map(ServiceTransformer.fromSupabase);
     } catch (error) {
-      console.error('Error fetching active services:', error);
-      toast.error('Erro ao carregar serviços ativos');
+      console.error("Error fetching active services:", error);
+      toast.error("Erro ao carregar serviços ativos");
       throw error;
     }
   }
@@ -366,29 +402,31 @@ class ServiceService {
   /**
    * Validate service data
    */
-  validateServiceData(data: CreateServiceData | UpdateServiceData): ValidationResult {
+  validateServiceData(
+    data: CreateServiceData | UpdateServiceData
+  ): ValidationResult {
     const errors: string[] = [];
 
     // Validate required fields
     if (!data.name?.trim()) {
-      errors.push('Nome do serviço é obrigatório');
+      errors.push("Nome do serviço é obrigatório");
     }
 
     if (!data.category?.trim()) {
-      errors.push('Categoria é obrigatória');
+      errors.push("Categoria é obrigatória");
     }
 
     if (data.durationMinutes !== undefined && data.durationMinutes <= 0) {
-      errors.push('Duração deve ser maior que zero');
+      errors.push("Duração deve ser maior que zero");
     }
 
     if (data.price !== undefined && data.price < 0) {
-      errors.push('Preço não pode ser negativo');
+      errors.push("Preço não pode ser negativo");
     }
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 }
