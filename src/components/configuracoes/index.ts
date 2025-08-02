@@ -1,0 +1,1 @@
+export { ClinicHoursSettings } from "./ClinicHoursSettings";

@@ -37,11 +37,13 @@ import {
   Phone,
   CalendarPlus,
 } from "lucide-react";
-import { cn, formatPhone, onlyNumbers } from "@/lib/utils";
+import { cn, formatPhone, onlyNumbers, getDayOfWeek } from "@/lib/utils";
 import { patientService } from "@/services/patientService";
 import { employeeService } from "@/services/employeeService";
 import { serviceService } from "@/services/servicesService";
+import { clinicHoursService } from "@/services/clinicHoursService";
 import { CreateAppointmentData } from "@/types/appointment";
+import { ClinicHours } from "@/types/clinicHours";
 
 interface AddAppointmentDialogProps {
   open: boolean;
@@ -50,26 +52,6 @@ interface AddAppointmentDialogProps {
   initialPatientId?: string;
   initialPhone?: string;
 }
-
-const timeSlots = [
-  "08:00",
-  "08:30",
-  "09:00",
-  "09:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-  "18:00",
-];
 
 const durations = [
   { value: "30min", label: "30 minutos" },
@@ -96,6 +78,13 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
     notes: "",
   });
 
+  const [patients, setPatients] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [services, setServices] = useState([]);
+  const [clinicHours, setClinicHours] = useState<ClinicHours[]>([]);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
   // Fallback para abrir dialogs via window ou via callback/context
   function openDialog(eventName: string, fallback?: () => void) {
     let dispatched = false;
@@ -121,20 +110,56 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
     }));
   }, [initialPatientId, initialPhone, open]);
 
-  const [patients, setPatients] = useState([]);
-  const [employees, setEmployees] = useState([]);
-  const [services, setServices] = useState([]);
+  // Efeito para carregar horários disponíveis quando a data muda
+  useEffect(() => {
+    async function loadAvailableTimeSlots() {
+      if (formData.date) {
+        const dayOfWeek = getDayOfWeek(formData.date);
+        const timeSlots = await clinicHoursService.getAvailableTimeSlotsForDay(
+          dayOfWeek
+        );
+        setAvailableTimeSlots(timeSlots);
+
+        // Limpar horário selecionado se não estiver mais disponível
+        if (formData.time && !timeSlots.includes(formData.time)) {
+          setFormData((prev) => ({ ...prev, time: "" }));
+        }
+      } else {
+        setAvailableTimeSlots([]);
+      }
+    }
+
+    loadAvailableTimeSlots();
+  }, [formData.date, formData.time]);
+
+  // Função para verificar se uma data está disponível
+  const isDateDisabled = async (date: Date): Promise<boolean> => {
+    const now = new Date();
+
+    // Desabilitar datas passadas
+    if (date < now) {
+      return true;
+    }
+
+    const dayOfWeek = getDayOfWeek(date);
+    const isOpen = await clinicHoursService.isOpenOnDay(dayOfWeek);
+
+    return !isOpen;
+  };
 
   useEffect(() => {
     async function fetchData() {
-      const [patientsData, employeesData, servicesData] = await Promise.all([
-        patientService.getAllPatients(),
-        employeeService.getAllEmployees(),
-        serviceService.getAllServices(),
-      ]);
+      const [patientsData, employeesData, servicesData, clinicHoursData] =
+        await Promise.all([
+          patientService.getAllPatients(),
+          employeeService.getAllEmployees(),
+          serviceService.getAllServices(),
+          clinicHoursService.getAllClinicHours(),
+        ]);
       setPatients(patientsData);
       setEmployees(employeesData);
       setServices(servicesData);
+      setClinicHours(clinicHoursData);
     }
 
     if (open) {
@@ -210,8 +235,6 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
       );
     };
   }, [open]);
-
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -482,14 +505,20 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                         }}
                         disabled={(date) => {
                           const now = new Date();
-                          return (
-                            date.getFullYear() < now.getFullYear() ||
-                            (date.getFullYear() === now.getFullYear() &&
-                              date.getMonth() < now.getMonth()) ||
-                            (date.getFullYear() === now.getFullYear() &&
-                              date.getMonth() === now.getMonth() &&
-                              date.getDate() < now.getDate())
+                          now.setHours(0, 0, 0, 0); // Normalizar para comparação de data apenas
+
+                          // Desabilitar datas passadas
+                          if (date < now) {
+                            return true;
+                          }
+
+                          // Verificar se a clínica está aberta neste dia
+                          const dayOfWeek = getDayOfWeek(date);
+                          const clinicHour = clinicHours.find(
+                            (ch) => ch.dayOfWeek === dayOfWeek
                           );
+
+                          return !clinicHour?.isOpen;
                         }}
                         initialFocus
                         locale={ptBR}
@@ -510,11 +539,19 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                       <SelectValue placeholder="Selecione o horário" />
                     </SelectTrigger>
                     <SelectContent>
-                      {timeSlots.map((time) => (
-                        <SelectItem key={time} value={time}>
-                          {time}
-                        </SelectItem>
-                      ))}
+                      {availableTimeSlots.length > 0 ? (
+                        availableTimeSlots.map((time) => (
+                          <SelectItem key={time} value={time}>
+                            {time}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                          {formData.date
+                            ? "Nenhum horário disponível para esta data"
+                            : "Selecione uma data primeiro"}
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
