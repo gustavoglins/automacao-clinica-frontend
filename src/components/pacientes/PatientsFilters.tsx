@@ -40,7 +40,7 @@ export const PatientsFilters: React.FC<PatientsFiltersProps> = ({
     onFilterStatusChange("");
   };
 
-  const hasActiveFilters = search || filterStatus;
+  const hasActiveFilters = !!search || !!filterStatus;
   const countBadge = getCountBadge();
 
   return (
@@ -55,6 +55,24 @@ export const PatientsFilters: React.FC<PatientsFiltersProps> = ({
               onChange={(e) => onSearchChange(e.target.value)}
               className="pl-10 text-sm"
             />
+          </div>
+          {/* Status Filter Dropdown */}
+          <div className="w-36">
+            <Select
+              value={filterStatus === "" ? "todos" : filterStatus}
+              onValueChange={(v) =>
+                onFilterStatusChange(v === "todos" ? "" : (v as PatientStatus))
+              }
+            >
+              <SelectTrigger className="w-full text-sm">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos status</SelectItem>
+                <SelectItem value="ativo">Ativo</SelectItem>
+                <SelectItem value="inativo">Inativo</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -74,10 +92,10 @@ export const PatientsFilters: React.FC<PatientsFiltersProps> = ({
 
       <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
-          <span>
+          {/* <span>
             Total de pacientes cadastrados:{" "}
             <strong>{filteredPatientsCount}</strong>
-          </span>
+          </span> */}
           {hasActiveFilters && (
             <>
               <Separator

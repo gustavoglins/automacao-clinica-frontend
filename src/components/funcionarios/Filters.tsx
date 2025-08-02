@@ -84,25 +84,7 @@ export const Filters: React.FC<FiltersProps> = ({
               className="pl-10"
             />
           </div>
-          {/* Filtro de status */}
-          <Select
-            value={filters.status || "all"}
-            onValueChange={(value) =>
-              onFiltersChange({
-                ...filters,
-                status: value === "all" ? "" : value,
-              })
-            }
-          >
-            <SelectTrigger className="w-full sm:w-[140px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos status</SelectItem>
-              <SelectItem value="ativo">Ativo</SelectItem>
-              <SelectItem value="inativo">Inativo</SelectItem>
-            </SelectContent>
-          </Select>
+
           <Select
             value={filters.role}
             onValueChange={(value) =>
@@ -210,6 +192,25 @@ export const Filters: React.FC<FiltersProps> = ({
             </SelectContent>
           </Select>
         </div>
+        {/* Filtro de status */}
+        <Select
+          value={filters.status || "all"}
+          onValueChange={(value) =>
+            onFiltersChange({
+              ...filters,
+              status: value === "all" ? "" : value,
+            })
+          }
+        >
+          <SelectTrigger className="w-full sm:w-[140px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos status</SelectItem>
+            <SelectItem value="ativo">Ativo</SelectItem>
+            <SelectItem value="inativo">Inativo</SelectItem>
+          </SelectContent>
+        </Select>
         <div className="flex items-center gap-2">
           {/* Botão de filtros removido */}
           <Button
@@ -224,10 +225,10 @@ export const Filters: React.FC<FiltersProps> = ({
 
       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
-          <span>
+          {/* <span>
             Total de funcionários cadastrados:{" "}
             <strong>{filteredEmployeesCount}</strong>
-          </span>
+          </span> */}
           {hasActiveFilters && (
             <>
               <Separator orientation="vertical" className="h-4" />

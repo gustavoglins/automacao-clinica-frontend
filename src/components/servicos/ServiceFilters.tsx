@@ -114,13 +114,13 @@ const ServiceFilters: React.FC<ServiceFiltersProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos status</SelectItem>
-              <SelectItem value="active">Ativos</SelectItem>
-              <SelectItem value="inactive">Inativos</SelectItem>
+              <SelectItem value="active">Ativo</SelectItem>
+              <SelectItem value="inactive">Inativo</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="flex items-center gap-2">
-          <Button
+          {/* <Button
             variant="outline"
             size="sm"
             onClick={onOpenFilters}
@@ -128,7 +128,7 @@ const ServiceFilters: React.FC<ServiceFiltersProps> = ({
           >
             <Filter className="h-4 w-4" />
             Filtros
-          </Button>
+          </Button> */}
           <Button onClick={onAddNew} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             Novo Serviço
@@ -138,10 +138,10 @@ const ServiceFilters: React.FC<ServiceFiltersProps> = ({
 
       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
-          <span>
+          {/* <span>
             Total de serviços cadastrados:{" "}
             <strong>{filteredServicesCount}</strong>
-          </span>
+          </span> */}
           {hasActiveFilters && (
             <>
               <Separator orientation="vertical" className="h-4" />

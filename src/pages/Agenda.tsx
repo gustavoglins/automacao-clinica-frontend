@@ -12,6 +12,8 @@ import {
   ChevronRight,
   CalendarDays,
   CalendarRange,
+  Calendar1,
+  CalendarMinus2,
 } from "lucide-react";
 import {
   Card,
@@ -330,32 +332,40 @@ const Agenda = () => {
                 </Button>
               </div>
             </div>
-
-            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                {(search || filterStatus || filterDoctor) && (
-                  <>
-                    <Separator orientation="vertical" className="h-4" />
-                    <div className="flex items-center gap-2">
-                      <span>Filtros ativos</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSearch("");
-                          setFilterStatus("");
-                          setFilterDoctor("");
-                        }}
-                        className="text-xs h-auto p-1"
-                      >
-                        Limpar
-                      </Button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
           </div>
+
+          {(search || filterStatus || filterDoctor) && (
+            <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-muted-foreground">
+              <span className="font-medium">Filtros ativos:</span>
+              {search && (
+                <span className="bg-muted px-2 py-1 rounded text-xs">
+                  Busca: {search}
+                </span>
+              )}
+              {filterStatus && (
+                <span className="bg-muted px-2 py-1 rounded text-xs">
+                  Status: {filterStatus}
+                </span>
+              )}
+              {filterDoctor && (
+                <span className="bg-muted px-2 py-1 rounded text-xs">
+                  Profissional: {filterDoctor}
+                </span>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearch("");
+                  setFilterStatus("");
+                  setFilterDoctor("");
+                }}
+                className="text-xs h-auto p-1"
+              >
+                Limpar
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Layout com Calendário e Lista */}
@@ -428,7 +438,7 @@ const Agenda = () => {
                     onClick={() => setViewMode("day")}
                     className="gap-1 text-xs flex-1 sm:flex-none"
                   >
-                    <CalendarDays className="w-3 h-3" />
+                    <Calendar1 className="w-3 h-3" />
                     <span className="hidden sm:inline">Dia</span>
                   </Button>
                   <Button
@@ -437,7 +447,7 @@ const Agenda = () => {
                     onClick={() => setViewMode("week")}
                     className="gap-1 text-xs flex-1 sm:flex-none"
                   >
-                    <CalendarRange className="w-3 h-3" />
+                    <CalendarMinus2 className="w-3 h-3" />
                     <span className="hidden sm:inline">Semana</span>
                   </Button>
                   <Button
@@ -446,7 +456,7 @@ const Agenda = () => {
                     onClick={() => setViewMode("month")}
                     className="gap-1 text-xs flex-1 sm:flex-none"
                   >
-                    <CalendarIcon className="w-3 h-3" />
+                    <CalendarDays className="w-3 h-3" />
                     <span className="hidden sm:inline">Mês</span>
                   </Button>
                 </div>
@@ -517,6 +527,8 @@ const Agenda = () => {
                     return "blue";
                 }
               }}
+              selectedDate={selectedDate}
+              viewMode={viewMode}
             />
           </div>
         </div>

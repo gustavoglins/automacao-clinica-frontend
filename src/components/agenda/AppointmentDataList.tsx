@@ -16,6 +16,7 @@ interface AppointmentDataListProps {
   height?: string;
   viewMode?: "day" | "week" | "month";
   getBorderColor?: (appointment: Appointment) => "green" | "gray" | "blue";
+  selectedDate?: Date;
 }
 
 export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
@@ -27,6 +28,7 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
   height = "500px",
   viewMode = "day",
   getBorderColor,
+  selectedDate,
 }) => {
   const fetchData = createFetchDataFromArray(appointments);
 
@@ -130,16 +132,27 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
   };
 
   const getTitle = () => {
-    switch (viewMode) {
-      case "day":
-        return "Consultas Agendadas";
-      case "week":
-        return "Consultas Agendadas";
-      case "month":
-        return "Consultas Agendadas";
-      default:
-        return "Consultas Agendadas";
+    let title = "Consultas Agendadas";
+    if (selectedDate) {
+      if (viewMode === "day") {
+        title += ` - ${selectedDate.toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })}`;
+      } else if (viewMode === "week") {
+        title += ` - Semana de ${selectedDate.toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+        })}`;
+      } else if (viewMode === "month") {
+        title += ` - ${selectedDate.toLocaleDateString("pt-BR", {
+          month: "long",
+          year: "numeric",
+        })}`;
+      }
     }
+    return title;
   };
 
   const getDescription = () => {

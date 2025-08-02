@@ -36,13 +36,13 @@ const appointmentStatuses = [
   { value: "pendente", label: "Pendente" },
   { value: "reagendada", label: "Reagendada" },
   { value: "cancelada", label: "Cancelada" },
-  { value: "concluida", label: "Concluída" }
+  { value: "concluida", label: "Concluída" },
 ];
 
 const timeRanges = [
   { value: "manha", label: "Manhã (6h - 12h)" },
   { value: "tarde", label: "Tarde (12h - 18h)" },
-  { value: "noite", label: "Noite (18h - 22h)" }
+  { value: "noite", label: "Noite (18h - 22h)" },
 ];
 
 const serviceTypes = [
@@ -51,14 +51,14 @@ const serviceTypes = [
   { value: "restauracao", label: "Restauração" },
   { value: "ortodontia", label: "Ortodontia" },
   { value: "cirurgia", label: "Cirurgia" },
-  { value: "emergencia", label: "Emergência" }
+  { value: "emergencia", label: "Emergência" },
 ];
 
 const FilterDialog: React.FC<FilterDialogProps> = ({
   isOpen,
   onClose,
   onApplyFilters,
-  doctors
+  doctors,
 }) => {
   const [status, setStatus] = useState("all");
   const [doctor, setDoctor] = useState("all");
@@ -77,7 +77,7 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
       status: status === "all" ? "" : status,
       doctor: doctor === "all" ? "" : doctor,
       timeRange: timeRange === "all" ? "" : timeRange,
-      service: service === "all" ? "" : service
+      service: service === "all" ? "" : service,
     });
     onClose();
   };
@@ -114,7 +114,7 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todos os status</SelectItem>
-                      {appointmentStatuses.map(stat => (
+                      {appointmentStatuses.map((stat) => (
                         <SelectItem key={stat.value} value={stat.value}>
                           {stat.label}
                         </SelectItem>
@@ -129,8 +129,10 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                       <SelectValue placeholder="Todos os profissionais" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todos os profissionais</SelectItem>
-                      {doctors.map(doc => (
+                      <SelectItem value="all">
+                        Todos os profissionais
+                      </SelectItem>
+                      {doctors.map((doc) => (
                         <SelectItem key={doc} value={doc}>
                           {doc}
                         </SelectItem>
@@ -143,7 +145,7 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
           </Card>
 
           {/* Horário e Tipo de Serviço */}
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Clock className="h-5 w-5" />
@@ -186,17 +188,15 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
 
-          <Separator />
+          {/* <Separator /> */}
 
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={handleReset}>
               Limpar Filtros
             </Button>
-            <Button onClick={handleApply}>
-              Aplicar Filtros
-            </Button>
+            <Button onClick={handleApply}>Aplicar Filtros</Button>
           </div>
         </div>
       </DialogContent>
