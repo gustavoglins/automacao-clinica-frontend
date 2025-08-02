@@ -52,23 +52,39 @@ export const ClinicProductionDialog = ({
     }
   }, [open, loadData]);
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     if (data) {
-      exportUtils.exportClinicProductionToPDF(data);
-      toast({
-        title: "Sucesso",
-        description: "Relatório exportado para PDF com sucesso!",
-      });
+      try {
+        exportUtils.exportClinicProductionToPDF(data);
+        toast({
+          title: "Sucesso",
+          description: "Relatório exportado para PDF com sucesso!",
+        });
+      } catch (error) {
+        toast({
+          title: "Erro",
+          description: "Falha ao exportar o relatório para PDF.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     if (data) {
-      exportUtils.exportClinicProductionToExcel(data);
-      toast({
-        title: "Sucesso",
-        description: "Relatório exportado para Excel com sucesso!",
-      });
+      try {
+        exportUtils.exportClinicProductionToExcel(data);
+        toast({
+          title: "Sucesso",
+          description: "Relatório exportado para Excel com sucesso!",
+        });
+      } catch (error) {
+        toast({
+          title: "Erro",
+          description: "Falha ao exportar o relatório para Excel.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -236,17 +252,17 @@ export const ClinicProductionDialog = ({
 
           {/* Botões de Exportação */}
           <div className="flex gap-4 pt-4">
-            <Button
+            {/* <Button
               onClick={handleExportPDF}
               className="flex items-center gap-2"
             >
               <Download className="h-4 w-4" />
               Exportar PDF
-            </Button>
+            </Button> */}
             <Button
               onClick={handleExportExcel}
-              variant="outline"
-              className="flex items-center gap-2"
+              variant="primary"
+              className="w-full flex items-center gap-2"
             >
               <Download className="h-4 w-4" />
               Exportar Excel

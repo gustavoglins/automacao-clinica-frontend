@@ -52,23 +52,39 @@ export const AppointmentReportDialog = ({
     }
   }, [open, loadData]);
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     if (data) {
-      exportUtils.exportAppointmentReportToPDF(data);
-      toast({
-        title: "Sucesso",
-        description: "Relatório exportado para PDF com sucesso!",
-      });
+      try {
+        exportUtils.exportAppointmentReportToPDF(data);
+        toast({
+          title: "Sucesso",
+          description: "Relatório exportado para PDF com sucesso!",
+        });
+      } catch (error) {
+        toast({
+          title: "Erro",
+          description: "Falha ao exportar o relatório para PDF.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     if (data) {
-      exportUtils.exportAppointmentReportToExcel(data);
-      toast({
-        title: "Sucesso",
-        description: "Relatório exportado para Excel com sucesso!",
-      });
+      try {
+        exportUtils.exportAppointmentReportToExcel(data);
+        toast({
+          title: "Sucesso",
+          description: "Relatório exportado para Excel com sucesso!",
+        });
+      } catch (error) {
+        toast({
+          title: "Erro",
+          description: "Falha ao exportar o relatório para Excel.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -264,16 +280,9 @@ export const AppointmentReportDialog = ({
           {/* Botões de Exportação */}
           <div className="flex gap-4 pt-4">
             <Button
-              onClick={handleExportPDF}
-              className="flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Exportar PDF
-            </Button>
-            <Button
               onClick={handleExportExcel}
-              variant="outline"
-              className="flex items-center gap-2"
+              variant="primary"
+              className="w-full flex items-center gap-2"
             >
               <Download className="h-4 w-4" />
               Exportar Excel
