@@ -166,18 +166,30 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                 </h2>
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                   <Badge
+                    variant="success"
+                    className={
+                      patient.status === "ativo"
+                        ? "bg-green-100 text-green-800 border-green-200"
+                        : "bg-gray-100 text-gray-600 border-gray-200"
+                    }
+                  >
+                    <div
+                      className={`w-2 h-2 rounded-full mr-2 ${
+                        patient.status === "ativo"
+                          ? "bg-green-500"
+                          : "bg-gray-400"
+                      }`}
+                    ></div>
+                    {patient.status.charAt(0).toUpperCase() +
+                      patient.status.slice(1)}
+                  </Badge>
+                  <Badge
                     variant="outline"
                     className="bg-gray-50 text-gray-700 border-gray-200"
                   >
                     {calculateAge()} anos
                   </Badge>
-                  {/* <Badge
-                    variant="success"
-                    className="bg-green-100 text-green-800 border-green-200"
-                  >
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    {patient.status || "-"}
-                  </Badge> */}
+
                   <Badge
                     variant="outline"
                     className="bg-gray-50 text-gray-700 border-gray-200"
@@ -213,7 +225,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
               <Button
                 variant="outline"
                 onClick={() => onOpenEdit(patient)}
-                className="px-6 text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+                className="px-6 bg-blue-600 hover:bg-blue-700 text-white hover:text-white shadow-sm duration-200 hover:shadow-md"
               >
                 <Edit className="w-4 h-4" />
               </Button>
