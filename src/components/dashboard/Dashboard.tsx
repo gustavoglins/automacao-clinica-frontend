@@ -16,6 +16,7 @@ import {
   Briefcase,
   User,
   Zap,
+  Stethoscope,
 } from "lucide-react";
 import { StatsCard } from "./StatsCard";
 import {
@@ -332,10 +333,12 @@ export function Dashboard() {
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <span className="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md text-xs font-semibold">
+                      <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md text-xs font-semibold">
+                        <Stethoscope className="w-3 h-3 mr-1" />
                         {nextAppointment.serviceName}
                       </span>
-                      <span className="inline-block px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md text-xs font-semibold">
+                      <span className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-800 rounded-md text-xs font-semibold">
+                        <Clock className="w-3 h-3 mr-1" />
                         {nextAppointment.durationMinutes} min
                       </span>
                     </div>
