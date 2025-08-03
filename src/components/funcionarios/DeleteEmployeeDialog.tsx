@@ -1,15 +1,15 @@
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
-import { AlertTriangle } from "lucide-react";
-import { employeeService, Employee } from "@/services/employeeService";
-import { toast } from "sonner";
+} from '@/components/ui/dialog';
+import { AlertTriangle } from 'lucide-react';
+import { employeeService, Employee } from '@/services/employeeService';
+import { toast } from 'sonner';
 
 interface DeleteEmployeeDialogProps {
   employee: Employee | null;
@@ -37,8 +37,7 @@ export const DeleteEmployeeDialog: React.FC<DeleteEmployeeDialogProps> = ({
       onEmployeeDeleted();
       onClose();
     } catch (error) {
-      console.error("Error deleting employee:", error);
-      toast.error("Erro ao excluir funcionário");
+      toast.error('Erro ao excluir funcionário');
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +67,7 @@ export const DeleteEmployeeDialog: React.FC<DeleteEmployeeDialogProps> = ({
             onClick={handleDelete}
             disabled={isLoading}
           >
-            {isLoading ? "Excluindo..." : "Excluir"}
+            {isLoading ? 'Excluindo...' : 'Excluir'}
           </Button>
         </div>
       </DialogContent>
