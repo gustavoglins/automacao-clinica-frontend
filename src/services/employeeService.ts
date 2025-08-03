@@ -1,6 +1,6 @@
-import { supabase } from "@/lib/supabaseClient";
-import { toast } from "sonner";
-import { isValidPhone, onlyNumbers } from "@/lib/utils";
+import { supabase } from '@/lib/supabaseClient';
+import { toast } from 'sonner';
+import { isValidPhone, onlyNumbers } from '@/lib/utils';
 import type {
   Employee,
   CreateEmployeeData,
@@ -13,8 +13,8 @@ import type {
   EmployeeFilters,
   EmployeeStats,
   ValidationResult,
-} from "@/types/employee";
-import { WEEKDAY_MAP, REVERSE_WEEKDAY_MAP } from "@/types/employee";
+} from '@/types/employee';
+import { WEEKDAY_MAP, REVERSE_WEEKDAY_MAP } from '@/types/employee';
 
 // Re-export types for backward compatibility
 export type {
@@ -82,20 +82,20 @@ class EmployeeTransformer {
     // Mapear valores do frontend para os ENUMs do banco
     const mapRoleToEnum = (role: string): string => {
       const roleMap: Record<string, string> = {
-        Dentista: "dentista",
-        Assistente: "auxiliar_saude_bucal",
-        Recepcionista: "recepcionista",
-        Gerente: "gerente",
-        Auxiliar: "auxiliar_saude_bucal",
-        Ortodontista: "ortodontista",
-        Endodontista: "endodontista",
-        Periodontista: "periodontista",
-        Implantodontista: "implantodontista",
-        Cirurgião: "cirurgiao_buco_maxilo",
-        Higienista: "higienista",
-        Técnico: "tecnico_saude_bucal",
+        Dentista: 'dentista',
+        Assistente: 'auxiliar_saude_bucal',
+        Recepcionista: 'recepcionista',
+        Gerente: 'gerente',
+        Auxiliar: 'auxiliar_saude_bucal',
+        Ortodontista: 'ortodontista',
+        Endodontista: 'endodontista',
+        Periodontista: 'periodontista',
+        Implantodontista: 'implantodontista',
+        Cirurgião: 'cirurgiao_buco_maxilo',
+        Higienista: 'higienista',
+        Técnico: 'tecnico_saude_bucal',
       };
-      return roleMap[role] || "dentista";
+      return roleMap[role] || 'dentista';
     };
 
     const mapSpecialtyToEnum = (specialty: string): string | null => {
@@ -103,32 +103,32 @@ class EmployeeTransformer {
 
       // Mapeamento completo para specialty_type
       const specialtyMap: Record<string, string> = {
-        "Clínico Geral": "clinico_geral",
-        Ortodontia: "ortodontista",
-        Endodontia: "endodontista",
-        Implantodontia: "implantodontista",
-        Periodontia: "periodontista",
-        Prótese: "protesista",
-        Odontopediatria: "odontopediatra",
-        "Cirurgia Buco-Maxilo": "cirurgiao_buco_maxilo",
-        Radiologia: "radiologista",
-        "Patologia Bucal": "patologista_bucal",
-        Dentística: "dentistica",
-        Estomatologia: "estomatologista",
-        "DTM (Disfunções Temporomandibulares)":
-          "disfuncoes_temporomandibulares",
-        Odontogeriatria: "odontogeriatra",
-        "Odontologia do Trabalho": "odontologia_do_trabalho",
-        "Odontologia Legal": "odontologia_legal",
-        "Odontologia Hospitalar": "odontologia_hospitalar",
-        "Odontologia do Esporte": "odontologia_do_esporte",
-        "Necessidades Especiais": "necessidades_especiais",
-        "Ortopedia Funcional": "ortopedia_funcional",
-        "Saúde Coletiva": "saude_coletiva",
-        "Acupuntura Odonto": "acupuntura_odonto",
-        "Homeopatia Odonto": "homeopatia_odonto",
-        Laserterapia: "laserterapia",
-        "Odontologia Estética": "odontologia_estetica",
+        'Clínico Geral': 'clinico_geral',
+        Ortodontia: 'ortodontista',
+        Endodontia: 'endodontista',
+        Implantodontia: 'implantodontista',
+        Periodontia: 'periodontista',
+        Prótese: 'protesista',
+        Odontopediatria: 'odontopediatra',
+        'Cirurgia Buco-Maxilo': 'cirurgiao_buco_maxilo',
+        Radiologia: 'radiologista',
+        'Patologia Bucal': 'patologista_bucal',
+        Dentística: 'dentistica',
+        Estomatologia: 'estomatologista',
+        'DTM (Disfunções Temporomandibulares)':
+          'disfuncoes_temporomandibulares',
+        Odontogeriatria: 'odontogeriatra',
+        'Odontologia do Trabalho': 'odontologia_do_trabalho',
+        'Odontologia Legal': 'odontologia_legal',
+        'Odontologia Hospitalar': 'odontologia_hospitalar',
+        'Odontologia do Esporte': 'odontologia_do_esporte',
+        'Necessidades Especiais': 'necessidades_especiais',
+        'Ortopedia Funcional': 'ortopedia_funcional',
+        'Saúde Coletiva': 'saude_coletiva',
+        'Acupuntura Odonto': 'acupuntura_odonto',
+        'Homeopatia Odonto': 'homeopatia_odonto',
+        Laserterapia: 'laserterapia',
+        'Odontologia Estética': 'odontologia_estetica',
       };
       // Permitir salvar diretamente se já estiver no formato do banco
       if (Object.values(specialtyMap).includes(specialty)) return specialty;
@@ -137,17 +137,17 @@ class EmployeeTransformer {
 
     const mapStatusToEnum = (status: string): string => {
       const statusMap: Record<string, string> = {
-        ativo: "ativo",
-        inativo: "demitido",
-        suspenso: "afastado",
+        ativo: 'ativo',
+        inativo: 'demitido',
+        suspenso: 'afastado',
       };
-      return statusMap[status] || "ativo";
+      return statusMap[status] || 'ativo';
     };
 
     // Limpar CPF - remover pontos e traços
     const cleanCpf = employeeData.cpf
-      ? employeeData.cpf.replace(/\D/g, "")
-      : "";
+      ? employeeData.cpf.replace(/\D/g, '')
+      : '';
 
     // Validar se o CPF tem 11 dígitos
     if (cleanCpf && cleanCpf.length !== 11) {
@@ -160,8 +160,8 @@ class EmployeeTransformer {
       full_name: employeeData.fullName,
       cpf: cleanCpf,
       role: mapRoleToEnum(employeeData.role),
-      status: mapStatusToEnum(employeeData.status || "ativo"),
-      specialty: mapSpecialtyToEnum(employeeData.specialty || ""),
+      status: mapStatusToEnum(employeeData.status || 'ativo'),
+      specialty: mapSpecialtyToEnum(employeeData.specialty || ''),
       crm_number: employeeData.crmNumber || null,
       salary: employeeData.salary || null,
       phone: employeeData.phone || null,
@@ -230,27 +230,20 @@ class EmployeeService {
    */
   async getAllEmployees(): Promise<Employee[]> {
     try {
-      console.log("🔄 Buscando funcionários...");
-
       const { data, error } = await supabase
-        .from("employees")
-        .select("*")
-        .order("full_name");
+        .from('employees')
+        .select('*')
+        .order('full_name');
 
       if (error) {
-        console.error("❌ Erro ao buscar funcionários:", error);
+        console.error('❌ Erro ao buscar funcionários:', error);
         throw error;
       }
 
-      console.log("📊 Dados brutos do Supabase:", data);
-
       const employees = data.map(EmployeeTransformer.fromSupabaseSimple);
-      console.log("👥 Funcionários processados:", employees);
-
       return employees;
     } catch (error) {
-      console.error("❌ Erro ao carregar funcionários:", error);
-      toast.error("Erro ao carregar funcionários");
+      toast.error('Erro ao carregar funcionários');
       throw error;
     }
   }
@@ -261,9 +254,9 @@ class EmployeeService {
   async getEmployeeById(id: string): Promise<Employee | null> {
     try {
       const { data, error } = await supabase
-        .from("employees")
-        .select("*")
-        .eq("id", id)
+        .from('employees')
+        .select('*')
+        .eq('id', id)
         .single();
 
       if (error) throw error;
@@ -272,8 +265,8 @@ class EmployeeService {
 
       return EmployeeTransformer.fromSupabase(data);
     } catch (error) {
-      console.error("Error fetching employee by ID:", error);
-      toast.error("Erro ao carregar funcionário");
+      console.error('Error fetching employee by ID:', error);
+      toast.error('Erro ao carregar funcionário');
       throw error;
     }
   }
@@ -286,19 +279,19 @@ class EmployeeService {
       const insertData = EmployeeTransformer.toSupabaseInsert(employeeData);
 
       const { data, error } = await supabase
-        .from("employees")
+        .from('employees')
         .insert(insertData)
         .select()
         .single();
 
       if (error) throw error;
 
-      toast.success("Funcionário adicionado com sucesso!");
+      toast.success('Funcionário adicionado com sucesso!');
 
       return EmployeeTransformer.fromSupabase(data);
     } catch (error) {
-      console.error("Error creating employee:", error);
-      toast.error("Erro ao adicionar funcionário");
+      console.error('Error creating employee:', error);
+      toast.error('Erro ao adicionar funcionário');
       throw error;
     }
   }
@@ -310,23 +303,18 @@ class EmployeeService {
     employeeData: CreateEmployeeData
   ): Promise<Employee> {
     try {
-      console.log("🔄 Tentando criar funcionário com dados:", employeeData);
-
       const insertData = EmployeeTransformer.toSupabaseInsert(employeeData);
-      console.log("📝 Dados para inserção:", insertData);
 
       const { data, error } = await supabase
-        .from("employees")
+        .from('employees')
         .insert(insertData)
         .select()
         .single();
 
       if (error) {
-        console.error("❌ Erro ao criar funcionário:", error);
+        console.error('❌ Erro ao criar funcionário:', error);
         throw error;
       }
-
-      console.log("✅ Funcionário criado com sucesso:", data);
 
       // Add work schedules if provided
       if (
@@ -335,8 +323,6 @@ class EmployeeService {
         employeeData.startHour &&
         employeeData.endHour
       ) {
-        console.log("🕐 Criando horários de trabalho...");
-
         const schedules = EmployeeTransformer.toSupabaseWorkScheduleInsert(
           data.id,
           employeeData.workDays,
@@ -344,26 +330,22 @@ class EmployeeService {
           employeeData.endHour
         );
 
-        console.log("📅 Horários para inserir:", schedules);
-
         const { error: scheduleError } = await supabase
-          .from("work_hours")
+          .from('work_hours')
           .insert(schedules);
 
         if (scheduleError) {
-          console.error("❌ Erro ao criar horários:", scheduleError);
+          console.error('❌ Erro ao criar horários:', scheduleError);
           throw scheduleError;
         }
-
-        console.log("✅ Horários criados com sucesso");
       }
 
-      toast.success("Funcionário adicionado com sucesso!");
+      toast.success('Funcionário adicionado com sucesso!');
 
       return EmployeeTransformer.fromSupabase(data);
     } catch (error) {
-      console.error("❌ Erro ao criar funcionário:", error);
-      toast.error("Erro ao adicionar funcionário");
+      console.error('❌ Erro ao criar funcionário:', error);
+      toast.error('Erro ao adicionar funcionário');
       throw error;
     }
   }
@@ -376,20 +358,20 @@ class EmployeeService {
       const updateData = EmployeeTransformer.toSupabaseUpdate(employeeData);
 
       const { data, error } = await supabase
-        .from("employees")
+        .from('employees')
         .update(updateData)
-        .eq("id", employeeData.id)
+        .eq('id', employeeData.id)
         .select()
         .single();
 
       if (error) throw error;
 
-      toast.success("Funcionário atualizado com sucesso!");
+      toast.success('Funcionário atualizado com sucesso!');
 
       return EmployeeTransformer.fromSupabase(data);
     } catch (error) {
-      console.error("Error updating employee:", error);
-      toast.error("Erro ao atualizar funcionário");
+      console.error('Error updating employee:', error);
+      toast.error('Erro ao atualizar funcionário');
       throw error;
     }
   }
@@ -404,9 +386,9 @@ class EmployeeService {
       const updateData = EmployeeTransformer.toSupabaseUpdate(employeeData);
 
       const { data, error } = await supabase
-        .from("employees")
+        .from('employees')
         .update(updateData)
-        .eq("id", employeeData.id)
+        .eq('id', employeeData.id)
         .select()
         .single();
 
@@ -420,9 +402,9 @@ class EmployeeService {
       ) {
         // First, delete existing schedules
         const { error: deleteError } = await supabase
-          .from("work_hours")
+          .from('work_hours')
           .delete()
-          .eq("employee_id", employeeData.id);
+          .eq('employee_id', employeeData.id);
 
         if (deleteError) throw deleteError;
 
@@ -435,18 +417,18 @@ class EmployeeService {
         );
 
         const { error: scheduleError } = await supabase
-          .from("work_hours")
+          .from('work_hours')
           .insert(schedules);
 
         if (scheduleError) throw scheduleError;
       }
 
-      toast.success("Funcionário atualizado com sucesso!");
+      toast.success('Funcionário atualizado com sucesso!');
 
       return EmployeeTransformer.fromSupabase(data);
     } catch (error) {
-      console.error("Error updating employee:", error);
-      toast.error("Erro ao atualizar funcionário");
+      console.error('Error updating employee:', error);
+      toast.error('Erro ao atualizar funcionário');
       throw error;
     }
   }
@@ -456,19 +438,19 @@ class EmployeeService {
    */
   async deleteEmployee(id: string): Promise<void> {
     try {
-      const { error } = await supabase.from("employees").delete().eq("id", id);
+      const { error } = await supabase.from('employees').delete().eq('id', id);
 
       if (error) {
-        console.error("Supabase error ao deletar funcionário:", error);
+        console.error('Supabase error ao deletar funcionário:', error);
         toast.error(`Erro ao remover funcionário: ${error.message}`);
         throw error;
       }
 
       // Sempre mostrar toast de sucesso se não houve erro
-      toast.success("Funcionário removido com sucesso!");
+      toast.success('Funcionário removido com sucesso!');
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
-      console.error("Error deleting employee:", error);
+      console.error('Error deleting employee:', error);
       toast.error(`Erro ao remover funcionário: ${errMsg}`);
       throw error;
     }
@@ -481,13 +463,13 @@ class EmployeeService {
     try {
       // First, delete related work schedules
       const { error: scheduleError } = await supabase
-        .from("work_hours")
+        .from('work_hours')
         .delete()
-        .eq("employee_id", id);
+        .eq('employee_id', id);
 
       if (scheduleError) {
         console.error(
-          "Erro ao deletar horários do funcionário:",
+          'Erro ao deletar horários do funcionário:',
           scheduleError
         );
         toast.error(
@@ -502,7 +484,7 @@ class EmployeeService {
       await this.deleteEmployee(id);
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
-      console.error("Error deleting employee with relations:", error);
+      console.error('Error deleting employee with relations:', error);
       toast.error(`Erro ao remover funcionário: ${errMsg}`);
       throw error;
     }
@@ -514,19 +496,19 @@ class EmployeeService {
   async searchEmployees(searchTerm: string): Promise<Employee[]> {
     try {
       const { data, error } = await supabase
-        .from("employees")
-        .select("*")
+        .from('employees')
+        .select('*')
         .or(
           `full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`
         )
-        .order("full_name");
+        .order('full_name');
 
       if (error) throw error;
 
       return data.map(EmployeeTransformer.fromSupabaseSimple);
     } catch (error) {
-      console.error("Error searching employees:", error);
-      toast.error("Erro ao buscar funcionários");
+      console.error('Error searching employees:', error);
+      toast.error('Erro ao buscar funcionários');
       throw error;
     }
   }
@@ -536,30 +518,30 @@ class EmployeeService {
    */
   async filterEmployees(filters: EmployeeFilters): Promise<Employee[]> {
     try {
-      let query = supabase.from("employees").select("*");
+      let query = supabase.from('employees').select('*');
 
-      if (filters.role && filters.role !== "") {
-        query = query.eq("role", filters.role);
+      if (filters.role && filters.role !== '') {
+        query = query.eq('role', filters.role);
       }
 
-      if (filters.specialty && filters.specialty !== "") {
-        query = query.eq("specialty", filters.specialty);
+      if (filters.specialty && filters.specialty !== '') {
+        query = query.eq('specialty', filters.specialty);
       }
 
-      if (filters.search && filters.search.trim() !== "") {
+      if (filters.search && filters.search.trim() !== '') {
         query = query.or(
           `full_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%,phone.ilike.%${filters.search}%`
         );
       }
 
-      const { data, error } = await query.order("full_name");
+      const { data, error } = await query.order('full_name');
 
       if (error) throw error;
 
       return data.map(EmployeeTransformer.fromSupabaseSimple);
     } catch (error) {
-      console.error("Error filtering employees:", error);
-      toast.error("Erro ao filtrar funcionários");
+      console.error('Error filtering employees:', error);
+      toast.error('Erro ao filtrar funcionários');
       throw error;
     }
   }
@@ -600,7 +582,7 @@ class EmployeeService {
 
       return stats;
     } catch (error) {
-      console.error("Error getting employee stats:", error);
+      console.error('Error getting employee stats:', error);
       throw error;
     }
   }
@@ -614,48 +596,48 @@ class EmployeeService {
     const errors: string[] = [];
 
     if (
-      "fullName" in data &&
+      'fullName' in data &&
       (!data.fullName || data.fullName.trim().length < 2)
     ) {
-      errors.push("Nome deve ter pelo menos 2 caracteres");
+      errors.push('Nome deve ter pelo menos 2 caracteres');
     }
 
-    if ("email" in data && data.email) {
+    if ('email' in data && data.email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(data.email)) {
-        errors.push("Email deve ter um formato válido");
+        errors.push('Email deve ter um formato válido');
       }
     }
 
-    if ("phone" in data && data.phone) {
+    if ('phone' in data && data.phone) {
       // Usar nossa validação personalizada que aceita números puros
       if (!isValidPhone(data.phone)) {
-        errors.push("Telefone deve ser um número válido (10 ou 11 dígitos)");
+        errors.push('Telefone deve ser um número válido (10 ou 11 dígitos)');
       }
     }
 
-    if ("cpf" in data && data.cpf) {
+    if ('cpf' in data && data.cpf) {
       // CPF deve ter exatamente 11 dígitos numéricos
-      const cleanCpf = data.cpf.replace(/\D/g, "");
+      const cleanCpf = data.cpf.replace(/\D/g, '');
       if (cleanCpf.length !== 11) {
-        errors.push("CPF deve ter exatamente 11 dígitos");
+        errors.push('CPF deve ter exatamente 11 dígitos');
       } else if (!/^\d{11}$/.test(cleanCpf)) {
-        errors.push("CPF deve conter apenas números");
+        errors.push('CPF deve conter apenas números');
       }
     }
 
-    if ("workDays" in data && data.workDays && data.workDays.length === 0) {
-      errors.push("Selecione pelo menos um dia de trabalho");
+    if ('workDays' in data && data.workDays && data.workDays.length === 0) {
+      errors.push('Selecione pelo menos um dia de trabalho');
     }
 
     if (
-      "startHour" in data &&
+      'startHour' in data &&
       data.startHour &&
-      "endHour" in data &&
+      'endHour' in data &&
       data.endHour
     ) {
       if (data.startHour >= data.endHour) {
-        errors.push("Hora de entrada deve ser anterior à hora de saída");
+        errors.push('Hora de entrada deve ser anterior à hora de saída');
       }
     }
 

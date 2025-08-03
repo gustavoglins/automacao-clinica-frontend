@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { useLocation } from "react-router-dom";
-import { toast } from "sonner";
+import React, { useState } from 'react';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { useLocation } from 'react-router-dom';
+import { toast } from 'sonner';
 import {
   PatientsStats,
   PatientDataList,
@@ -10,22 +10,22 @@ import {
   PatientsFilters,
   PatientProfileDialog,
   AddPatientDialog,
-} from "@/components/pacientes";
-import { Patient, PatientStatus } from "@/types/patient";
-import { patientService } from "@/services/patientService";
-import { usePatients } from "@/context/PatientContext";
+} from '@/components/pacientes';
+import { Patient, PatientStatus } from '@/types/patient';
+import { patientService } from '@/services/patientService';
+import { usePatients } from '@/context/PatientContext';
 
 const PacientesWithDataList = () => {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<PatientStatus>("");
+  const [filterStatus, setFilterStatus] = useState<PatientStatus>('');
   const [openAllPatientsDialog, setOpenAllPatientsDialog] = useState(false);
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const [openAddPatientDialog, setOpenAddPatientDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const query = params.get("q") || search;
+  const query = params.get('q') || search;
 
   // Usar contexto global de pacientes
   const { patients, setPatients, loading, fetchPatients } = usePatients();
@@ -42,17 +42,15 @@ const PacientesWithDataList = () => {
 
   // Handlers para ações dos pacientes
   const handleSchedule = (patient: Patient) => {
-    console.log("Agendar para:", patient.fullName);
     // Implementar lógica de agendamento
   };
 
   const handleEdit = (patient: Patient) => {
-    console.log("Editar paciente:", patient.fullName);
-    // Implementar lógica de edição
+    setSelectedPatient(patient);
+    setOpenProfileDialog(true);
   };
 
   const handleViewRecord = (patient: Patient) => {
-    console.log("Ver prontuário de:", patient.fullName);
     setSelectedPatient(patient);
     setOpenProfileDialog(true);
   };
@@ -61,13 +59,13 @@ const PacientesWithDataList = () => {
     setOpenAddPatientDialog(true);
   };
 
-  const handleSavePatient = async (newPatient: Omit<Patient, "id">) => {
+  const handleSavePatient = async (newPatient: Omit<Patient, 'id'>) => {
     try {
       const patient = await patientService.createPatient(newPatient);
       setPatients((prev) => [...prev, patient]);
       toast.success(`Paciente ${patient.fullName} adicionado com sucesso!`);
     } catch (error) {
-      console.error("Erro ao adicionar paciente:", error);
+      console.error('Erro ao adicionar paciente:', error);
     }
   };
 
@@ -89,7 +87,7 @@ const PacientesWithDataList = () => {
         <PatientsFilters
           search={query}
           onSearchChange={setSearch}
-          filterStatus={""}
+          filterStatus={''}
           onFilterStatusChange={() => {}}
           onOpenFilters={() => {}}
           onOpenAddPatient={handleAddPatient}
@@ -171,7 +169,7 @@ const PacientesWithDataList = () => {
           isOpen={openProfileDialog}
           onClose={() => setOpenProfileDialog(false)}
           onSchedule={handleSchedule}
-          onEdit={handleEdit}
+          onOpenEdit={handleEdit}
           onViewRecord={handleViewRecord}
         />
 
@@ -186,7 +184,7 @@ const PacientesWithDataList = () => {
                 `Paciente ${patient.fullName} adicionado com sucesso!`
               );
             } catch (error) {
-              console.error("Erro ao adicionar paciente:", error);
+              console.error('Erro ao adicionar paciente:', error);
             }
           }}
         />

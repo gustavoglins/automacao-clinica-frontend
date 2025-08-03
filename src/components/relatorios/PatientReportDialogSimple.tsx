@@ -1,18 +1,18 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Download, Users } from "lucide-react";
-import { reportService, type PatientReport } from "@/services/reportService";
-import { exportUtils } from "@/lib/exportUtils";
-import { useToast } from "@/hooks/use-toast";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Download, Users } from 'lucide-react';
+import { reportService, type PatientReport } from '@/services/reportService';
+import { exportUtils } from '@/lib/exportUtils';
+import { useToast } from '@/hooks/use-toast';
 
 interface PatientReportDialogProps {
   open: boolean;
@@ -34,9 +34,9 @@ export const PatientReportDialog = ({
       setData(report);
     } catch (error) {
       toast({
-        title: "Erro",
-        description: "Não foi possível carregar os dados do relatório.",
-        variant: "destructive",
+        title: 'Erro',
+        description: 'Não foi possível carregar os dados do relatório.',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -52,20 +52,19 @@ export const PatientReportDialog = ({
   const handleExportPDF = async () => {
     if (data) {
       try {
-        console.log("Iniciando exportação PDF...", data);
         exportUtils.exportPatientReportToPDF(data);
         toast({
-          title: "Sucesso",
-          description: "Relatório exportado para PDF com sucesso!",
+          title: 'Sucesso',
+          description: 'Relatório exportado para PDF com sucesso!',
         });
       } catch (error) {
-        console.error("Erro na exportação PDF:", error);
+        console.error('Erro na exportação PDF:', error);
         toast({
-          title: "Erro",
+          title: 'Erro',
           description: `Falha ao exportar: ${
-            error instanceof Error ? error.message : "Erro desconhecido"
+            error instanceof Error ? error.message : 'Erro desconhecido'
           }`,
-          variant: "destructive",
+          variant: 'destructive',
         });
       }
     }
@@ -76,14 +75,14 @@ export const PatientReportDialog = ({
       try {
         exportUtils.exportPatientReportToExcel(data);
         toast({
-          title: "Sucesso",
-          description: "Relatório exportado para Excel com sucesso!",
+          title: 'Sucesso',
+          description: 'Relatório exportado para Excel com sucesso!',
         });
       } catch (error) {
         toast({
-          title: "Erro",
-          description: "Falha ao exportar o relatório para Excel.",
-          variant: "destructive",
+          title: 'Erro',
+          description: 'Falha ao exportar o relatório para Excel.',
+          variant: 'destructive',
         });
       }
     }
@@ -191,7 +190,7 @@ export const PatientReportDialog = ({
                                 (age.count / data.totalRegisteredPatients) *
                                 100
                               ).toFixed(1)
-                            : "0"}
+                            : '0'}
                           %
                         </td>
                       </tr>

@@ -1,25 +1,25 @@
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { employeeService } from "@/services/employeeService";
-import { toast } from "sonner";
+} from '@/components/ui/select';
+import { employeeService } from '@/services/employeeService';
+import { toast } from 'sonner';
 import {
   applyPhoneMask,
   applyCpfMask,
@@ -27,10 +27,10 @@ import {
   isValidPhone,
   isValidCpf,
   getPhoneInfo,
-} from "@/lib/utils";
-import { X, Check } from "lucide-react";
+} from '@/lib/utils';
+import { X, Check } from 'lucide-react';
 
-import { CreateEmployeeData } from "@/types/employee";
+import { CreateEmployeeData } from '@/types/employee';
 
 interface AddEmployeeDialogProps {
   isOpen: boolean;
@@ -44,47 +44,47 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   onEmployeeAdded,
 }) => {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    cpf: "",
-    role: "",
-    specialty: "",
-    registrationNumber: "",
-    hireDate: "",
-    salary: "",
-    status: "ativo",
+    name: '',
+    email: '',
+    phone: '',
+    cpf: '',
+    role: '',
+    specialty: '',
+    registrationNumber: '',
+    hireDate: '',
+    salary: '',
+    status: 'ativo',
     visibleOnSchedule: true,
     acceptsOnlineBooking: true,
     showContact: false,
-    avatarUrl: "",
-    notes: "",
-    workDays: ["Seg", "Ter", "Qua", "Qui", "Sex"], // Dias de trabalho padrão
-    startHour: "08:00",
-    endHour: "18:00",
+    avatarUrl: '',
+    notes: '',
+    workDays: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'], // Dias de trabalho padrão
+    startHour: '08:00',
+    endHour: '18:00',
   });
   const [isLoading, setIsLoading] = useState(false);
 
   const resetForm = () => {
     setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      cpf: "",
-      role: "",
-      specialty: "",
-      registrationNumber: "",
-      hireDate: "",
-      salary: "",
-      status: "ativo",
+      name: '',
+      email: '',
+      phone: '',
+      cpf: '',
+      role: '',
+      specialty: '',
+      registrationNumber: '',
+      hireDate: '',
+      salary: '',
+      status: 'ativo',
       visibleOnSchedule: true,
       acceptsOnlineBooking: true,
       showContact: false,
-      avatarUrl: "",
-      notes: "",
-      workDays: ["Seg", "Ter", "Qua", "Qui", "Sex"],
-      startHour: "08:00",
-      endHour: "18:00",
+      avatarUrl: '',
+      notes: '',
+      workDays: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
+      startHour: '08:00',
+      endHour: '18:00',
     });
   };
 
@@ -102,19 +102,17 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
 
     // Validar CPF se fornecido
     if (formData.cpf && !isValidCpf(formData.cpf)) {
-      toast.error("CPF inválido");
+      toast.error('CPF inválido');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      console.log("📝 Dados do formulário:", formData);
-
       // Convert salary to number
       const employeeData = {
         fullName: formData.name,
-        cpf: formData.cpf ? formData.cpf.replace(/\D/g, "") : "", // Limpar CPF
+        cpf: formData.cpf ? formData.cpf.replace(/\D/g, '') : '', // Limpar CPF
         role: formData.role,
         status: formData.status,
         specialty: formData.specialty || undefined,
@@ -128,23 +126,19 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         endHour: formData.endHour,
       };
 
-      console.log("🔧 Dados processados para o serviço:", employeeData);
-
       // Validate form data
       const validation = employeeService.validateEmployeeData(employeeData);
       if (!validation.isValid) {
-        console.error("❌ Validação falhou:", validation.errors);
+        console.error('❌ Validação falhou:', validation.errors);
         toast.error(validation.errors[0]);
         return;
       }
-
-      console.log("✅ Validação passou, enviando dados...");
 
       onEmployeeAdded(employeeData);
       resetForm();
       onClose();
     } catch (error) {
-      console.error("❌ Erro no formulário:", error);
+      console.error('❌ Erro no formulário:', error);
       // Error handling is already done in the service
     } finally {
       setIsLoading(false);
@@ -152,11 +146,11 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   };
 
   const handleChange = (field: string, value: string | string[]) => {
-    if (field === "phone") {
+    if (field === 'phone') {
       // Aplicar máscara de telefone
       const maskedValue = applyPhoneMask(value as string);
       setFormData((prev) => ({ ...prev, [field]: maskedValue }));
-    } else if (field === "cpf") {
+    } else if (field === 'cpf') {
       // Aplicar máscara de CPF
       const maskedValue = applyCpfMask(value as string);
       setFormData((prev) => ({ ...prev, [field]: maskedValue }));
@@ -218,7 +212,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => handleChange("name", e.target.value)}
+                    onChange={(e) => handleChange('name', e.target.value)}
                     required
                   />
                 </div>
@@ -227,7 +221,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                   <Label htmlFor="role">Cargo *</Label>
                   <Select
                     value={formData.role}
-                    onValueChange={(value) => handleChange("role", value)}
+                    onValueChange={(value) => handleChange('role', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o cargo" />
@@ -285,7 +279,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                   <Select
                     value={formData.specialty || undefined}
                     onValueChange={(value) =>
-                      handleChange("specialty", value === "none" ? "" : value)
+                      handleChange('specialty', value === 'none' ? '' : value)
                     }
                   >
                     <SelectTrigger>
@@ -366,7 +360,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                     id="hireDate"
                     type="date"
                     value={formData.hireDate}
-                    onChange={(e) => handleChange("hireDate", e.target.value)}
+                    onChange={(e) => handleChange('hireDate', e.target.value)}
                   />
                 </div>
               </div>
@@ -400,7 +394,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                   <Input
                     id="phone"
                     value={formData.phone}
-                    onChange={(e) => handleChange("phone", e.target.value)}
+                    onChange={(e) => handleChange('phone', e.target.value)}
                     placeholder="(11) 99999-9999"
                   />
                 </div>
@@ -411,7 +405,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
+                    onChange={(e) => handleChange('email', e.target.value)}
                   />
                 </div>
               </div>
@@ -423,7 +417,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                     id="cpf"
                     type="text"
                     value={formData.cpf}
-                    onChange={(e) => handleChange("cpf", e.target.value)}
+                    onChange={(e) => handleChange('cpf', e.target.value)}
                     placeholder="000.000.000-00"
                     maxLength={14}
                     required
@@ -436,7 +430,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                     id="registrationNumber"
                     value={formData.registrationNumber}
                     onChange={(e) =>
-                      handleChange("registrationNumber", e.target.value)
+                      handleChange('registrationNumber', e.target.value)
                     }
                     placeholder="CRO, COREM, etc."
                   />
@@ -494,7 +488,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                     type="number"
                     step="0.01"
                     value={formData.salary}
-                    onChange={(e) => handleChange("salary", e.target.value)}
+                    onChange={(e) => handleChange('salary', e.target.value)}
                     placeholder="0,00"
                   />
                 </div>
@@ -503,7 +497,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                   <Label htmlFor="status">Status</Label>
                   <Select
                     value={formData.status}
-                    onValueChange={(value) => handleChange("status", value)}
+                    onValueChange={(value) => handleChange('status', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o status" />
@@ -545,7 +539,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                 <Textarea
                   id="notes"
                   value={formData.notes}
-                  onChange={(e) => handleChange("notes", e.target.value)}
+                  onChange={(e) => handleChange('notes', e.target.value)}
                   placeholder="Observações sobre o funcionário..."
                   rows={3}
                 />
@@ -577,7 +571,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
               <div className="space-y-2">
                 <Label>Dias de Trabalho *</Label>
                 <div className="flex flex-wrap gap-2">
-                  {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map(
+                  {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(
                     (day) => {
                       const selected = formData.workDays.includes(day);
                       return (
@@ -586,14 +580,14 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                           type="button"
                           className={`px-3 py-1 rounded-full border text-sm transition-colors ${
                             selected
-                              ? "bg-primary text-white border-primary shadow"
-                              : "bg-muted text-foreground border-muted-foreground hover:bg-primary/10"
+                              ? 'bg-primary text-white border-primary shadow'
+                              : 'bg-muted text-foreground border-muted-foreground hover:bg-primary/10'
                           }`}
                           onClick={() => {
                             const workDays = formData.workDays.includes(day)
                               ? formData.workDays.filter((d) => d !== day)
                               : [...formData.workDays, day];
-                            handleChange("workDays", workDays);
+                            handleChange('workDays', workDays);
                           }}
                         >
                           {day}
@@ -611,7 +605,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                     id="startHour"
                     type="time"
                     value={formData.startHour}
-                    onChange={(e) => handleChange("startHour", e.target.value)}
+                    onChange={(e) => handleChange('startHour', e.target.value)}
                     required
                   />
                 </div>
@@ -622,7 +616,7 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                     id="endHour"
                     type="time"
                     value={formData.endHour}
-                    onChange={(e) => handleChange("endHour", e.target.value)}
+                    onChange={(e) => handleChange('endHour', e.target.value)}
                     required
                   />
                 </div>

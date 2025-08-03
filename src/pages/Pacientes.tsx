@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import React, { useState, useEffect } from 'react';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import {
   PatientsStats,
   PatientDataList,
@@ -10,16 +10,16 @@ import {
   PatientsFilters,
   PatientProfileDialog,
   AddPatientDialog,
-} from "@/components/pacientes";
-import EditPatientDialog from "@/components/pacientes/EditPatientDialog";
-import { Patient, PatientStatus } from "@/types/patient";
-import { patientService } from "@/services/patientService";
-import { usePatients } from "@/context/PatientContext";
+} from '@/components/pacientes';
+import EditPatientDialog from '@/components/pacientes/EditPatientDialog';
+import { Patient, PatientStatus } from '@/types/patient';
+import { patientService } from '@/services/patientService';
+import { usePatients } from '@/context/PatientContext';
 
 const Pacientes = () => {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<PatientStatus>(""); // Mantém status, mas não planos
+  const [filterStatus, setFilterStatus] = useState<PatientStatus>(''); // Mantém status, mas não planos
   const [openAllPatientsDialog, setOpenAllPatientsDialog] = useState(false);
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const [openAddPatientDialog, setOpenAddPatientDialog] = useState(false);
@@ -28,14 +28,14 @@ const Pacientes = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
-  const urlQuery = params.get("q");
+  const urlQuery = params.get('q');
 
   // Efeito para aplicar busca da URL e limpar após redirecionamento
   useEffect(() => {
     if (urlQuery) {
       setSearch(urlQuery);
       // Limpar parâmetro da URL após aplicar o filtro
-      navigate("/pacientes", { replace: true });
+      navigate('/pacientes', { replace: true });
     }
   }, [urlQuery, navigate]);
 
@@ -59,7 +59,6 @@ const Pacientes = () => {
 
   // Handlers para ações dos pacientes
   const handleSchedule = (patient: Patient) => {
-    console.log("Agendar para:", patient.fullName);
     // Implementar lógica de agendamento
   };
 
@@ -70,7 +69,6 @@ const Pacientes = () => {
   };
 
   const handleViewRecord = (patient: Patient) => {
-    console.log("Ver prontuário de:", patient.fullName);
     setSelectedPatient(patient);
     setOpenProfileDialog(true);
   };
@@ -79,13 +77,13 @@ const Pacientes = () => {
     setOpenAddPatientDialog(true);
   };
 
-  const handleSavePatient = async (newPatient: Omit<Patient, "id">) => {
+  const handleSavePatient = async (newPatient: Omit<Patient, 'id'>) => {
     try {
       const patient = await patientService.createPatient(newPatient);
       setPatients((prev) => [...prev, patient]);
       // Toast de sucesso/erro já é disparado pelo service
     } catch (error) {
-      console.error("Erro ao adicionar paciente:", error);
+      console.error('Erro ao adicionar paciente:', error);
       // Toast de erro já é disparado pelo service
     }
   };
@@ -174,7 +172,7 @@ const Pacientes = () => {
               setOpenEditPatientDialog(false);
               setSelectedPatient(updated);
             } catch (error) {
-              console.error("Erro ao atualizar paciente:", error);
+              console.error('Erro ao atualizar paciente:', error);
             }
           }}
         />
@@ -189,7 +187,7 @@ const Pacientes = () => {
               setPatients((prev: Patient[]) => [...prev, patient]);
               // Toast de sucesso/erro já é disparado pelo service
             } catch (error) {
-              console.error("Erro ao adicionar paciente:", error);
+              console.error('Erro ao adicionar paciente:', error);
               // Toast de erro já é disparado pelo service
             }
           }}

@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from '@/lib/supabaseClient';
 
 export interface ClinicProductionReport {
   totalAppointments: number;
@@ -55,7 +55,6 @@ export interface AppointmentReport {
 
 // Funções auxiliares
 async function getMonthlyData() {
-  console.log("Obtendo dados mensais...");
   const months = [];
   const currentDate = new Date();
 
@@ -72,21 +71,21 @@ async function getMonthlyData() {
     );
 
     const { data: appointments } = await supabase
-      .from("appointments")
+      .from('appointments')
       .select(
         `
         id,
         services (price)
       `
       )
-      .eq("status", "realizada")
-      .gte("appointment_at", date.toISOString())
-      .lt("appointment_at", nextMonth.toISOString());
+      .eq('status', 'realizada')
+      .gte('appointment_at', date.toISOString())
+      .lt('appointment_at', nextMonth.toISOString());
 
     const monthData = {
-      month: date.toLocaleDateString("pt-BR", {
-        month: "short",
-        year: "numeric",
+      month: date.toLocaleDateString('pt-BR', {
+        month: 'short',
+        year: 'numeric',
       }),
       appointments: appointments?.length || 0,
       revenue:
@@ -98,7 +97,6 @@ async function getMonthlyData() {
         }, 0) || 0,
     };
 
-    console.log(`Dados para ${monthData.month}:`, monthData);
     months.push(monthData);
   }
 
@@ -107,7 +105,7 @@ async function getMonthlyData() {
 
 async function getServicesByCategory() {
   const { data: appointments } = await supabase
-    .from("appointments")
+    .from('appointments')
     .select(
       `
       services (
@@ -116,7 +114,7 @@ async function getServicesByCategory() {
       )
     `
     )
-    .eq("status", "realizada");
+    .eq('status', 'realizada');
 
   const categoryMap = new Map();
 
@@ -124,7 +122,7 @@ async function getServicesByCategory() {
     const service = Array.isArray(apt.services)
       ? apt.services[0]
       : apt.services;
-    const category = service?.category || "outros";
+    const category = service?.category || 'outros';
     const price = service?.price || 0;
 
     if (categoryMap.has(category)) {
@@ -147,12 +145,12 @@ async function getServicesByCategory() {
 
 function calculateAgeDistribution(patients: { birth_date: string }[]) {
   const ageRanges = [
-    { min: 0, max: 12, label: "0-12 anos" },
-    { min: 13, max: 18, label: "13-18 anos" },
-    { min: 19, max: 30, label: "19-30 anos" },
-    { min: 31, max: 50, label: "31-50 anos" },
-    { min: 51, max: 65, label: "51-65 anos" },
-    { min: 66, max: 120, label: "65+ anos" },
+    { min: 0, max: 12, label: '0-12 anos' },
+    { min: 13, max: 18, label: '13-18 anos' },
+    { min: 19, max: 30, label: '19-30 anos' },
+    { min: 31, max: 50, label: '31-50 anos' },
+    { min: 51, max: 65, label: '51-65 anos' },
+    { min: 66, max: 120, label: '65+ anos' },
   ];
 
   return ageRanges.map((range) => {
@@ -186,15 +184,15 @@ async function getMonthlyNewPatients() {
     );
 
     const { data: patients } = await supabase
-      .from("patients")
-      .select("id")
-      .gte("created_at", date.toISOString())
-      .lt("created_at", nextMonth.toISOString());
+      .from('patients')
+      .select('id')
+      .gte('created_at', date.toISOString())
+      .lt('created_at', nextMonth.toISOString());
 
     months.push({
-      month: date.toLocaleDateString("pt-BR", {
-        month: "short",
-        year: "numeric",
+      month: date.toLocaleDateString('pt-BR', {
+        month: 'short',
+        year: 'numeric',
       }),
       count: patients?.length || 0,
     });
@@ -250,21 +248,21 @@ async function getMonthlyAppointments() {
     );
 
     const { data: appointments } = await supabase
-      .from("appointments")
-      .select("status")
-      .gte("appointment_at", date.toISOString())
-      .lt("appointment_at", nextMonth.toISOString());
+      .from('appointments')
+      .select('status')
+      .gte('appointment_at', date.toISOString())
+      .lt('appointment_at', nextMonth.toISOString());
 
     const total = appointments?.length || 0;
     const confirmed =
-      appointments?.filter((a) => a.status === "realizada").length || 0;
+      appointments?.filter((a) => a.status === 'realizada').length || 0;
     const canceled =
-      appointments?.filter((a) => a.status === "cancelada").length || 0;
+      appointments?.filter((a) => a.status === 'cancelada').length || 0;
 
     months.push({
-      month: date.toLocaleDateString("pt-BR", {
-        month: "short",
-        year: "numeric",
+      month: date.toLocaleDateString('pt-BR', {
+        month: 'short',
+        year: 'numeric',
       }),
       total,
       confirmed,
@@ -278,11 +276,9 @@ async function getMonthlyAppointments() {
 export const reportService = {
   async getClinicProductionReport(): Promise<ClinicProductionReport> {
     try {
-      console.log("Iniciando busca de relatório de produção...");
-
       // Buscar agendamentos com serviços
       const { data: appointments, error: appointmentsError } = await supabase
-        .from("appointments")
+        .from('appointments')
         .select(
           `
           id,
@@ -294,14 +290,12 @@ export const reportService = {
           )
         `
         )
-        .eq("status", "realizada");
+        .eq('status', 'realizada');
 
       if (appointmentsError) {
-        console.error("Erro ao buscar agendamentos:", appointmentsError);
+        console.error('Erro ao buscar agendamentos:', appointmentsError);
         throw appointmentsError;
       }
-
-      console.log("Agendamentos encontrados:", appointments?.length || 0);
 
       const totalAppointments = appointments?.length || 0;
       const totalRevenue =
@@ -314,11 +308,9 @@ export const reportService = {
       const averageAppointmentValue =
         totalAppointments > 0 ? totalRevenue / totalAppointments : 0;
 
-      console.log("Calculando dados mensais...");
       // Dados mensais dos últimos 6 meses
       const monthlyData = await getMonthlyData();
 
-      console.log("Calculando dados por categoria...");
       // Dados por categoria de serviço
       const servicesByCategory = await getServicesByCategory();
 
@@ -330,38 +322,35 @@ export const reportService = {
         servicesByCategory,
       };
 
-      console.log("Relatório de produção gerado:", result);
-
       // Se não há dados, retornar dados de exemplo para demonstração
       if (
         totalAppointments === 0 &&
         monthlyData.length === 0 &&
         servicesByCategory.length === 0
       ) {
-        console.log("Nenhum dado encontrado, retornando dados de exemplo...");
         return {
           totalAppointments: 0,
           totalRevenue: 0,
           averageAppointmentValue: 0,
           monthlyData: [
-            { month: "Jan 2025", appointments: 0, revenue: 0 },
-            { month: "Fev 2025", appointments: 0, revenue: 0 },
-            { month: "Mar 2025", appointments: 0, revenue: 0 },
-            { month: "Abr 2025", appointments: 0, revenue: 0 },
-            { month: "Mai 2025", appointments: 0, revenue: 0 },
-            { month: "Jun 2025", appointments: 0, revenue: 0 },
+            { month: 'Jan 2025', appointments: 0, revenue: 0 },
+            { month: 'Fev 2025', appointments: 0, revenue: 0 },
+            { month: 'Mar 2025', appointments: 0, revenue: 0 },
+            { month: 'Abr 2025', appointments: 0, revenue: 0 },
+            { month: 'Mai 2025', appointments: 0, revenue: 0 },
+            { month: 'Jun 2025', appointments: 0, revenue: 0 },
           ],
           servicesByCategory: [
-            { category: "Limpeza", count: 0, revenue: 0 },
-            { category: "Restauração", count: 0, revenue: 0 },
-            { category: "Ortodontia", count: 0, revenue: 0 },
+            { category: 'Limpeza', count: 0, revenue: 0 },
+            { category: 'Restauração', count: 0, revenue: 0 },
+            { category: 'Ortodontia', count: 0, revenue: 0 },
           ],
         };
       }
 
       return result;
     } catch (error) {
-      console.error("Erro ao buscar relatório de produção:", error);
+      console.error('Erro ao buscar relatório de produção:', error);
       throw error;
     }
   },
@@ -370,8 +359,8 @@ export const reportService = {
     try {
       // Total de pacientes ativos
       const { data: patients, error: patientsError } = await supabase
-        .from("patients")
-        .select("id, created_at, birth_date");
+        .from('patients')
+        .select('id, created_at, birth_date');
 
       if (patientsError) throw patientsError;
 
@@ -409,7 +398,7 @@ export const reportService = {
         monthlyNewPatients,
       };
     } catch (error) {
-      console.error("Erro ao buscar relatório de pacientes:", error);
+      console.error('Erro ao buscar relatório de pacientes:', error);
       throw error;
     }
   },
@@ -417,18 +406,18 @@ export const reportService = {
   async getAppointmentReport(): Promise<AppointmentReport> {
     try {
       const { data: appointments, error } = await supabase
-        .from("appointments")
-        .select("id, appointment_at, status");
+        .from('appointments')
+        .select('id, appointment_at, status');
 
       if (error) throw error;
 
       const totalAppointments = appointments?.length || 0;
       const confirmedAppointments =
-        appointments?.filter((a) => a.status === "realizada").length || 0;
+        appointments?.filter((a) => a.status === 'realizada').length || 0;
       const canceledAppointments =
-        appointments?.filter((a) => a.status === "cancelada").length || 0;
+        appointments?.filter((a) => a.status === 'cancelada').length || 0;
       const noShowAppointments =
-        appointments?.filter((a) => a.status === "nao_compareceu").length || 0;
+        appointments?.filter((a) => a.status === 'nao_compareceu').length || 0;
 
       const noShowRate =
         totalAppointments > 0
@@ -461,7 +450,7 @@ export const reportService = {
         monthlyAppointments,
       };
     } catch (error) {
-      console.error("Erro ao buscar relatório de consultas:", error);
+      console.error('Erro ao buscar relatório de consultas:', error);
       throw error;
     }
   },

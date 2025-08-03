@@ -1,21 +1,21 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Download, FileText } from "lucide-react";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Download, FileText } from 'lucide-react';
 import {
   reportService,
   type ClinicProductionReport,
-} from "@/services/reportService";
-import { exportUtils } from "@/lib/exportUtils";
-import { useToast } from "@/hooks/use-toast";
+} from '@/services/reportService';
+import { exportUtils } from '@/lib/exportUtils';
+import { useToast } from '@/hooks/use-toast';
 
 interface ClinicProductionDialogProps {
   open: boolean;
@@ -33,16 +33,14 @@ export const ClinicProductionDialog = ({
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      console.log("Carregando dados do relatório de produção...");
       const report = await reportService.getClinicProductionReport();
-      console.log("Dados carregados:", report);
       setData(report);
     } catch (error) {
-      console.error("Erro ao carregar relatório:", error);
+      console.error('Erro ao carregar relatório:', error);
       toast({
-        title: "Erro",
-        description: "Não foi possível carregar os dados do relatório.",
-        variant: "destructive",
+        title: 'Erro',
+        description: 'Não foi possível carregar os dados do relatório.',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -50,7 +48,6 @@ export const ClinicProductionDialog = ({
   }, [toast]);
 
   useEffect(() => {
-    console.log("Dialog open state changed:", open);
     if (open) {
       loadData();
     }
@@ -61,14 +58,14 @@ export const ClinicProductionDialog = ({
       try {
         exportUtils.exportClinicProductionToPDF(data);
         toast({
-          title: "Sucesso",
-          description: "Relatório exportado para PDF com sucesso!",
+          title: 'Sucesso',
+          description: 'Relatório exportado para PDF com sucesso!',
         });
       } catch (error) {
         toast({
-          title: "Erro",
-          description: "Falha ao exportar o relatório para PDF.",
-          variant: "destructive",
+          title: 'Erro',
+          description: 'Falha ao exportar o relatório para PDF.',
+          variant: 'destructive',
         });
       }
     }
@@ -79,14 +76,14 @@ export const ClinicProductionDialog = ({
       try {
         exportUtils.exportClinicProductionToExcel(data);
         toast({
-          title: "Sucesso",
-          description: "Relatório exportado para Excel com sucesso!",
+          title: 'Sucesso',
+          description: 'Relatório exportado para Excel com sucesso!',
         });
       } catch (error) {
         toast({
-          title: "Erro",
-          description: "Falha ao exportar o relatório para Excel.",
-          variant: "destructive",
+          title: 'Erro',
+          description: 'Falha ao exportar o relatório para Excel.',
+          variant: 'destructive',
         });
       }
     }
@@ -108,7 +105,6 @@ export const ClinicProductionDialog = ({
   }
 
   if (!data) {
-    console.log("No data available, data is:", data);
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
@@ -165,8 +161,8 @@ export const ClinicProductionDialog = ({
                     <tr className="border-b">
                       <td className="p-2">Faturamento Total</td>
                       <td className="text-right p-2">
-                        R${" "}
-                        {data.totalRevenue.toLocaleString("pt-BR", {
+                        R${' '}
+                        {data.totalRevenue.toLocaleString('pt-BR', {
                           minimumFractionDigits: 2,
                         })}
                       </td>
@@ -174,8 +170,8 @@ export const ClinicProductionDialog = ({
                     <tr className="border-b">
                       <td className="p-2">Valor Médio por Consulta</td>
                       <td className="text-right p-2">
-                        R${" "}
-                        {data.averageAppointmentValue.toLocaleString("pt-BR", {
+                        R${' '}
+                        {data.averageAppointmentValue.toLocaleString('pt-BR', {
                           minimumFractionDigits: 2,
                         })}
                       </td>
@@ -209,8 +205,8 @@ export const ClinicProductionDialog = ({
                         <td className="p-2">{month.month}</td>
                         <td className="text-right p-2">{month.appointments}</td>
                         <td className="text-right p-2">
-                          R${" "}
-                          {month.revenue.toLocaleString("pt-BR", {
+                          R${' '}
+                          {month.revenue.toLocaleString('pt-BR', {
                             minimumFractionDigits: 2,
                           })}
                         </td>
@@ -242,12 +238,12 @@ export const ClinicProductionDialog = ({
                     {data.servicesByCategory.map((category, index) => (
                       <tr key={index} className="border-b">
                         <td className="p-2 capitalize">
-                          {category.category.replace("_", " ")}
+                          {category.category.replace('_', ' ')}
                         </td>
                         <td className="text-right p-2">{category.count}</td>
                         <td className="text-right p-2">
-                          R${" "}
-                          {category.revenue.toLocaleString("pt-BR", {
+                          R${' '}
+                          {category.revenue.toLocaleString('pt-BR', {
                             minimumFractionDigits: 2,
                           })}
                         </td>
@@ -257,7 +253,7 @@ export const ClinicProductionDialog = ({
                                 (category.count / data.totalAppointments) *
                                 100
                               ).toFixed(1)
-                            : "0"}
+                            : '0'}
                           %
                         </td>
                       </tr>

@@ -1,78 +1,78 @@
-import React, { useState } from "react";
-import { DataList } from "@/components/ui/data-list";
-import { createFetchDataFromArray } from "@/lib/dataListUtils";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, User, Plus, Search } from "lucide-react";
+import React, { useState } from 'react';
+import { DataList } from '@/components/ui/data-list';
+import { createFetchDataFromArray } from '@/lib/dataListUtils';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Clock, User, Plus, Search } from 'lucide-react';
 
 // Tipo de exemplo para demonstração
 interface ExampleItem {
   id: string;
   title: string;
   description: string;
-  status: "active" | "inactive" | "pending";
+  status: 'active' | 'inactive' | 'pending';
   createdAt: string;
   author: string;
-  priority: "low" | "medium" | "high";
+  priority: 'low' | 'medium' | 'high';
 }
 
 // Dados de exemplo
 const exampleData: ExampleItem[] = [
   {
-    id: "1",
-    title: "Consulta de Rotina",
-    description: "Verificação geral de saúde bucal",
-    status: "active",
-    createdAt: "2024-01-15",
-    author: "Dr. Silva",
-    priority: "medium",
+    id: '1',
+    title: 'Consulta de Rotina',
+    description: 'Verificação geral de saúde bucal',
+    status: 'active',
+    createdAt: '2024-01-15',
+    author: 'Dr. Silva',
+    priority: 'medium',
   },
   {
-    id: "2",
-    title: "Limpeza Dental",
-    description: "Procedimento de limpeza e prevenção",
-    status: "active",
-    createdAt: "2024-01-14",
-    author: "Dra. Santos",
-    priority: "low",
+    id: '2',
+    title: 'Limpeza Dental',
+    description: 'Procedimento de limpeza e prevenção',
+    status: 'active',
+    createdAt: '2024-01-14',
+    author: 'Dra. Santos',
+    priority: 'low',
   },
   {
-    id: "3",
-    title: "Tratamento de Canal",
-    description: "Procedimento endodôntico especializado",
-    status: "pending",
-    createdAt: "2024-01-13",
-    author: "Dr. Costa",
-    priority: "high",
+    id: '3',
+    title: 'Tratamento de Canal',
+    description: 'Procedimento endodôntico especializado',
+    status: 'pending',
+    createdAt: '2024-01-13',
+    author: 'Dr. Costa',
+    priority: 'high',
   },
   {
-    id: "4",
-    title: "Ortodontia",
-    description: "Consulta para aparelho ortodôntico",
-    status: "active",
-    createdAt: "2024-01-12",
-    author: "Dra. Lima",
-    priority: "medium",
+    id: '4',
+    title: 'Ortodontia',
+    description: 'Consulta para aparelho ortodôntico',
+    status: 'active',
+    createdAt: '2024-01-12',
+    author: 'Dra. Lima',
+    priority: 'medium',
   },
   {
-    id: "5",
-    title: "Implante Dentário",
-    description: "Procedimento de implante",
-    status: "inactive",
-    createdAt: "2024-01-11",
-    author: "Dr. Oliveira",
-    priority: "high",
+    id: '5',
+    title: 'Implante Dentário',
+    description: 'Procedimento de implante',
+    status: 'inactive',
+    createdAt: '2024-01-11',
+    author: 'Dr. Oliveira',
+    priority: 'high',
   },
   // Adicionar mais itens para demonstrar paginação
   ...Array.from({ length: 15 }, (_, index) => ({
     id: `${index + 6}`,
     title: `Item de Exemplo ${index + 6}`,
     description: `Descrição do item ${index + 6}`,
-    status: (["active", "inactive", "pending"] as const)[index % 3],
+    status: (['active', 'inactive', 'pending'] as const)[index % 3],
     createdAt: `2024-01-${10 - (index % 10)}`,
     author: `Autor ${index + 6}`,
-    priority: (["low", "medium", "high"] as const)[index % 3],
+    priority: (['low', 'medium', 'high'] as const)[index % 3],
   })),
 ];
 
@@ -85,15 +85,15 @@ const ExampleDataListPage = () => {
   // Função para renderizar cada item
   const renderItem = (item: ExampleItem) => {
     const statusColors = {
-      active: "bg-green-100 text-green-800",
-      inactive: "bg-gray-100 text-gray-800",
-      pending: "bg-yellow-100 text-yellow-800",
+      active: 'bg-green-100 text-green-800',
+      inactive: 'bg-gray-100 text-gray-800',
+      pending: 'bg-yellow-100 text-yellow-800',
     };
 
     const priorityColors = {
-      low: "bg-blue-100 text-blue-800",
-      medium: "bg-orange-100 text-orange-800",
-      high: "bg-red-100 text-red-800",
+      low: 'bg-blue-100 text-blue-800',
+      medium: 'bg-orange-100 text-orange-800',
+      high: 'bg-red-100 text-red-800',
     };
 
     return (
@@ -121,7 +121,7 @@ const ExampleDataListPage = () => {
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
                   <span>
-                    {new Date(item.createdAt).toLocaleDateString("pt-BR")}
+                    {new Date(item.createdAt).toLocaleDateString('pt-BR')}
                   </span>
                 </div>
               </div>
@@ -143,12 +143,9 @@ const ExampleDataListPage = () => {
 
   const handleItemSelect = (item: ExampleItem) => {
     setSelectedItem(item);
-    console.log("Item selecionado:", item);
   };
 
-  const handleAddNew = () => {
-    console.log("Adicionar novo item");
-  };
+  const handleAddNew = () => {};
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -248,8 +245,8 @@ const ExampleDataListPage = () => {
                 <strong>Prioridade:</strong> {selectedItem.priority}
               </p>
               <p>
-                <strong>Criado em:</strong>{" "}
-                {new Date(selectedItem.createdAt).toLocaleDateString("pt-BR")}
+                <strong>Criado em:</strong>{' '}
+                {new Date(selectedItem.createdAt).toLocaleDateString('pt-BR')}
               </p>
             </div>
           </CardContent>
