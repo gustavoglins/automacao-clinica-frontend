@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useClinic } from '@/context/ClinicContext';
+import { supabase } from '@/lib/supabaseClient';
 
 const Login = () => {
   const [login, setLogin] = useState('');
@@ -45,13 +46,18 @@ const Login = () => {
     }
 
     try {
-      // Simular autenticação (aqui você implementaria a lógica real)
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: login,
+        password: password,
+      });
 
-      // Redirecionar para o dashboard
-      navigate('/');
+      if (error) {
+        setError('Login inválido. Verifique suas credenciais.');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
-      setError('Erro ao fazer login. Verifique suas credenciais.');
+      setError('Erro ao conectar com o servidor.');
     } finally {
       setIsLoading(false);
     }
