@@ -13,9 +13,9 @@ import {
   AlertCircle,
   User,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useClinic } from '@/context/ClinicContext';
-import { supabase } from '@/lib/supabaseClient';
+import { useAuth } from '@/hooks/useAuth';
 
 const Login = () => {
   const [login, setLogin] = useState('');
@@ -24,7 +24,9 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
   const { clinicName } = useClinic();
+  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,15 +48,16 @@ const Login = () => {
     }
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: login,
-        password: password,
-      });
+      const { data, error } = await signIn(login, password);
 
       if (error) {
         setError('Login inválido. Verifique suas credenciais.');
-      } else {
-        navigate('/');
+      } else if (data?.user) {
+        // Redirecionar para a página que o usuário tentou acessar ou para home
+        const from =
+          (location.state as { from?: { pathname: string } })?.from?.pathname ||
+          '/';
+        navigate(from, { replace: true });
       }
     } catch (err) {
       setError('Erro ao conectar com o servidor.');

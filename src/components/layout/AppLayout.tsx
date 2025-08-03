@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "./AppSidebar";
+import React, { useState } from 'react';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { AppSidebar } from './AppSidebar';
 import {
   Bell,
   Search,
@@ -8,11 +8,11 @@ import {
   Settings,
   ChevronDown,
   LogOut,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,10 +20,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { SearchProvider, useSearch } from "@/context/SearchContext";
-import { useNavigate } from "react-router-dom";
-import { useClinic } from "@/context/ClinicContext";
+} from '@/components/ui/dropdown-menu';
+import { SearchProvider, useSearch } from '@/context/SearchContext';
+import { useNavigate } from 'react-router-dom';
+import { useClinic } from '@/context/ClinicContext';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -47,7 +48,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <footer className="px-2 sm:px-4 py-3 border-t border-gray-200/50 bg-white/95 backdrop-blur-sm">
               <div className="w-full">
                 <p className="text-xs text-gray-500 text-center">
-                  Powered by{" "}
+                  Powered by{' '}
                   <span className="font-semibold text-[#2563eb]">Norvand</span>
                 </p>
               </div>
@@ -64,6 +65,16 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
   const [showResults, setShowResults] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const { signOut, user } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
+  };
 
   // Busca real de pacientes e funcionários
   const [results, setResults] = React.useState<
@@ -80,18 +91,18 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
       setLoading(true);
       try {
         const [patients, employees, services]: [
-          import("@/types/patient").Patient[],
-          import("@/types/employee").Employee[],
-          import("@/types/service").Service[]
+          import('@/types/patient').Patient[],
+          import('@/types/employee').Employee[],
+          import('@/types/service').Service[]
         ] = await Promise.all([
           (
-            await import("@/services/patientService")
+            await import('@/services/patientService')
           ).patientService.searchPatients(search),
           (
-            await import("@/services/employeeService")
+            await import('@/services/employeeService')
           ).employeeService.searchEmployees(search),
           (
-            await import("@/services/servicesService")
+            await import('@/services/servicesService')
           ).serviceService.searchServices(search),
         ]);
         if (ignore) return;
@@ -99,17 +110,17 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
           ...patients.map((p) => ({
             id: p.id,
             name: p.fullName,
-            type: "Paciente",
+            type: 'Paciente',
           })),
           ...employees.map((e) => ({
             id: e.id,
             name: e.fullName,
-            type: "Funcionário",
+            type: 'Funcionário',
           })),
           ...services.map((s) => ({
             id: s.id.toString(),
             name: s.name,
-            type: "Serviço",
+            type: 'Serviço',
           })),
         ];
         setResults(mapped);
@@ -138,11 +149,11 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
       }
     }
     if (showResults) {
-      document.addEventListener("mousedown", handleClick);
+      document.addEventListener('mousedown', handleClick);
     } else {
-      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener('mousedown', handleClick);
     }
-    return () => document.removeEventListener("mousedown", handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
   }, [showResults]);
 
   return (
@@ -183,15 +194,15 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
                         onMouseDown={() => {
                           setShowResults(false);
                           setSearch(item.name);
-                          if (item.type === "Paciente") {
+                          if (item.type === 'Paciente') {
                             navigate(
                               `/pacientes?q=${encodeURIComponent(item.name)}`
                             );
-                          } else if (item.type === "Funcionário") {
+                          } else if (item.type === 'Funcionário') {
                             navigate(
                               `/funcionarios?q=${encodeURIComponent(item.name)}`
                             );
-                          } else if (item.type === "Serviço") {
+                          } else if (item.type === 'Serviço') {
                             navigate(
                               `/servicos?q=${encodeURIComponent(item.name)}`
                             );
@@ -234,18 +245,12 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem className="text-red-600 hover:bg-red-50 hover:text-red-600 focus:bg-red-50 focus:text-red-600 cursor-pointer">
                   <div
-                    onClick={() => {
-                      window.open("", "_self");
-                      window.close();
-                      setTimeout(() => {
-                        window.location.href = "about:blank";
-                      }, 200);
-                    }}
+                    onClick={handleLogout}
                     style={{
-                      cursor: "pointer",
-                      width: "100%",
-                      display: "flex",
-                      alignItems: "center",
+                      cursor: 'pointer',
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
                     }}
                   >
                     <LogOut className="w-4 h-4 mr-2" />
