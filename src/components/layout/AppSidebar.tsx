@@ -6,6 +6,7 @@ import {
   Settings,
   UserCheck,
   Users,
+  CalendarX,
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 
@@ -37,6 +38,7 @@ const businessItems = [
 
 const systemItems = [
   { title: 'Configurações', url: '/configuracoes', icon: Settings },
+  { title: 'Fechamentos', url: '/fechamentos', icon: CalendarX },
   // { title: "Área do Paciente", url: "/area-paciente", icon: User },
 ];
 

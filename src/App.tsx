@@ -13,6 +13,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ProtectedRoute, PublicRoute } from '@/components/auth';
 import Agenda from './pages/Agenda';
 import Configuracoes from './pages/Configuracoes';
+import Fechamentos from './pages/Fechamentos';
 import Funcionarios from './pages/Funcionarios';
 import Index from './pages/Index';
 import Login from './pages/Login';
@@ -98,6 +99,14 @@ const App = () => (
                           element={
                             <ProtectedRoute>
                               <Configuracoes />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path="/fechamentos"
+                          element={
+                            <ProtectedRoute>
+                              <Fechamentos />
                             </ProtectedRoute>
                           }
                         />
