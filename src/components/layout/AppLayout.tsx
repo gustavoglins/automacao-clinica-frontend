@@ -8,6 +8,7 @@ import {
   Settings,
   ChevronDown,
   LogOut,
+  UserCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -231,18 +232,34 @@ function HeaderWithSearch({ clinicName }: { clinicName: string }) {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="h-8 sm:h-10 px-1 sm:px-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="h-8 sm:h-10 px-2 sm:px-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-2"
                 >
                   <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
                     <AvatarImage src="/placeholder-avatar.jpg" alt="Avatar" />
                     <AvatarFallback className="bg-[#3b82f6] text-white text-xs sm:text-sm font-medium">
-                      {clinicName.slice(0, 2).toUpperCase()}
+                      {user?.email?.slice(0, 2).toUpperCase() || 'US'}
                     </AvatarFallback>
                   </Avatar>
-                  <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2 text-gray-500" />
+                  <div className="hidden sm:flex flex-col items-start">
+                    <span className="text-sm font-medium text-gray-900">
+                      {user?.email?.split('@')[0] || 'Usuário'}
+                    </span>
+                  </div>
+                  <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {user?.email?.split('@')[0] || 'Usuário'}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user?.email || 'email@exemplo.com'}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-red-600 hover:bg-red-50 hover:text-red-600 focus:bg-red-50 focus:text-red-600 cursor-pointer">
                   <div
                     onClick={handleLogout}
