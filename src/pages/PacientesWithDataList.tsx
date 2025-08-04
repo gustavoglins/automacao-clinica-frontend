@@ -9,6 +9,7 @@ import {
   AllPatientsDialog,
   PatientsFilters,
   PatientProfileDialog,
+  DeletePatientDialog,
   AddPatientDialog,
 } from '@/components/pacientes';
 import { Patient, PatientStatus } from '@/types/patient';
@@ -22,6 +23,7 @@ const PacientesWithDataList = () => {
   const [openAllPatientsDialog, setOpenAllPatientsDialog] = useState(false);
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const [openAddPatientDialog, setOpenAddPatientDialog] = useState(false);
+  const [openDeletePatientDialog, setOpenDeletePatientDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -53,6 +55,18 @@ const PacientesWithDataList = () => {
   const handleViewRecord = (patient: Patient) => {
     setSelectedPatient(patient);
     setOpenProfileDialog(true);
+  };
+
+  const handleDelete = (patient: Patient) => {
+    setSelectedPatient(patient);
+    setOpenProfileDialog(false);
+    setOpenDeletePatientDialog(true);
+  };
+
+  const handlePatientDeleted = () => {
+    setPatients((prev) => prev.filter((p) => p.id !== selectedPatient?.id));
+    setOpenDeletePatientDialog(false);
+    setSelectedPatient(null);
   };
 
   const handleAddPatient = () => {
@@ -170,7 +184,16 @@ const PacientesWithDataList = () => {
           onClose={() => setOpenProfileDialog(false)}
           onSchedule={handleSchedule}
           onOpenEdit={handleEdit}
+          onOpenDelete={handleDelete}
           onViewRecord={handleViewRecord}
+        />
+
+        {/* Delete Patient Dialog */}
+        <DeletePatientDialog
+          patient={selectedPatient}
+          isOpen={openDeletePatientDialog}
+          onClose={() => setOpenDeletePatientDialog(false)}
+          onPatientDeleted={handlePatientDeleted}
         />
 
         <AddPatientDialog

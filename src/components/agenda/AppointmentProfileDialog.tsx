@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { getAppointmentStatusBadge } from "@/lib/badgeUtils";
+} from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { getAppointmentStatusBadge } from '@/lib/badgeUtils';
 import {
   CalendarIcon,
   Clock,
@@ -20,15 +20,15 @@ import {
   X,
   Trash,
   Trash2,
-} from "lucide-react";
+} from 'lucide-react';
 // Função para capitalizar a primeira letra
 function capitalizeFirstLetter(str: string) {
   if (!str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
-import { Appointment, UpdateAppointmentData } from "@/types/appointment";
-import { appointmentService } from "@/services/appointmentService";
-import ViewEditAppointmentDialog from "./ViewEditAppointmentDialog";
+import { Appointment, UpdateAppointmentData } from '@/types/appointment';
+import { appointmentService } from '@/services/appointmentService';
+import ViewEditAppointmentDialog from './ViewEditAppointmentDialog';
 
 interface AppointmentProfileDialogProps {
   appointment: Appointment | null;
@@ -52,19 +52,19 @@ export const AppointmentProfileDialog: React.FC<
   const statusBadge = getAppointmentStatusBadge(appointment.status);
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("pt-BR", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
   };
   const formatTime = (dateString: string) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
@@ -98,7 +98,7 @@ export const AppointmentProfileDialog: React.FC<
                   <div className="flex-1 min-w-0">
                     <h2 className="text-2xl font-bold text-gray-900 mb-2 truncate">
                       {appointment.patient?.fullName ||
-                        "Paciente não encontrado"}
+                        'Paciente não encontrado'}
                     </h2>
                     <div className="flex flex-wrap items-center gap-2 mb-3">
                       <Badge
@@ -112,14 +112,14 @@ export const AppointmentProfileDialog: React.FC<
                         className="bg-gray-50 text-gray-700 border-gray-200"
                       >
                         <Stethoscope className="w-3 h-3 mr-1" />
-                        {appointment.service?.name || "Serviço"}
+                        {appointment.service?.name || 'Serviço'}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-sm text-gray-600">
-                        Profissional:{" "}
+                        Profissional:{' '}
                         <span className="font-medium text-gray-900">
-                          {appointment.employee?.fullName || "-"}
+                          {appointment.employee?.fullName || '-'}
                         </span>
                       </span>
                     </div>
@@ -161,13 +161,13 @@ export const AppointmentProfileDialog: React.FC<
                       </span>
                       <span>às</span>
                       <span>
-                        {formatTime(appointment.appointmentAt)} -{" "}
+                        {formatTime(appointment.appointmentAt)} -{' '}
                         {formatTime(appointment.appointmentEnd)}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Clock className="w-4 h-4" />
-                      <span className="font-semibold">Duração:</span>{" "}
+                      <span className="font-semibold">Duração:</span>{' '}
                       {appointment.service?.durationMinutes || 30} min
                     </div>
                   </CardContent>
@@ -181,11 +181,11 @@ export const AppointmentProfileDialog: React.FC<
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="text-lg font-medium text-gray-900">
-                      {appointment.service?.name || "-"}
+                      {appointment.service?.name || '-'}
                     </div>
                     <div className="text-sm text-gray-600">
-                      <span className="font-semibold">Valor:</span> R${" "}
-                      {appointment.service?.price?.toFixed(2) || "-"}
+                      <span className="font-semibold">Valor:</span> R${' '}
+                      {appointment.service?.price?.toFixed(2) || '-'}
                     </div>
                   </CardContent>
                 </Card>
@@ -198,15 +198,15 @@ export const AppointmentProfileDialog: React.FC<
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="text-lg font-medium text-gray-900">
-                      {appointment.patient?.fullName || "-"}
+                      {appointment.patient?.fullName || '-'}
                     </div>
                     <div className="text-sm text-gray-600">
-                      <span className="font-semibold">Telefone:</span>{" "}
-                      {appointment.patient?.phone || "-"}
+                      <span className="font-semibold">Telefone:</span>{' '}
+                      {appointment.patient?.phone || '-'}
                     </div>
                     <div className="text-sm text-gray-600">
-                      <span className="font-semibold">Email:</span>{" "}
-                      {appointment.patient?.email || "Não Informado"}
+                      <span className="font-semibold">Email:</span>{' '}
+                      {appointment.patient?.email || 'Não Informado'}
                     </div>
                   </CardContent>
                 </Card>
@@ -219,17 +219,17 @@ export const AppointmentProfileDialog: React.FC<
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="text-lg font-medium text-gray-900">
-                      {appointment.employee?.fullName || "-"}
+                      {appointment.employee?.fullName || '-'}
                     </div>
                     <div className="text-sm text-gray-600">
-                      <span className="font-semibold">Cargo:</span>{" "}
+                      <span className="font-semibold">Cargo:</span>{' '}
                       {appointment.employee?.role
                         ? capitalizeFirstLetter(appointment.employee.role)
-                        : "-"}
+                        : '-'}
                     </div>
                     {appointment.employee && appointment.employee.specialty && (
                       <div className="text-sm text-gray-600">
-                        <span className="font-semibold">Especialidade:</span>{" "}
+                        <span className="font-semibold">Especialidade:</span>{' '}
                         {appointment.employee.specialty}
                       </div>
                     )}
@@ -259,9 +259,7 @@ export const AppointmentProfileDialog: React.FC<
                 }}
                 appointment={appointment}
                 patients={patients}
-                employees={employees.filter(
-                  (employee) => employee.status === "ativo"
-                )}
+                employees={employees}
                 services={services}
                 onSave={async (data) => {
                   await onSave(data);
@@ -283,7 +281,7 @@ export const AppointmentProfileDialog: React.FC<
           </DialogHeader>
           <div className="py-2 text-gray-700">
             Esta ação não pode ser desfeita. Isso excluirá permanentemente a
-            consulta de <b>{appointment.patient?.fullName || "Paciente"}</b> e
+            consulta de <b>{appointment.patient?.fullName || 'Paciente'}</b> e
             todos os seus dados associados.
           </div>
           <div className="flex justify-end gap-2 mt-4">

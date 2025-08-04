@@ -8,27 +8,43 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { AlertTriangle } from 'lucide-react';
-import { Service } from '@/types/service';
+import { patientService } from '@/services/patientService';
+import { Patient } from '@/types/patient';
+import { toast } from 'sonner';
 
-interface DeleteServiceDialogProps {
+interface DeletePatientDialogProps {
+  patient: Patient | null;
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  service: Service | null;
-  onConfirm: () => void;
-  isLoading?: boolean;
+  onClose: () => void;
+  onPatientDeleted: () => void;
 }
 
-const DeleteServiceDialog: React.FC<DeleteServiceDialogProps> = ({
+export const DeletePatientDialog: React.FC<DeletePatientDialogProps> = ({
+  patient,
   isOpen,
-  onOpenChange,
-  service,
-  onConfirm,
-  isLoading = false,
+  onClose,
+  onPatientDeleted,
 }) => {
-  const handleClose = () => onOpenChange(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleDelete = async () => {
+    if (!patient) return;
+
+    setIsLoading(true);
+    try {
+      await patientService.deletePatient(patient.id);
+      onPatientDeleted();
+      onClose();
+    } catch (error) {
+      console.error('Erro ao excluir paciente:', error);
+      toast.error('Erro ao excluir paciente');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-2">
@@ -37,18 +53,18 @@ const DeleteServiceDialog: React.FC<DeleteServiceDialogProps> = ({
           </div>
           <DialogDescription>
             Esta ação não pode ser desfeita. Isso excluirá permanentemente o
-            serviço <strong>{service?.name}</strong> e todos os seus dados
+            paciente <strong>{patient?.fullName}</strong> e todos os seus dados
             associados.
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex justify-end gap-2 pt-4">
-          <Button type="button" variant="outline" onClick={handleClose}>
+          <Button type="button" variant="outline" onClick={onClose}>
             Cancelar
           </Button>
           <Button
             variant="destructive"
-            onClick={onConfirm}
+            onClick={handleDelete}
             disabled={isLoading}
           >
             {isLoading ? 'Excluindo...' : 'Excluir'}
@@ -58,5 +74,3 @@ const DeleteServiceDialog: React.FC<DeleteServiceDialogProps> = ({
     </Dialog>
   );
 };
-
-export default DeleteServiceDialog;

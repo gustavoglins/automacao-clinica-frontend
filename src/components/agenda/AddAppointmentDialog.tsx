@@ -1,31 +1,31 @@
-import React, { useState, useEffect } from "react";
-import { Calendar } from "@/components/ui/calendar";
+import React, { useState, useEffect } from 'react';
+import { Calendar } from '@/components/ui/calendar';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+} from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import {
   CalendarIcon,
   Clock,
@@ -36,14 +36,14 @@ import {
   X,
   Phone,
   CalendarPlus,
-} from "lucide-react";
-import { cn, formatPhone, onlyNumbers, getDayOfWeek } from "@/lib/utils";
-import { patientService } from "@/services/patientService";
-import { employeeService } from "@/services/employeeService";
-import { serviceService } from "@/services/servicesService";
-import { clinicHoursService } from "@/services/clinicHoursService";
-import { CreateAppointmentData } from "@/types/appointment";
-import { ClinicHours } from "@/types/clinicHours";
+} from 'lucide-react';
+import { cn, formatPhone, onlyNumbers, getDayOfWeek } from '@/lib/utils';
+import { patientService } from '@/services/patientService';
+import { employeeService } from '@/services/employeeService';
+import { serviceService } from '@/services/servicesService';
+import { clinicHoursService } from '@/services/clinicHoursService';
+import { CreateAppointmentData } from '@/types/appointment';
+import { ClinicHours } from '@/types/clinicHours';
 
 interface AddAppointmentDialogProps {
   open: boolean;
@@ -54,10 +54,10 @@ interface AddAppointmentDialogProps {
 }
 
 const durations = [
-  { value: "30min", label: "30 minutos" },
-  { value: "1h", label: "1 hora" },
-  { value: "1h30min", label: "1h 30min" },
-  { value: "2h", label: "2 horas" },
+  { value: '30min', label: '30 minutos' },
+  { value: '1h', label: '1 hora' },
+  { value: '1h30min', label: '1h 30min' },
+  { value: '2h', label: '2 horas' },
 ];
 
 export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
@@ -69,13 +69,13 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
 }) => {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [formData, setFormData] = useState({
-    patientId: initialPatientId || "",
-    employeeId: "",
-    serviceId: "",
-    phone: initialPhone || "",
+    patientId: initialPatientId || '',
+    employeeId: '',
+    serviceId: '',
+    phone: initialPhone || '',
     date: undefined as Date | undefined,
-    time: "",
-    notes: "",
+    time: '',
+    notes: '',
   });
 
   const [patients, setPatients] = useState([]);
@@ -96,7 +96,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
     } catch (e) {
       dispatched = false;
     }
-    if (!dispatched && typeof fallback === "function") {
+    if (!dispatched && typeof fallback === 'function') {
       fallback();
     }
   }
@@ -105,8 +105,8 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
   React.useEffect(() => {
     setFormData((prev) => ({
       ...prev,
-      patientId: initialPatientId || "",
-      phone: initialPhone || "",
+      patientId: initialPatientId || '',
+      phone: initialPhone || '',
     }));
   }, [initialPatientId, initialPhone, open]);
 
@@ -122,7 +122,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
 
         // Limpar horário selecionado se não estiver mais disponível
         if (formData.time && !timeSlots.includes(formData.time)) {
-          setFormData((prev) => ({ ...prev, time: "" }));
+          setFormData((prev) => ({ ...prev, time: '' }));
         }
       } else {
         setAvailableTimeSlots([]);
@@ -202,35 +202,35 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
       });
     };
 
-    window.addEventListener("refreshAppointmentDialogData", handleRefreshData);
+    window.addEventListener('refreshAppointmentDialogData', handleRefreshData);
     window.addEventListener(
-      "newPatientCreated",
+      'newPatientCreated',
       handleNewPatientCreated as EventListener
     );
     window.addEventListener(
-      "newEmployeeCreated",
+      'newEmployeeCreated',
       handleNewEmployeeCreated as EventListener
     );
     window.addEventListener(
-      "newServiceCreated",
+      'newServiceCreated',
       handleNewServiceCreated as EventListener
     );
 
     return () => {
       window.removeEventListener(
-        "refreshAppointmentDialogData",
+        'refreshAppointmentDialogData',
         handleRefreshData
       );
       window.removeEventListener(
-        "newPatientCreated",
+        'newPatientCreated',
         handleNewPatientCreated as EventListener
       );
       window.removeEventListener(
-        "newEmployeeCreated",
+        'newEmployeeCreated',
         handleNewEmployeeCreated as EventListener
       );
       window.removeEventListener(
-        "newServiceCreated",
+        'newServiceCreated',
         handleNewServiceCreated as EventListener
       );
     };
@@ -254,7 +254,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
 
     try {
       // Monta appointmentAt e appointmentEnd
-      const [hour, minute] = formData.time.split(":");
+      const [hour, minute] = formData.time.split(':');
       const startDate = new Date(formData.date!);
       startDate.setHours(Number(hour), Number(minute), 0, 0);
       // Buscar duração do serviço selecionado
@@ -270,7 +270,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
         serviceId: Number(formData.serviceId),
         appointmentAt: startDate.toISOString(),
         appointmentEnd: endDate.toISOString(),
-        status: "agendada",
+        status: 'agendada',
       };
 
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Simula delay da API
@@ -283,13 +283,13 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
 
   const handleClose = () => {
     setFormData({
-      patientId: "",
-      employeeId: "",
-      serviceId: "",
-      phone: "",
+      patientId: '',
+      employeeId: '',
+      serviceId: '',
+      phone: '',
       date: undefined,
-      time: "",
-      notes: "",
+      time: '',
+      notes: '',
     });
     onOpenChange(false);
   };
@@ -334,7 +334,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                       variant="link"
                       size="xs"
                       className="text-primary underline p-0 h-auto min-h-0"
-                      onClick={() => openDialog("openAddPatientDialog")}
+                      onClick={() => openDialog('openAddPatientDialog')}
                     >
                       Novo Paciente
                     </Button>
@@ -346,7 +346,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                       setFormData({
                         ...formData,
                         patientId: value,
-                        phone: selected?.phone || "",
+                        phone: selected?.phone || '',
                       });
                     }}
                   >
@@ -400,7 +400,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                       variant="link"
                       size="xs"
                       className="text-primary underline p-0 h-auto min-h-0"
-                      onClick={() => openDialog("openAddServiceDialog")}
+                      onClick={() => openDialog('openAddServiceDialog')}
                     >
                       Novo Serviço
                     </Button>
@@ -437,7 +437,7 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                       variant="link"
                       size="xs"
                       className="text-primary underline p-0 h-auto min-h-0"
-                      onClick={() => openDialog("openAddEmployeeDialog")}
+                      onClick={() => openDialog('openAddEmployeeDialog')}
                     >
                       Novo Profissional
                     </Button>
@@ -453,13 +453,11 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                         <SelectValue placeholder="Selecione o profissional" />
                       </SelectTrigger>
                       <SelectContent>
-                        {employees
-                          .filter((employee) => employee.status === "ativo")
-                          .map((employee) => (
-                            <SelectItem key={employee.id} value={employee.id}>
-                              {employee.fullName}
-                            </SelectItem>
-                          ))}
+                        {employees.map((employee) => (
+                          <SelectItem key={employee.id} value={employee.id}>
+                            {employee.fullName}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -485,16 +483,16 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !formData.date && "text-muted-foreground"
+                          'w-full justify-start text-left font-normal',
+                          !formData.date && 'text-muted-foreground'
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {formData.date
-                          ? format(formData.date, "dd/MM/yyyy", {
+                          ? format(formData.date, 'dd/MM/yyyy', {
                               locale: ptBR,
                             })
-                          : "Selecione a data"}
+                          : 'Selecione a data'}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
@@ -550,8 +548,8 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
                       ) : (
                         <div className="px-2 py-1.5 text-sm text-muted-foreground">
                           {formData.date
-                            ? "Nenhum horário disponível para esta data"
-                            : "Selecione uma data primeiro"}
+                            ? 'Nenhum horário disponível para esta data'
+                            : 'Selecione uma data primeiro'}
                         </div>
                       )}
                     </SelectContent>

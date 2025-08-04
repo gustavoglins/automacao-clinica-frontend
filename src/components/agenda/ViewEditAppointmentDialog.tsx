@@ -1,31 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import {
   CalendarIcon,
   Clock,
@@ -35,11 +35,11 @@ import {
   Check,
   X,
   CalendarPlus,
-} from "lucide-react";
-import { cn, formatPhone, onlyNumbers, getDayOfWeek } from "@/lib/utils";
-import { Appointment, UpdateAppointmentData } from "@/types/appointment";
-import { clinicHoursService } from "@/services/clinicHoursService";
-import { ClinicHours } from "@/types/clinicHours";
+} from 'lucide-react';
+import { cn, formatPhone, onlyNumbers, getDayOfWeek } from '@/lib/utils';
+import { Appointment, UpdateAppointmentData } from '@/types/appointment';
+import { clinicHoursService } from '@/services/clinicHoursService';
+import { ClinicHours } from '@/types/clinicHours';
 
 interface ViewEditAppointmentDialogProps {
   open: boolean;
@@ -67,16 +67,16 @@ export const ViewEditAppointmentDialog: React.FC<
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
-    patientId: appointment?.patientId || "",
-    employeeId: appointment?.employeeId || "",
-    serviceId: appointment?.serviceId?.toString() || "",
-    phone: appointment?.patient?.phone || "",
+    patientId: appointment?.patientId || '',
+    employeeId: appointment?.employeeId || '',
+    serviceId: appointment?.serviceId?.toString() || '',
+    phone: appointment?.patient?.phone || '',
     date: appointment ? new Date(appointment.appointmentAt) : undefined,
     time: appointment
-      ? format(new Date(appointment.appointmentAt), "HH:mm")
-      : "",
-    notes: "",
-    status: appointment?.status || "",
+      ? format(new Date(appointment.appointmentAt), 'HH:mm')
+      : '',
+    notes: '',
+    status: appointment?.status || '',
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -103,7 +103,7 @@ export const ViewEditAppointmentDialog: React.FC<
 
         // Limpar horário selecionado se não estiver mais disponível
         if (formData.time && !timeSlots.includes(formData.time)) {
-          setFormData((prev) => ({ ...prev, time: "" }));
+          setFormData((prev) => ({ ...prev, time: '' }));
         }
       } else {
         setAvailableTimeSlots([]);
@@ -124,7 +124,7 @@ export const ViewEditAppointmentDialog: React.FC<
 
         // Limpar horário selecionado se não estiver mais disponível
         if (formData.time && !timeSlots.includes(formData.time)) {
-          setFormData((prev) => ({ ...prev, time: "" }));
+          setFormData((prev) => ({ ...prev, time: '' }));
         }
       } else {
         setAvailableTimeSlots([]);
@@ -137,27 +137,22 @@ export const ViewEditAppointmentDialog: React.FC<
   useEffect(() => {
     if (appointment) {
       setFormData({
-        patientId: appointment.patientId || "",
-        employeeId: appointment.employeeId || "",
-        serviceId: appointment.serviceId?.toString() || "",
-        phone: appointment.patient?.phone || "",
+        patientId: appointment.patientId || '',
+        employeeId: appointment.employeeId || '',
+        serviceId: appointment.serviceId?.toString() || '',
+        phone: appointment.patient?.phone || '',
         date: appointment ? new Date(appointment.appointmentAt) : undefined,
         time: appointment
-          ? format(new Date(appointment.appointmentAt), "HH:mm")
-          : "",
-        notes: "",
-        status: appointment.status || "",
+          ? format(new Date(appointment.appointmentAt), 'HH:mm')
+          : '',
+        notes: '',
+        status: appointment.status || '',
       });
     }
-  }, [appointment]);
+  }, [appointment, employees]);
 
   const isFormValid =
-    formData.patientId &&
-    formData.employeeId &&
-    formData.serviceId &&
-    formData.phone &&
-    formData.date &&
-    formData.time;
+    formData.employeeId && formData.serviceId && formData.date && formData.time;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,7 +160,7 @@ export const ViewEditAppointmentDialog: React.FC<
     setIsLoading(true);
     try {
       // Monta appointmentAt e appointmentEnd
-      const [hour, minute] = formData.time.split(":");
+      const [hour, minute] = formData.time.split(':');
       const startDate = new Date(formData.date!);
       startDate.setHours(Number(hour), Number(minute), 0, 0);
 
@@ -220,42 +215,25 @@ export const ViewEditAppointmentDialog: React.FC<
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="patientId">Paciente *</Label>
-                    <Select
-                      value={formData.patientId}
-                      onValueChange={async (value) => {
-                        const selected = patients.find((p) => p.id === value);
-                        setFormData({
-                          ...formData,
-                          patientId: value,
-                          phone: selected?.phone || "",
-                        });
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o paciente" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {patients.map((patient) => (
-                          <SelectItem key={patient.id} value={patient.id}>
-                            {patient.fullName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="patientName">Paciente</Label>
+                    <Input
+                      id="patientName"
+                      value={
+                        appointment?.patient?.fullName ||
+                        'Paciente não encontrado'
+                      }
+                      readOnly
+                      className="bg-gray-50 cursor-not-allowed"
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Telefone *</Label>
+                    <Label htmlFor="phone">Telefone</Label>
                     <Input
                       id="phone"
                       placeholder="(11) 99999-9999"
                       value={formatPhone(formData.phone)}
-                      onChange={(e) => {
-                        const raw = onlyNumbers(e.target.value);
-                        setFormData({ ...formData, phone: raw });
-                      }}
-                      maxLength={15}
-                      required
+                      readOnly
+                      className="bg-gray-50 cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -306,13 +284,11 @@ export const ViewEditAppointmentDialog: React.FC<
                         <SelectValue placeholder="Selecione o profissional" />
                       </SelectTrigger>
                       <SelectContent>
-                        {employees
-                          .filter((employee) => employee.status === "ativo")
-                          .map((employee) => (
-                            <SelectItem key={employee.id} value={employee.id}>
-                              {employee.fullName}
-                            </SelectItem>
-                          ))}
+                        {employees.map((employee) => (
+                          <SelectItem key={employee.id} value={employee.id}>
+                            {employee.fullName}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -362,16 +338,16 @@ export const ViewEditAppointmentDialog: React.FC<
                         <Button
                           variant="outline"
                           className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !formData.date && "text-muted-foreground"
+                            'w-full justify-start text-left font-normal',
+                            !formData.date && 'text-muted-foreground'
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {formData.date
-                            ? format(formData.date, "dd/MM/yyyy", {
+                            ? format(formData.date, 'dd/MM/yyyy', {
                                 locale: ptBR,
                               })
-                            : "Selecione a data"}
+                            : 'Selecione a data'}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
@@ -426,8 +402,8 @@ export const ViewEditAppointmentDialog: React.FC<
                         ) : (
                           <div className="px-2 py-1.5 text-sm text-muted-foreground">
                             {formData.date
-                              ? "Nenhum horário disponível para esta data"
-                              : "Selecione uma data primeiro"}
+                              ? 'Nenhum horário disponível para esta data'
+                              : 'Selecione uma data primeiro'}
                           </div>
                         )}
                       </SelectContent>

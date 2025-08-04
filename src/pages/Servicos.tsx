@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { StatsCard } from "@/components/dashboard/StatsCard";
-import { Settings, TrendingUp, DollarSign, Activity } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { StatsCard } from '@/components/dashboard/StatsCard';
+import { Settings, TrendingUp, DollarSign, Activity } from 'lucide-react';
 import {
   ServiceFilters,
   ServiceDataList,
   ServiceFormDialog,
   DeleteServiceDialog,
   FilterDialog,
-} from "@/components/servicos";
-import { Service, CreateServiceData } from "@/types/service";
-import { serviceService } from "@/services/servicesService";
-import { useServices } from "@/context/ServiceContext";
+} from '@/components/servicos';
+import { Service, CreateServiceData } from '@/types/service';
+import { serviceService } from '@/services/servicesService';
+import { useServices } from '@/context/ServiceContext';
 
 // Interface para o formulário de serviço
 interface ServiceFormData {
@@ -28,12 +28,13 @@ interface ServiceFormData {
 const Servicos = () => {
   const { services, setServices, loading, fetchServices } = useServices();
   const [filteredServices, setFilteredServices] = useState<Service[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const location = useLocation();
@@ -42,28 +43,28 @@ const Servicos = () => {
   // Efeito para aplicar busca da URL e limpar após redirecionamento
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const urlQuery = params.get("q");
+    const urlQuery = params.get('q');
     if (urlQuery) {
       setSearchTerm(urlQuery);
       // Limpar parâmetro da URL após aplicar o filtro
-      navigate("/servicos", { replace: true });
+      navigate('/servicos', { replace: true });
     }
   }, [location.search, navigate]);
 
   // Estados para filtros avançados
   const [advancedFilters, setAdvancedFilters] = useState({
     dateRange: { start: null as Date | null, end: null as Date | null },
-    priceRange: "",
-    duration: "",
+    priceRange: '',
+    duration: '',
   });
 
   // Estados para o formulário
   const [formData, setFormData] = useState<ServiceFormData>({
-    name: "",
-    description: "",
-    price: "",
-    duration: "",
-    category: "",
+    name: '',
+    description: '',
+    price: '',
+    duration: '',
+    category: '',
     isActive: true,
   });
 
@@ -88,16 +89,16 @@ const Servicos = () => {
     }
 
     // Filtro por categoria
-    if (categoryFilter !== "all") {
+    if (categoryFilter !== 'all') {
       filtered = filtered.filter(
         (service) => service.category === categoryFilter
       );
     }
 
     // Filtro por status
-    if (statusFilter !== "all") {
+    if (statusFilter !== 'all') {
       filtered = filtered.filter((service) =>
-        statusFilter === "active" ? service.active : !service.active
+        statusFilter === 'active' ? service.active : !service.active
       );
     }
 
@@ -127,15 +128,15 @@ const Servicos = () => {
       filtered = filtered.filter((service) => {
         const price = service.price;
         switch (advancedFilters.priceRange) {
-          case "0-100":
+          case '0-100':
             return price <= 100;
-          case "100-300":
+          case '100-300':
             return price > 100 && price <= 300;
-          case "300-500":
+          case '300-500':
             return price > 300 && price <= 500;
-          case "500-1000":
+          case '500-1000':
             return price > 500 && price <= 1000;
-          case "1000+":
+          case '1000+':
             return price > 1000;
           default:
             return true;
@@ -148,15 +149,15 @@ const Servicos = () => {
       filtered = filtered.filter((service) => {
         const duration = service.durationMinutes;
         switch (advancedFilters.duration) {
-          case "0-30":
+          case '0-30':
             return duration <= 30;
-          case "30-60":
+          case '30-60':
             return duration > 30 && duration <= 60;
-          case "60-90":
+          case '60-90':
             return duration > 60 && duration <= 90;
-          case "90-120":
+          case '90-120':
             return duration > 90 && duration <= 120;
-          case "120+":
+          case '120+':
             return duration > 120;
           default:
             return true;
@@ -170,18 +171,18 @@ const Servicos = () => {
   // Funções do formulário
   const resetForm = () => {
     setFormData({
-      name: "",
-      description: "",
-      price: "",
-      duration: "",
-      category: "",
+      name: '',
+      description: '',
+      price: '',
+      duration: '',
+      category: '',
       isActive: true,
     });
   };
 
   const handleAddService = async () => {
     if (!formData.name || !formData.category || !formData.price) {
-      toast.error("Preencha todos os campos obrigatórios");
+      toast.error('Preencha todos os campos obrigatórios');
       return;
     }
 
@@ -201,7 +202,7 @@ const Servicos = () => {
       resetForm();
       // Toast de sucesso já é disparado pelo service
     } catch (error) {
-      console.error("Erro ao adicionar serviço:", error);
+      console.error('Erro ao adicionar serviço:', error);
       // Toast de erro já é disparado pelo service
     }
   };
@@ -213,7 +214,7 @@ const Servicos = () => {
       !formData.category ||
       !formData.price
     ) {
-      toast.error("Preencha todos os campos obrigatórios");
+      toast.error('Preencha todos os campos obrigatórios');
       return;
     }
 
@@ -241,13 +242,14 @@ const Servicos = () => {
       resetForm();
       // Toast de sucesso já é disparado pelo service
     } catch (error) {
-      console.error("Erro ao atualizar serviço:", error);
+      console.error('Erro ao atualizar serviço:', error);
       // Toast de erro já é disparado pelo service
     }
   };
 
   const handleDeleteService = async () => {
     if (selectedService) {
+      setIsDeleteLoading(true);
       try {
         await serviceService.deleteService(selectedService.id);
 
@@ -259,8 +261,10 @@ const Servicos = () => {
         setSelectedService(null);
         // Toast de sucesso/erro já é disparado pelo service
       } catch (error) {
-        console.error("Erro ao deletar serviço:", error);
+        console.error('Erro ao deletar serviço:', error);
         // Toast de erro já é disparado pelo service
+      } finally {
+        setIsDeleteLoading(false);
       }
     }
   };
@@ -269,7 +273,7 @@ const Servicos = () => {
     setSelectedService(service);
     setFormData({
       name: service.name,
-      description: service.description || "",
+      description: service.description || '',
       price: service.price.toString(),
       duration: service.durationMinutes.toString(),
       category: service.category,
@@ -310,7 +314,7 @@ const Servicos = () => {
       setCategoryFilter(filters.category);
     }
     if (filters.status) {
-      setStatusFilter(filters.status === "active" ? "active" : "inactive");
+      setStatusFilter(filters.status === 'active' ? 'active' : 'inactive');
     }
 
     // Não mostrar toast de sucesso ao aplicar filtros
@@ -319,19 +323,19 @@ const Servicos = () => {
   const handleClearAdvancedFilters = () => {
     setAdvancedFilters({
       dateRange: { start: null, end: null },
-      priceRange: "",
-      duration: "",
+      priceRange: '',
+      duration: '',
     });
   };
 
   const hasFilters =
-    searchTerm !== "" ||
-    categoryFilter !== "all" ||
-    statusFilter !== "all" ||
+    searchTerm !== '' ||
+    categoryFilter !== 'all' ||
+    statusFilter !== 'all' ||
     advancedFilters.dateRange.start !== null ||
     advancedFilters.dateRange.end !== null ||
-    advancedFilters.priceRange !== "" ||
-    advancedFilters.duration !== "";
+    advancedFilters.priceRange !== '' ||
+    advancedFilters.duration !== '';
 
   // Estatísticas dos serviços
   const totalServices = services.length;
@@ -342,7 +346,7 @@ const Servicos = () => {
       ? services.reduce((prev, current) =>
           (current.times_used ?? 0) > (prev.times_used ?? 0) ? current : prev
         ).name
-      : "N/A";
+      : 'N/A';
 
   // Preço médio dos serviços
   const averagePrice =
@@ -460,6 +464,7 @@ const Servicos = () => {
           onOpenChange={setIsDeleteDialogOpen}
           service={selectedService}
           onConfirm={handleDeleteService}
+          isLoading={isDeleteLoading}
         />
 
         <FilterDialog

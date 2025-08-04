@@ -9,6 +9,7 @@ import {
   AllPatientsDialog,
   PatientsFilters,
   PatientProfileDialog,
+  DeletePatientDialog,
   AddPatientDialog,
 } from '@/components/pacientes';
 import EditPatientDialog from '@/components/pacientes/EditPatientDialog';
@@ -24,6 +25,7 @@ const Pacientes = () => {
   const [openProfileDialog, setOpenProfileDialog] = useState(false);
   const [openAddPatientDialog, setOpenAddPatientDialog] = useState(false);
   const [openEditPatientDialog, setOpenEditPatientDialog] = useState(false);
+  const [openDeletePatientDialog, setOpenDeletePatientDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -71,6 +73,18 @@ const Pacientes = () => {
   const handleViewRecord = (patient: Patient) => {
     setSelectedPatient(patient);
     setOpenProfileDialog(true);
+  };
+
+  const handleDelete = (patient: Patient) => {
+    setSelectedPatient(patient);
+    setOpenProfileDialog(false);
+    setOpenDeletePatientDialog(true);
+  };
+
+  const handlePatientDeleted = () => {
+    setPatients((prev) => prev.filter((p) => p.id !== selectedPatient?.id));
+    setOpenDeletePatientDialog(false);
+    setSelectedPatient(null);
   };
 
   const handleAddPatient = () => {
@@ -155,6 +169,7 @@ const Pacientes = () => {
             setOpenProfileDialog(false);
             setOpenEditPatientDialog(true);
           }}
+          onOpenDelete={handleDelete}
           onViewRecord={handleViewRecord}
         />
         <EditPatientDialog
@@ -175,6 +190,14 @@ const Pacientes = () => {
               console.error('Erro ao atualizar paciente:', error);
             }
           }}
+        />
+
+        {/* Delete Patient Dialog */}
+        <DeletePatientDialog
+          patient={selectedPatient}
+          isOpen={openDeletePatientDialog}
+          onClose={() => setOpenDeletePatientDialog(false)}
+          onPatientDeleted={handlePatientDeleted}
         />
 
         {/* Add Patient Dialog */}

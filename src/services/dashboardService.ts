@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from '@/lib/supabaseClient';
 
 export interface DashboardStats {
   todayAppointments: number;
@@ -22,11 +22,14 @@ export interface TodayAppointment {
 export interface NextAppointment {
   id: string;
   appointmentAt: string;
+  patientId?: string;
   patientName: string;
   patientAge?: number;
   patientEmail?: string;
   patientPhone?: string;
+  employeeId?: string;
   serviceName: string;
+  serviceId?: number;
   employeeName: string;
   status: string;
   durationMinutes: number;
@@ -45,32 +48,32 @@ export const dashboardService = {
 
       // Consultas de hoje
       const { count: todayAppointments } = await supabase
-        .from("appointments")
-        .select("*", { count: "exact", head: true })
-        .gte("appointment_at", today.toISOString())
-        .lt("appointment_at", tomorrow.toISOString());
+        .from('appointments')
+        .select('*', { count: 'exact', head: true })
+        .gte('appointment_at', today.toISOString())
+        .lt('appointment_at', tomorrow.toISOString());
 
       // Total de pacientes
       const { count: totalPatients } = await supabase
-        .from("patients_with_status")
-        .select("*", { count: "exact", head: true });
+        .from('patients_with_status')
+        .select('*', { count: 'exact', head: true });
 
       // Pacientes ativos (usando a nova view)
       const { count: activePatients } = await supabase
-        .from("patients_with_status")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "ativo");
+        .from('patients_with_status')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'ativo');
 
       // Receita mensal (soma dos pagamentos do mês)
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
       const { data: monthlyPayments } = await supabase
-        .from("payments")
-        .select("amount_paid")
-        .gte("paid_at", startOfMonth.toISOString())
-        .lte("paid_at", endOfMonth.toISOString())
-        .eq("status", "pago");
+        .from('payments')
+        .select('amount_paid')
+        .gte('paid_at', startOfMonth.toISOString())
+        .lte('paid_at', endOfMonth.toISOString())
+        .eq('status', 'pago');
 
       const monthlyRevenue =
         monthlyPayments?.reduce(
@@ -80,15 +83,15 @@ export const dashboardService = {
 
       // Total de consultas agendadas (todas)
       const { count: totalAppointments } = await supabase
-        .from("appointments")
-        .select("*", { count: "exact", head: true });
+        .from('appointments')
+        .select('*', { count: 'exact', head: true });
 
       const { count: completedAppointments } = await supabase
-        .from("appointments")
-        .select("*", { count: "exact", head: true })
-        .gte("appointment_at", startOfMonth.toISOString())
-        .lte("appointment_at", endOfMonth.toISOString())
-        .eq("status", "realizada");
+        .from('appointments')
+        .select('*', { count: 'exact', head: true })
+        .gte('appointment_at', startOfMonth.toISOString())
+        .lte('appointment_at', endOfMonth.toISOString())
+        .eq('status', 'realizada');
 
       const attendanceRate = totalAppointments
         ? Math.round(((completedAppointments || 0) / totalAppointments) * 100)
@@ -103,7 +106,7 @@ export const dashboardService = {
         totalAppointments: totalAppointments || 0,
       };
     } catch (error) {
-      console.error("Erro ao buscar estatísticas do dashboard:", error);
+      console.error('Erro ao buscar estatísticas do dashboard:', error);
       return {
         todayAppointments: 0,
         totalPatients: 0,
@@ -124,7 +127,7 @@ export const dashboardService = {
       tomorrow.setDate(tomorrow.getDate() + 1);
 
       const { data, error } = await supabase
-        .from("appointments")
+        .from('appointments')
         .select(
           `
           id,
@@ -138,9 +141,9 @@ export const dashboardService = {
           employees(full_name)
         `
         )
-        .gte("appointment_at", today.toISOString())
-        .lt("appointment_at", tomorrow.toISOString())
-        .order("appointment_at", { ascending: true });
+        .gte('appointment_at', today.toISOString())
+        .lt('appointment_at', tomorrow.toISOString())
+        .order('appointment_at', { ascending: true });
 
       if (error) throw error;
 
@@ -150,23 +153,23 @@ export const dashboardService = {
         let patientName = appointment.patients?.[0]?.full_name;
         if (!patientName && appointment.patient_id) {
           const { data: patientData } = await supabase
-            .from("patients")
-            .select("full_name")
-            .eq("id", appointment.patient_id)
+            .from('patients')
+            .select('full_name')
+            .eq('id', appointment.patient_id)
             .single();
           if (patientData && patientData.full_name)
             patientName = patientData.full_name;
         }
-        if (!patientName) patientName = "Paciente não encontrado";
+        if (!patientName) patientName = 'Paciente não encontrado';
 
         // Serviço
         let serviceName = appointment.services?.[0]?.name;
         let durationMinutes = appointment.services?.[0]?.duration_minutes;
         if ((!serviceName || !durationMinutes) && appointment.service_id) {
           const { data: serviceData } = await supabase
-            .from("services")
-            .select("name, duration_minutes")
-            .eq("id", appointment.service_id)
+            .from('services')
+            .select('name, duration_minutes')
+            .eq('id', appointment.service_id)
             .single();
           if (serviceData) {
             if (!serviceName && serviceData.name)
@@ -175,21 +178,21 @@ export const dashboardService = {
               durationMinutes = serviceData.duration_minutes;
           }
         }
-        if (!serviceName) serviceName = "Serviço não encontrado";
+        if (!serviceName) serviceName = 'Serviço não encontrado';
         if (!durationMinutes) durationMinutes = 30;
 
         // Funcionário
         let employeeName = appointment.employees?.[0]?.full_name;
         if (!employeeName && appointment.employee_id) {
           const { data: employeeData } = await supabase
-            .from("employees")
-            .select("full_name")
-            .eq("id", appointment.employee_id)
+            .from('employees')
+            .select('full_name')
+            .eq('id', appointment.employee_id)
             .single();
           if (employeeData && employeeData.full_name)
             employeeName = employeeData.full_name;
         }
-        if (!employeeName) employeeName = "Funcionário não encontrado";
+        if (!employeeName) employeeName = 'Funcionário não encontrado';
 
         results.push({
           id: appointment.id,
@@ -203,7 +206,7 @@ export const dashboardService = {
       }
       return results;
     } catch (error) {
-      console.error("Erro ao buscar consultas de hoje:", error);
+      console.error('Erro ao buscar consultas de hoje:', error);
       return [];
     }
   },
@@ -214,7 +217,7 @@ export const dashboardService = {
       const now = new Date();
 
       const { data, error } = await supabase
-        .from("appointments")
+        .from('appointments')
         .select(
           `
           id,
@@ -228,8 +231,8 @@ export const dashboardService = {
           service_id
         `
         )
-        .gte("appointment_at", now.toISOString())
-        .order("appointment_at", { ascending: true })
+        .gte('appointment_at', now.toISOString())
+        .order('appointment_at', { ascending: true })
         .limit(1);
 
       if (error) throw error;
@@ -243,15 +246,15 @@ export const dashboardService = {
       const timeDiff = appointmentDate.getTime() - now.getTime();
 
       // Buscar paciente pelo id
-      let patientName = "Paciente não encontrado";
+      let patientName = 'Paciente não encontrado';
       let patientAge: number | undefined = undefined;
       let patientEmail: string | undefined = undefined;
       let patientPhone: string | undefined = undefined;
       if (appointment.patient_id) {
         const { data: patientData } = await supabase
-          .from("patients")
-          .select("full_name, birth_date, email, phone")
-          .eq("id", appointment.patient_id)
+          .from('patients')
+          .select('full_name, birth_date, email, phone')
+          .eq('id', appointment.patient_id)
           .single();
         if (patientData) {
           if (patientData.full_name) patientName = patientData.full_name;
@@ -271,25 +274,25 @@ export const dashboardService = {
       }
 
       // Buscar funcionário pelo id
-      let employeeName = "Funcionário não encontrado";
+      let employeeName = 'Funcionário não encontrado';
       if (appointment.employee_id) {
         const { data: employeeData } = await supabase
-          .from("employees")
-          .select("full_name")
-          .eq("id", appointment.employee_id)
+          .from('employees')
+          .select('full_name')
+          .eq('id', appointment.employee_id)
           .single();
         if (employeeData && employeeData.full_name)
           employeeName = employeeData.full_name;
       }
 
       // Buscar serviço pelo id
-      let serviceName = "Serviço não encontrado";
+      let serviceName = 'Serviço não encontrado';
       let durationMinutes = 30;
       if (appointment.service_id) {
         const { data: serviceData } = await supabase
-          .from("services")
-          .select("name, duration_minutes")
-          .eq("id", appointment.service_id)
+          .from('services')
+          .select('name, duration_minutes')
+          .eq('id', appointment.service_id)
           .single();
         if (serviceData && serviceData.name) serviceName = serviceData.name;
         if (serviceData && serviceData.duration_minutes)
@@ -300,22 +303,25 @@ export const dashboardService = {
       const timeUntil = this.calculateTimeUntil(timeDiff);
 
       // Format the appointment date for display (e.g., "dd/MM/yyyy HH:mm")
-      const formattedDate = appointmentDate.toLocaleString("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
+      const formattedDate = appointmentDate.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
       });
 
       return {
         id: appointment.id,
         appointmentAt: appointment.appointment_at,
+        patientId: appointment.patient_id,
         patientName,
         patientAge,
         patientEmail,
         patientPhone,
+        employeeId: appointment.employee_id,
         serviceName,
+        serviceId: appointment.service_id,
         employeeName,
         status: appointment.status,
         durationMinutes,
@@ -323,7 +329,7 @@ export const dashboardService = {
         formattedDate,
       };
     } catch (error) {
-      console.error("Erro ao buscar próxima consulta:", error);
+      console.error('Erro ao buscar próxima consulta:', error);
       return null;
     }
   },
@@ -336,19 +342,19 @@ export const dashboardService = {
 
     if (days > 0) {
       if (days === 1) {
-        return "amanhã";
+        return 'amanhã';
       } else if (days < 7) {
         return `em ${days} dias`;
       } else {
         const weeks = Math.floor(days / 7);
-        return `em ${weeks} ${weeks === 1 ? "semana" : "semanas"}`;
+        return `em ${weeks} ${weeks === 1 ? 'semana' : 'semanas'}`;
       }
     } else if (hours > 0) {
-      return `em ${hours} ${hours === 1 ? "hora" : "horas"}`;
+      return `em ${hours} ${hours === 1 ? 'hora' : 'horas'}`;
     } else if (minutes > 0) {
-      return `em ${minutes} ${minutes === 1 ? "minuto" : "minutos"}`;
+      return `em ${minutes} ${minutes === 1 ? 'minuto' : 'minutos'}`;
     } else {
-      return "agora";
+      return 'agora';
     }
   },
 };

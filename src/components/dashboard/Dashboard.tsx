@@ -252,13 +252,22 @@ export function Dashboard() {
                       );
                       const patient =
                         patients.find(
-                          (p) => p.fullName === nextAppointment.patientName
+                          (p) => p.id === nextAppointment.patientId
+                        ) || 
+                        patients.find(
+                          (p) => p.fullName?.trim().toLowerCase() === nextAppointment.patientName?.trim().toLowerCase()
                         ) || null;
                       const employee =
                         employees.find(
-                          (e) => e.fullName === nextAppointment.employeeName
+                          (e) => e.id === nextAppointment.employeeId
+                        ) || 
+                        employees.find(
+                          (e) => e.fullName?.trim().toLowerCase() === nextAppointment.employeeName?.trim().toLowerCase()
                         ) || null;
                       const service =
+                        services.find(
+                          (s) => s.id === nextAppointment.serviceId
+                        ) || 
                         services.find(
                           (s) => s.name === nextAppointment.serviceName
                         ) || null;
@@ -283,9 +292,9 @@ export function Dashboard() {
                         appointmentEnd,
                         status: nextAppointment.status || "Agendado",
                         // IDs para selects do dialog (garante preenchimento)
-                        patientId: patient?.id || "",
-                        employeeId: employee?.id || "",
-                        serviceId: service?.id || "",
+                        patientId: nextAppointment.patientId || patient?.id || "",
+                        employeeId: nextAppointment.employeeId || employee?.id || "",
+                        serviceId: nextAppointment.serviceId || service?.id || "",
                       };
                       setProfileDialogAppointment({ ...appointment }); // força nova referência
                       setProfileDialogPatients(

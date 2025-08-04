@@ -1,19 +1,19 @@
-import React, { useState } from "react";
-import EditPatientDialog from "./EditPatientDialog";
-import { AddAppointmentDialog } from "@/components/agenda";
-import { AddEmployeeDialog } from "@/components/funcionarios/AddEmployeeDialog";
-import AddPatientDialog from "./AddPatientDialog";
-import ServiceFormDialog from "@/components/servicos/ServiceFormDialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import React, { useState } from 'react';
+import EditPatientDialog from './EditPatientDialog';
+import { AddAppointmentDialog } from '@/components/agenda';
+import { AddEmployeeDialog } from '@/components/funcionarios/AddEmployeeDialog';
+import AddPatientDialog from './AddPatientDialog';
+import ServiceFormDialog from '@/components/servicos/ServiceFormDialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   User,
   Phone,
@@ -27,12 +27,12 @@ import {
   Stethoscope,
   IdCard,
   X,
-} from "lucide-react";
-import { Patient } from "@/types/patient";
-import { getPatientStatusBadge, getPlanBadge } from "@/lib/badgeUtils";
-import { patientService } from "@/services/patientService";
-import { employeeService } from "@/services/employeeService";
-import { serviceService } from "@/services/servicesService";
+} from 'lucide-react';
+import { Patient } from '@/types/patient';
+import { getPatientStatusBadge, getPlanBadge } from '@/lib/badgeUtils';
+import { patientService } from '@/services/patientService';
+import { employeeService } from '@/services/employeeService';
+import { serviceService } from '@/services/servicesService';
 
 interface PatientProfileDialogProps {
   patient: Patient | null;
@@ -40,6 +40,7 @@ interface PatientProfileDialogProps {
   onClose: () => void;
   onSchedule: (patient: Patient) => void;
   onOpenEdit: (patient: Patient) => void;
+  onOpenDelete: (patient: Patient) => void;
   onViewRecord: (patient: Patient) => void;
 }
 
@@ -49,6 +50,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
   onClose,
   onSchedule,
   onOpenEdit,
+  onOpenDelete,
   onViewRecord,
 }) => {
   const [openAddAppointment, setOpenAddAppointment] = useState(false);
@@ -65,50 +67,50 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
     const handlerService = () => setOpenServiceFormDialog(true);
     const handlerEmployee = () => setOpenAddEmployeeDialog(true);
 
-    window.addEventListener("openAddPatientDialog", handlerPatient);
-    window.addEventListener("openAddServiceDialog", handlerService);
-    window.addEventListener("openAddEmployeeDialog", handlerEmployee);
+    window.addEventListener('openAddPatientDialog', handlerPatient);
+    window.addEventListener('openAddServiceDialog', handlerService);
+    window.addEventListener('openAddEmployeeDialog', handlerEmployee);
 
     return () => {
-      window.removeEventListener("openAddPatientDialog", handlerPatient);
-      window.removeEventListener("openAddServiceDialog", handlerService);
-      window.removeEventListener("openAddEmployeeDialog", handlerEmployee);
+      window.removeEventListener('openAddPatientDialog', handlerPatient);
+      window.removeEventListener('openAddServiceDialog', handlerService);
+      window.removeEventListener('openAddEmployeeDialog', handlerEmployee);
     };
   }, []);
 
   // Estado do formulário de serviço (igual ao Dashboard)
   const [serviceFormData, setServiceFormData] = useState({
-    name: "",
-    description: "",
-    price: "",
-    duration: "",
-    category: "",
+    name: '',
+    description: '',
+    price: '',
+    duration: '',
+    category: '',
     isActive: true,
   });
 
   if (!patient) return null;
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "Não informado";
-    return new Date(dateString).toLocaleDateString("pt-BR");
+    if (!dateString) return 'Não informado';
+    return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
   const formatPhone = (phone: string) => {
-    if (!phone) return "Não informado";
+    if (!phone) return 'Não informado';
     return phone;
   };
 
   const getInitials = (fullName: string) => {
     return fullName
-      .split(" ")
+      .split(' ')
       .map((n) => n[0])
-      .join("")
+      .join('')
       .slice(0, 2);
   };
 
   const calculateAge = (birthDate?: string) => {
     const date = birthDate || patient.birthDate;
-    if (!date) return "-";
+    if (!date) return '-';
     const birth = new Date(date);
     const today = new Date();
     let age = today.getFullYear() - birth.getFullYear();
@@ -123,11 +125,11 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
   };
 
   const formatCPF = (cpf: string) => {
-    if (!cpf) return "Não informado";
-    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    if (!cpf) return 'Não informado';
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   };
 
-  const statusBadge = getPatientStatusBadge(patient.status || "");
+  const statusBadge = getPatientStatusBadge(patient.status || '');
   const planBadge = getPlanBadge();
 
   return (
@@ -168,16 +170,16 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                   <Badge
                     variant="success"
                     className={
-                      patient.status === "ativo"
-                        ? "bg-green-100 text-green-800 border-green-200"
-                        : "bg-gray-100 text-gray-600 border-gray-200"
+                      patient.status === 'ativo'
+                        ? 'bg-green-100 text-green-800 border-green-200'
+                        : 'bg-gray-100 text-gray-600 border-gray-200'
                     }
                   >
                     <div
                       className={`w-2 h-2 rounded-full mr-2 ${
-                        patient.status === "ativo"
-                          ? "bg-green-500"
-                          : "bg-gray-400"
+                        patient.status === 'ativo'
+                          ? 'bg-green-500'
+                          : 'bg-gray-400'
                       }`}
                     ></div>
                     {patient.status.charAt(0).toUpperCase() +
@@ -229,6 +231,13 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
               >
                 <Edit className="w-4 h-4" />
               </Button>
+              <Button
+                variant="outline"
+                onClick={() => onOpenDelete(patient)}
+                className="px-4 text-red-600 border-red-200 hover:text-red-600 hover:bg-red-50 hover:border-red-300"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
             </div>
 
             <Separator />
@@ -270,7 +279,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                       Email
                     </p>
                     <p className="text-gray-900 font-medium break-all">
-                      {patient.email ? patient.email : "Não informado"}
+                      {patient.email ? patient.email : 'Não informado'}
                     </p>
                   </div>
                   <div>
@@ -280,7 +289,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                     <p className="text-gray-900 font-medium">
                       {patient.phone
                         ? formatPhone(patient.phone)
-                        : "Não informado"}
+                        : 'Não informado'}
                     </p>
                   </div>
                 </div>
@@ -302,7 +311,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                     <p className="text-gray-900 font-medium">
                       {patient.nextVisit
                         ? formatDate(patient.nextVisit)
-                        : "Não agendada"}
+                        : 'Não agendada'}
                     </p>
                   </div>
                 </div>
@@ -327,14 +336,14 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
           open={openAddAppointment}
           onOpenChange={setOpenAddAppointment}
           onAddAppointment={async (appointmentData) => {
-            await import("@/services/appointmentService").then(
+            await import('@/services/appointmentService').then(
               ({ appointmentService }) =>
                 appointmentService.createAppointment(appointmentData)
             );
             setOpenAddAppointment(false);
           }}
           initialPatientId={patient.id}
-          initialPhone={patient.phone || ""}
+          initialPhone={patient.phone || ''}
         />
       )}
 
@@ -349,7 +358,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
             setOpenAddEmployeeDialog(false);
             // Notifica o AddAppointmentDialog para recarregar e selecionar o novo funcionário
             window.dispatchEvent(
-              new CustomEvent("newEmployeeCreated", {
+              new CustomEvent('newEmployeeCreated', {
                 detail: { employeeId: newEmployee.id },
               })
             );
@@ -368,12 +377,12 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
             setOpenAddPatientDialog(false);
             // Notifica o AddAppointmentDialog para recarregar e selecionar o novo paciente
             window.dispatchEvent(
-              new CustomEvent("newPatientCreated", {
+              new CustomEvent('newPatientCreated', {
                 detail: { patientId: newPatient.id },
               })
             );
           } catch (error) {
-            console.error("Erro ao criar paciente:", error);
+            console.error('Erro ao criar paciente:', error);
           }
         }}
       />
@@ -389,31 +398,31 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
             const newService = await serviceService.createService(serviceData);
             setOpenServiceFormDialog(false);
             setServiceFormData({
-              name: "",
-              description: "",
-              price: "",
-              duration: "",
-              category: "",
+              name: '',
+              description: '',
+              price: '',
+              duration: '',
+              category: '',
               isActive: true,
             });
             // Notifica o AddAppointmentDialog para recarregar e selecionar o novo serviço
             window.dispatchEvent(
-              new CustomEvent("newServiceCreated", {
+              new CustomEvent('newServiceCreated', {
                 detail: { serviceId: newService.id },
               })
             );
           } catch (error) {
-            console.error("Erro ao criar serviço:", error);
+            console.error('Erro ao criar serviço:', error);
           }
         }}
         onCancel={() => {
           setOpenServiceFormDialog(false);
           setServiceFormData({
-            name: "",
-            description: "",
-            price: "",
-            duration: "",
-            category: "",
+            name: '',
+            description: '',
+            price: '',
+            duration: '',
+            category: '',
             isActive: true,
           });
         }}
