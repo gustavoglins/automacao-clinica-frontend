@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import React, { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Calendar } from "@/components/ui/calendar";
+} from '@/components/ui/dialog';
+import { Calendar } from '@/components/ui/calendar';
 import {
   User,
   Phone,
@@ -28,15 +28,15 @@ import {
   GraduationCap,
   IdCard,
   X,
-} from "lucide-react";
-import type { Employee } from "@/types/employee";
+} from 'lucide-react';
+import type { Employee } from '@/types/employee';
 import {
   formatPhone,
   formatRole,
   formatSpecialty,
   formatStatus,
-} from "@/lib/utils";
-import { getEmployeeStatusBadge, getSpecialtyBadge } from "@/lib/badgeUtils";
+} from '@/lib/utils';
+import { getEmployeeStatusBadge, getSpecialtyBadge } from '@/lib/badgeUtils';
 
 interface EmployeeProfileDialogProps {
   employee: Employee | null;
@@ -71,41 +71,41 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
       return `${diffDays} dias`;
     } else if (diffDays < 365) {
       const months = Math.floor(diffDays / 30);
-      return `${months} ${months === 1 ? "mês" : "meses"}`;
+      return `${months} ${months === 1 ? 'mês' : 'meses'}`;
     } else {
       const years = Math.floor(diffDays / 365);
       const remainingMonths = Math.floor((diffDays % 365) / 30);
       if (remainingMonths === 0) {
-        return `${years} ${years === 1 ? "ano" : "anos"}`;
+        return `${years} ${years === 1 ? 'ano' : 'anos'}`;
       }
-      return `${years} ${years === 1 ? "ano" : "anos"} e ${remainingMonths} ${
-        remainingMonths === 1 ? "mês" : "meses"
+      return `${years} ${years === 1 ? 'ano' : 'anos'} e ${remainingMonths} ${
+        remainingMonths === 1 ? 'mês' : 'meses'
       }`;
     }
   };
 
   // Corrigir para usar hiredAt (não hireDate)
   const formatDate = (dateString: string) => {
-    if (!dateString) return "Não informado";
-    return new Date(dateString).toLocaleDateString("pt-BR");
+    if (!dateString) return 'Não informado';
+    return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
   const formatCPF = (cpf: string) => {
-    if (!cpf) return "Não informado";
-    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    if (!cpf) return 'Não informado';
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   };
 
   const formatPhoneDisplay = (phone: string) => {
-    if (!phone) return "Não informado";
+    if (!phone) return 'Não informado';
     return formatPhone(phone);
   };
 
   // Corrigir para usar fullName
   const getInitials = (fullName: string) => {
     return fullName
-      .split(" ")
+      .split(' ')
       .map((n) => n[0])
-      .join("")
+      .join('')
       .slice(0, 2);
   };
 
@@ -151,19 +151,19 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                   <Badge
                     variant={
-                      employee.status === "ativo" ? "success" : "outline"
+                      employee.status === 'ativo' ? 'success' : 'outline'
                     }
                     className={
-                      employee.status === "ativo"
-                        ? "bg-green-100 text-green-800 border-green-200"
-                        : "bg-gray-100 text-gray-600 border-gray-200"
+                      employee.status === 'ativo'
+                        ? 'bg-green-100 text-green-800 border-green-200'
+                        : 'bg-gray-100 text-gray-600 border-gray-200'
                     }
                   >
                     <div
                       className={`w-2 h-2 rounded-full mr-2 ${
-                        employee.status === "ativo"
-                          ? "bg-green-500"
-                          : "bg-gray-400"
+                        employee.status === 'ativo'
+                          ? 'bg-green-500'
+                          : 'bg-gray-400'
                       }`}
                     ></div>
                     {employee.status.charAt(0).toUpperCase() +
@@ -229,7 +229,7 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                       Email
                     </p>
                     <p className="text-gray-900 font-medium break-all">
-                      {employee.email ?? "Não informado"}
+                      {employee.email ?? 'Não informado'}
                     </p>
                   </div>
                   <div>
@@ -267,7 +267,7 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                     <p className="text-gray-900 font-medium">
                       {employee.specialty
                         ? formatSpecialty(employee.specialty)
-                        : "Não informado"}
+                        : 'Não informado'}
                     </p>
                   </div>
                   <div>
@@ -275,11 +275,11 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                       Salário
                     </p>
                     <p className="text-gray-900 font-medium break-all">
-                      {typeof employee.salary === "number"
-                        ? `R$ ${employee.salary.toLocaleString("pt-BR", {
+                      {typeof employee.salary === 'number'
+                        ? `R$ ${employee.salary.toLocaleString('pt-BR', {
                             minimumFractionDigits: 2,
                           })}`
-                        : "Não informado"}
+                        : 'Não informado'}
                     </p>
                   </div>
                 </div>
@@ -298,12 +298,82 @@ export const EmployeeProfileDialog: React.FC<EmployeeProfileDialogProps> = ({
                     </p>
                     <p className="text-gray-900 font-medium">
                       {(() => {
-                        if (!employee.hiredAt) return "Não informado";
+                        if (!employee.hiredAt) return 'Não informado';
                         const hiredDate = new Date(employee.hiredAt);
                         const now = new Date();
-                        if (hiredDate > now) return "Ainda não contratado";
+                        if (hiredDate > now) return 'Ainda não contratado';
                         return calculateWorkTime(employee.hiredAt);
                       })()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Work Schedule */}
+            <div className="bg-white border border-gray-100 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-5 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-blue-600" />
+                Horário de Trabalho
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-2">
+                      Dias de Trabalho
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {(() => {
+                        const allDays = [
+                          'Seg',
+                          'Ter',
+                          'Qua',
+                          'Qui',
+                          'Sex',
+                          'Sáb',
+                          'Dom',
+                        ];
+                        const workDays = employee.workDays || [];
+
+                        return allDays.map((day) => {
+                          const isWorkDay = workDays.includes(day);
+                          return (
+                            <Badge
+                              key={day}
+                              variant="outline"
+                              className={
+                                isWorkDay
+                                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                  : 'bg-gray-50 text-gray-500 border-gray-200'
+                              }
+                            >
+                              {day}
+                            </Badge>
+                          );
+                        });
+                      })()}
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-1">
+                      Horário de Entrada
+                    </p>
+                    <p className="text-gray-900 font-medium">
+                      {employee.startHour
+                        ? employee.startHour.slice(0, 5)
+                        : 'Não informado'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 mb-1">
+                      Horário de Saída
+                    </p>
+                    <p className="text-gray-900 font-medium">
+                      {employee.endHour
+                        ? employee.endHour.slice(0, 5)
+                        : 'Não informado'}
                     </p>
                   </div>
                 </div>

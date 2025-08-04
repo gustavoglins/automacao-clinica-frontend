@@ -263,7 +263,17 @@ class EmployeeService {
 
       if (!data) return null;
 
-      return EmployeeTransformer.fromSupabase(data);
+      // Buscar horários de trabalho
+      const { data: workSchedules, error: scheduleError } = await supabase
+        .from('work_hours')
+        .select('*')
+        .eq('employee_id', id);
+
+      if (scheduleError) {
+        console.error('Error fetching work schedules:', scheduleError);
+      }
+
+      return EmployeeTransformer.fromSupabase(data, workSchedules || []);
     } catch (error) {
       console.error('Error fetching employee by ID:', error);
       toast.error('Erro ao carregar funcionário');

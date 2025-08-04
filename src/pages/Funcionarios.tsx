@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { useLocation, useNavigate } from "react-router-dom";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { UserX } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { UserX } from 'lucide-react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { employeeService } from "@/services/employeeService";
-import type { Employee, CreateEmployeeData } from "@/types/employee";
-import { onlyNumbers } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/card';
+import { employeeService } from '@/services/employeeService';
+import type { Employee, CreateEmployeeData } from '@/types/employee';
+import { onlyNumbers } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   EmployeeStats,
   Filters,
@@ -23,9 +23,9 @@ import {
   DeleteEmployeeDialog,
   AddEmployeeDialog,
   FilterDialog,
-} from "@/components/funcionarios";
-import { toast } from "sonner";
-import { useEmployees } from "@/context/EmployeeContext";
+} from '@/components/funcionarios';
+import { toast } from 'sonner';
+import { useEmployees } from '@/context/EmployeeContext';
 
 interface FilterState {
   search: string;
@@ -50,24 +50,24 @@ function Funcionarios() {
   // Usar contexto global de funcionários
   const { employees, setEmployees, loading, fetchEmployees } = useEmployees();
   const [filters, setFilters] = useState<FilterState>({
-    search: "",
-    role: "all",
-    specialty: "all",
+    search: '',
+    role: 'all',
+    specialty: 'all',
     showAll: false,
     dateRange: { start: null, end: null },
-    status: "",
-    location: "",
-    performance: "",
+    status: '',
+    location: '',
+    performance: '',
   });
 
   // Efeito para aplicar busca da URL e limpar após redirecionamento
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const urlQuery = params.get("q");
+    const urlQuery = params.get('q');
     if (urlQuery) {
       setFilters((prev) => ({ ...prev, search: urlQuery }));
       // Limpar parâmetro da URL após aplicar o filtro
-      navigate("/funcionarios", { replace: true });
+      navigate('/funcionarios', { replace: true });
     }
   }, [location.search, navigate]);
 
@@ -93,10 +93,10 @@ function Funcionarios() {
       (employee.phone && employee.phone.includes(filters.search));
 
     const matchesRole =
-      !filters.role || filters.role === "all" || employee.role === filters.role;
+      !filters.role || filters.role === 'all' || employee.role === filters.role;
     const matchesSpecialty =
       !filters.specialty ||
-      filters.specialty === "all" ||
+      filters.specialty === 'all' ||
       employee.specialty === filters.specialty;
 
     // Filtros avançados
@@ -134,26 +134,61 @@ function Funcionarios() {
   });
 
   // Event handlers
-  const handleOpenProfile = (employee: Employee) => {
-    setSelectedEmployee(employee);
+  const handleOpenProfile = async (employee: Employee) => {
+    // Buscar funcionário completo com horários de trabalho
+    if (employee?.id) {
+      try {
+        const employeeWithSchedule = await employeeService.getEmployeeById(
+          employee.id
+        );
+        if (employeeWithSchedule) {
+          setSelectedEmployee(employeeWithSchedule);
+        } else {
+          setSelectedEmployee(employee);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar funcionário:', error);
+        setSelectedEmployee(employee);
+      }
+    } else {
+      setSelectedEmployee(employee);
+    }
     setModernProfileDialogOpen(true);
   };
 
   const handleOpenEdit = async (employee: Employee) => {
-    setSelectedEmployee(employee);
     setModernProfileDialogOpen(false);
-    // Buscar dias de trabalho do funcionário
+    // Buscar funcionário completo com horários de trabalho
     if (employee?.id) {
-      const { data, error } = await supabase
-        .from("work_hours")
-        .select("weekday")
-        .eq("employee_id", employee.id);
-      if (!error && data) {
-        setEmployeeWorkDays(data.map((w: { weekday: number }) => w.weekday));
-      } else {
+      try {
+        const employeeWithSchedule = await employeeService.getEmployeeById(
+          employee.id
+        );
+        if (employeeWithSchedule) {
+          setSelectedEmployee(employeeWithSchedule);
+          // Buscar dias de trabalho do funcionário para compatibilidade
+          const { data, error } = await supabase
+            .from('work_hours')
+            .select('weekday')
+            .eq('employee_id', employee.id);
+          if (!error && data) {
+            setEmployeeWorkDays(
+              data.map((w: { weekday: number }) => w.weekday)
+            );
+          } else {
+            setEmployeeWorkDays([]);
+          }
+        } else {
+          setSelectedEmployee(employee);
+          setEmployeeWorkDays([]);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar funcionário:', error);
+        setSelectedEmployee(employee);
         setEmployeeWorkDays([]);
       }
     } else {
+      setSelectedEmployee(employee);
       setEmployeeWorkDays([]);
     }
     setEditDialogOpen(true);
