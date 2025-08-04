@@ -37,9 +37,8 @@ const businessItems = [
 ];
 
 const systemItems = [
-  { title: 'Configurações', url: '/configuracoes', icon: Settings },
   { title: 'Fechamentos', url: '/fechamentos', icon: CalendarX },
-  // { title: "Área do Paciente", url: "/area-paciente", icon: User },
+  { title: 'Configurações', url: '/configuracoes', icon: Settings },
 ];
 
 export function AppSidebar() {

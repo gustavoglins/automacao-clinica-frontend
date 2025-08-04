@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,12 +9,15 @@ import {
   Edit,
   Trash2,
   Calendar as CalendarIcon,
+  Search,
 } from 'lucide-react';
 import { Closure } from '@/types/closure';
 import { closureService } from '@/services/closureService';
 import { AddClosureDialog } from '@/components/fechamentos';
 import { EditClosureDialog } from '@/components/fechamentos';
 import { DeleteClosureDialog } from '@/components/fechamentos';
+import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
 
 export default function Fechamentos() {
   const [closures, setClosures] = useState<Closure[]>([]);
@@ -23,23 +26,31 @@ export default function Fechamentos() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedClosure, setSelectedClosure] = useState<Closure | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
 
   // Função para carregar fechamentos
-  const loadClosures = async () => {
+  const loadClosures = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await closureService.getAllClosures();
       setClosures(data);
     } catch (error) {
       console.error('Erro ao carregar fechamentos:', error);
+      toast({
+        title: 'Erro ao carregar fechamentos',
+        description:
+          'Não foi possível carregar os fechamentos. Tente novamente.',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     loadClosures();
-  }, []);
+  }, [loadClosures]);
 
   const handleAddClosure = async (
     closureData: Omit<Closure, 'id' | 'created_at' | 'updated_at'>
@@ -48,8 +59,17 @@ export default function Fechamentos() {
       const newClosure = await closureService.createClosure(closureData);
       setClosures((prev) => [...prev, newClosure]);
       setOpenAddDialog(false);
+      toast({
+        title: 'Fechamento criado',
+        description: `O fechamento "${newClosure.name}" foi criado com sucesso.`,
+      });
     } catch (error) {
       console.error('Erro ao criar fechamento:', error);
+      toast({
+        title: 'Erro ao criar fechamento',
+        description: 'Não foi possível criar o fechamento. Tente novamente.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -63,19 +83,39 @@ export default function Fechamentos() {
       );
       setOpenEditDialog(false);
       setSelectedClosure(null);
+      toast({
+        title: 'Fechamento atualizado',
+        description: `O fechamento "${updatedClosure.name}" foi atualizado com sucesso.`,
+      });
     } catch (error) {
       console.error('Erro ao atualizar fechamento:', error);
+      toast({
+        title: 'Erro ao atualizar fechamento',
+        description:
+          'Não foi possível atualizar o fechamento. Tente novamente.',
+        variant: 'destructive',
+      });
     }
   };
 
   const handleDeleteClosure = async (id: string) => {
     try {
+      const closureToDelete = closures.find((c) => c.id === id);
       await closureService.deleteClosure(id);
       setClosures((prev) => prev.filter((closure) => closure.id !== id));
       setOpenDeleteDialog(false);
       setSelectedClosure(null);
+      toast({
+        title: 'Fechamento excluído',
+        description: `O fechamento "${closureToDelete?.name}" foi excluído com sucesso.`,
+      });
     } catch (error) {
       console.error('Erro ao deletar fechamento:', error);
+      toast({
+        title: 'Erro ao excluir fechamento',
+        description: 'Não foi possível excluir o fechamento. Tente novamente.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -115,6 +155,16 @@ export default function Fechamentos() {
     return startDate === endDate ? start : `${start} - ${end}`;
   };
 
+  // Filtrar fechamentos baseado no termo de pesquisa
+  const filteredClosures = closures.filter(
+    (closure) =>
+      closure.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      closure.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      getTypeLabel(closure.type)
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+  );
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -128,13 +178,51 @@ export default function Fechamentos() {
               Gerencie os dias em que a clínica não funcionará
             </p>
           </div>
-          <Button
-            onClick={() => setOpenAddDialog(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Novo Fechamento
-          </Button>
+        </div>
+
+        {/* Barra de Pesquisa */}
+        <div className="flex flex-col gap-4 p-6 bg-card rounded-lg border shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar fechamentos..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <Button
+              onClick={() => setOpenAddDialog(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Novo Fechamento
+            </Button>
+          </div>
+          {searchTerm && !isLoading && (
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {filteredClosures.length === 0
+                  ? 'Nenhum resultado encontrado'
+                  : `${filteredClosures.length} resultado${
+                      filteredClosures.length !== 1 ? 's' : ''
+                    } encontrado${filteredClosures.length !== 1 ? 's' : ''}`}
+              </p>
+              {searchTerm && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSearchTerm('')}
+                  className="text-xs"
+                >
+                  Limpar pesquisa
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Lista de Fechamentos */}
@@ -145,25 +233,30 @@ export default function Fechamentos() {
                 <p className="text-gray-500">Carregando fechamentos...</p>
               </CardContent>
             </Card>
-          ) : closures.length === 0 ? (
+          ) : filteredClosures.length === 0 ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <CalendarX className="w-12 h-12 text-gray-400 mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Nenhum fechamento cadastrado
+                  {searchTerm
+                    ? 'Nenhum fechamento encontrado'
+                    : 'Nenhum fechamento cadastrado'}
                 </h3>
                 <p className="text-gray-500 text-center mb-4">
-                  Cadastre feriados, férias e outros períodos em que a clínica
-                  não funcionará
+                  {searchTerm
+                    ? `Não há fechamentos que correspondam à pesquisa "${searchTerm}"`
+                    : 'Cadastre feriados, férias e outros períodos em que a clínica não funcionará'}
                 </p>
-                <Button onClick={() => setOpenAddDialog(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Cadastrar Primeiro Fechamento
-                </Button>
+                {!searchTerm && (
+                  <Button onClick={() => setOpenAddDialog(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Cadastrar Primeiro Fechamento
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ) : (
-            closures.map((closure) => (
+            filteredClosures.map((closure) => (
               <Card
                 key={closure.id}
                 className="hover:shadow-md transition-shadow"
