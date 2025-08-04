@@ -155,15 +155,23 @@ export default function Fechamentos() {
     return startDate === endDate ? start : `${start} - ${end}`;
   };
 
-  // Filtrar fechamentos baseado no termo de pesquisa
-  const filteredClosures = closures.filter(
-    (closure) =>
-      closure.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      closure.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      getTypeLabel(closure.type)
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-  );
+  // Ordenar fechamentos por data e filtrar baseado no termo de pesquisa
+  const filteredClosures = closures
+    .sort((a, b) => {
+      // Ordenar por data de início (mais próximo primeiro)
+      const dateA = new Date(a.start_date);
+      const dateB = new Date(b.start_date);
+      return dateA.getTime() - dateB.getTime();
+    })
+    .filter(
+      (closure) =>
+        !searchTerm ||
+        closure.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        closure.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        getTypeLabel(closure.type)
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+    );
 
   return (
     <AppLayout>
