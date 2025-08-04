@@ -157,8 +157,16 @@ export const AddAppointmentDialog: React.FC<AddAppointmentDialogProps> = ({
           clinicHoursService.getAllClinicHours(),
         ]);
       setPatients(patientsData);
-      setEmployees(employeesData);
-      setServices(servicesData);
+      // Filtrar apenas funcionários ativos
+      const activeEmployees = employeesData.filter(
+        (employee) => employee.status === 'ativo'
+      );
+      setEmployees(activeEmployees);
+      // Filtrar apenas serviços ativos
+      const activeServices = servicesData.filter(
+        (service) => service.active === true
+      );
+      setServices(activeServices);
       setClinicHours(clinicHoursData);
     }
 

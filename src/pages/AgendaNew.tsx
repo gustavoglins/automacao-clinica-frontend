@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
+import React, { useState, useEffect } from 'react';
+import { AppLayout } from '@/components/layout/AppLayout';
 import {
   Calendar,
   Plus,
@@ -13,51 +13,51 @@ import {
   CalendarDays,
   CalendarRange,
   CalendarIcon,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { StatsCard } from "@/components/dashboard/StatsCard";
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { StatsCard } from '@/components/dashboard/StatsCard';
 import {
   AddAppointmentDialog,
   AppointmentDataList,
   FilterDialog,
   AppointmentProfileDialog,
-} from "@/components/agenda";
-import { AddEmployeeDialog } from "@/components/funcionarios/AddEmployeeDialog";
-import AddPatientDialog from "@/components/pacientes/AddPatientDialog";
-import ServiceFormDialog from "@/components/servicos/ServiceFormDialog";
-import { toast } from "sonner";
-import { appointmentService } from "@/services/appointmentService";
+} from '@/components/agenda';
+import { AddEmployeeDialog } from '@/components/funcionarios/AddEmployeeDialog';
+import AddPatientDialog from '@/components/pacientes/AddPatientDialog';
+import ServiceFormDialog from '@/components/servicos/ServiceFormDialog';
+import { toast } from 'sonner';
+import { appointmentService } from '@/services/appointmentService';
 import {
   Appointment,
   CreateAppointmentData,
   UpdateAppointmentData,
-} from "@/types/appointment";
-import { Patient } from "@/types/patient";
-import { Employee } from "@/types/employee";
-import { Service } from "@/types/service";
-import { patientService } from "@/services/patientService";
-import { employeeService } from "@/services/employeeService";
-import { serviceService } from "@/services/servicesService";
-import { useAppointments } from "@/context/AppointmentContext";
+} from '@/types/appointment';
+import { Patient } from '@/types/patient';
+import { Employee } from '@/types/employee';
+import { Service } from '@/types/service';
+import { patientService } from '@/services/patientService';
+import { employeeService } from '@/services/employeeService';
+import { serviceService } from '@/services/servicesService';
+import { useAppointments } from '@/context/AppointmentContext';
 
 const Agenda = () => {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
   const [openAddAppointmentDialog, setOpenAddAppointmentDialog] =
     useState(false);
-  const [filterStatus, setFilterStatus] = useState("");
-  const [filterDoctor, setFilterDoctor] = useState("");
-  const [filterTimeRange, setFilterTimeRange] = useState("");
-  const [filterService, setFilterService] = useState("");
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterDoctor, setFilterDoctor] = useState('');
+  const [filterTimeRange, setFilterTimeRange] = useState('');
+  const [filterService, setFilterService] = useState('');
 
   // Estados para os dialogs dos atalhos
   const [openAddEmployeeDialog, setOpenAddEmployeeDialog] = useState(false);
@@ -70,30 +70,30 @@ const Agenda = () => {
     const handlerService = () => setOpenServiceFormDialog(true);
     const handlerEmployee = () => setOpenAddEmployeeDialog(true);
 
-    window.addEventListener("openAddPatientDialog", handlerPatient);
-    window.addEventListener("openAddServiceDialog", handlerService);
-    window.addEventListener("openAddEmployeeDialog", handlerEmployee);
+    window.addEventListener('openAddPatientDialog', handlerPatient);
+    window.addEventListener('openAddServiceDialog', handlerService);
+    window.addEventListener('openAddEmployeeDialog', handlerEmployee);
 
     return () => {
-      window.removeEventListener("openAddPatientDialog", handlerPatient);
-      window.removeEventListener("openAddServiceDialog", handlerService);
-      window.removeEventListener("openAddEmployeeDialog", handlerEmployee);
+      window.removeEventListener('openAddPatientDialog', handlerPatient);
+      window.removeEventListener('openAddServiceDialog', handlerService);
+      window.removeEventListener('openAddEmployeeDialog', handlerEmployee);
     };
   }, []);
 
   // Estado do formulário de serviço (igual ao Dashboard)
   const [serviceFormData, setServiceFormData] = useState({
-    name: "",
-    description: "",
-    price: "",
-    duration: "",
-    category: "",
+    name: '',
+    description: '',
+    price: '',
+    duration: '',
+    category: '',
     isActive: true,
   });
 
   // Estados para controle de data e visualização
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<"day" | "week" | "month">("day");
+  const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
   const [currentMonth, setCurrentMonth] = useState(() => {
     const today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), 1);
@@ -114,8 +114,18 @@ const Agenda = () => {
     if (openViewEditDialog) {
       (async () => {
         setPatients(await patientService.getAllPatients());
-        setEmployees(await employeeService.getAllEmployees());
-        setServices(await serviceService.getAllServices());
+        const allEmployees = await employeeService.getAllEmployees();
+        // Filtrar apenas funcionários ativos
+        const activeEmployees = allEmployees.filter(
+          (employee) => employee.status === 'ativo'
+        );
+        setEmployees(activeEmployees);
+        const allServices = await serviceService.getAllServices();
+        // Filtrar apenas serviços ativos
+        const activeServices = allServices.filter(
+          (service) => service.active === true
+        );
+        setServices(activeServices);
       })();
     }
   }, [openViewEditDialog]);
@@ -137,14 +147,14 @@ const Agenda = () => {
   const doctors = Array.from(
     new Set(
       appointments.map(
-        (a) => a.employee?.fullName || "Funcionário não encontrado"
+        (a) => a.employee?.fullName || 'Funcionário não encontrado'
       )
     )
   );
 
   // Funções utilitárias para navegação de data
   const formatDate = (date: Date) => {
-    return date.toISOString().split("T")[0];
+    return date.toISOString().split('T')[0];
   };
 
   const isToday = (date: Date) => {
@@ -179,14 +189,14 @@ const Agenda = () => {
   };
 
   // Navegação de data
-  const navigateDate = (direction: "prev" | "next") => {
+  const navigateDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(selectedDate);
-    if (viewMode === "day") {
-      newDate.setDate(newDate.getDate() + (direction === "next" ? 1 : -1));
-    } else if (viewMode === "week") {
-      newDate.setDate(newDate.getDate() + (direction === "next" ? 7 : -7));
-    } else if (viewMode === "month") {
-      newDate.setMonth(newDate.getMonth() + (direction === "next" ? 1 : -1));
+    if (viewMode === 'day') {
+      newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1));
+    } else if (viewMode === 'week') {
+      newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
+    } else if (viewMode === 'month') {
+      newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
     }
     setSelectedDate(newDate);
   };
@@ -195,19 +205,19 @@ const Agenda = () => {
   const getFilteredAppointmentsByView = () => {
     let dateFilteredAppointments = appointments;
 
-    if (viewMode === "day") {
+    if (viewMode === 'day') {
       dateFilteredAppointments = appointments.filter(
         (appointment) =>
           formatDate(new Date(appointment.appointmentAt)) ===
           formatDate(selectedDate)
       );
-    } else if (viewMode === "week") {
+    } else if (viewMode === 'week') {
       const weekDates = getWeekDates(selectedDate);
       const weekDatesStr = weekDates.map((d) => formatDate(d));
       dateFilteredAppointments = appointments.filter((appointment) =>
         weekDatesStr.includes(formatDate(new Date(appointment.appointmentAt)))
       );
-    } else if (viewMode === "month") {
+    } else if (viewMode === 'month') {
       const monthDates = getMonthDates(selectedDate);
       const monthDatesStr = monthDates.map((d) => formatDate(d));
       dateFilteredAppointments = appointments.filter((appointment) =>
@@ -246,7 +256,7 @@ const Agenda = () => {
       setOpenAddAppointmentDialog(false);
       // Toast de sucesso/erro já é disparado pelo service
     } catch (error) {
-      console.error("Erro ao agendar consulta:", error);
+      console.error('Erro ao agendar consulta:', error);
       // Toast de erro já é disparado pelo service
     }
   };
@@ -272,7 +282,7 @@ const Agenda = () => {
           <StatsCard
             title="Confirmadas"
             value={
-              filteredAppointments.filter((a) => a.status === "confirmada")
+              filteredAppointments.filter((a) => a.status === 'confirmada')
                 .length
             }
             icon={CalendarCheck2}
@@ -280,14 +290,14 @@ const Agenda = () => {
           <StatsCard
             title="Pendentes"
             value={
-              filteredAppointments.filter((a) => a.status === "pendente").length
+              filteredAppointments.filter((a) => a.status === 'pendente').length
             }
             icon={CalendarClock}
           />
           <StatsCard
             title="Reagendadas"
             value={
-              filteredAppointments.filter((a) => a.status === "reagendada")
+              filteredAppointments.filter((a) => a.status === 'reagendada')
                 .length
             }
             icon={CalendarSync}
@@ -332,7 +342,7 @@ const Agenda = () => {
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <span>
-                Mostrando <strong>{filteredAppointments.length}</strong> de{" "}
+                Mostrando <strong>{filteredAppointments.length}</strong> de{' '}
                 <strong>{appointments.length}</strong> consultas
               </span>
               {(search || filterStatus || filterDoctor) && (
@@ -344,9 +354,9 @@ const Agenda = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        setSearch("");
-                        setFilterStatus("");
-                        setFilterDoctor("");
+                        setSearch('');
+                        setFilterStatus('');
+                        setFilterDoctor('');
                       }}
                       className="text-xs h-auto p-1"
                     >
@@ -362,27 +372,27 @@ const Agenda = () => {
         {/* View Mode Selector */}
         <div className="flex items-center justify-center gap-2 p-2 bg-muted rounded-lg w-fit">
           <Button
-            variant={viewMode === "day" ? "default" : "ghost"}
+            variant={viewMode === 'day' ? 'default' : 'ghost'}
             size="sm"
-            onClick={() => setViewMode("day")}
+            onClick={() => setViewMode('day')}
             className="gap-2"
           >
             <CalendarDays className="w-4 h-4" />
             Dia
           </Button>
           <Button
-            variant={viewMode === "week" ? "default" : "ghost"}
+            variant={viewMode === 'week' ? 'default' : 'ghost'}
             size="sm"
-            onClick={() => setViewMode("week")}
+            onClick={() => setViewMode('week')}
             className="gap-2"
           >
             <CalendarRange className="w-4 h-4" />
             Semana
           </Button>
           <Button
-            variant={viewMode === "month" ? "default" : "ghost"}
+            variant={viewMode === 'month' ? 'default' : 'ghost'}
             size="sm"
-            onClick={() => setViewMode("month")}
+            onClick={() => setViewMode('month')}
             className="gap-2"
           >
             <CalendarIcon className="w-4 h-4" />
@@ -395,7 +405,7 @@ const Agenda = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigateDate("prev")}
+            onClick={() => navigateDate('prev')}
             className="gap-2"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -403,25 +413,25 @@ const Agenda = () => {
           </Button>
 
           <h2 className="text-xl font-semibold">
-            {viewMode === "day" &&
-              selectedDate.toLocaleDateString("pt-BR", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
+            {viewMode === 'day' &&
+              selectedDate.toLocaleDateString('pt-BR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
               })}
-            {viewMode === "week" && "Semana"}
-            {viewMode === "month" &&
-              selectedDate.toLocaleDateString("pt-BR", {
-                month: "long",
-                year: "numeric",
+            {viewMode === 'week' && 'Semana'}
+            {viewMode === 'month' &&
+              selectedDate.toLocaleDateString('pt-BR', {
+                month: 'long',
+                year: 'numeric',
               })}
           </h2>
 
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigateDate("next")}
+            onClick={() => navigateDate('next')}
             className="gap-2"
           >
             Próximo
@@ -482,7 +492,7 @@ const Agenda = () => {
               setOpenAddEmployeeDialog(false);
               // Notifica o AddAppointmentDialog para recarregar seus dados
               window.dispatchEvent(
-                new CustomEvent("refreshAppointmentDialogData")
+                new CustomEvent('refreshAppointmentDialogData')
               );
             } catch (error) {
               // Error is already handled in the service
@@ -499,10 +509,10 @@ const Agenda = () => {
               setOpenAddPatientDialog(false);
               // Notifica o AddAppointmentDialog para recarregar seus dados
               window.dispatchEvent(
-                new CustomEvent("refreshAppointmentDialogData")
+                new CustomEvent('refreshAppointmentDialogData')
               );
             } catch (error) {
-              console.error("Erro ao criar paciente:", error);
+              console.error('Erro ao criar paciente:', error);
             }
           }}
         />
@@ -518,29 +528,29 @@ const Agenda = () => {
               await serviceService.createService(serviceData);
               setOpenServiceFormDialog(false);
               setServiceFormData({
-                name: "",
-                description: "",
-                price: "",
-                duration: "",
-                category: "",
+                name: '',
+                description: '',
+                price: '',
+                duration: '',
+                category: '',
                 isActive: true,
               });
               // Notifica o AddAppointmentDialog para recarregar seus dados
               window.dispatchEvent(
-                new CustomEvent("refreshAppointmentDialogData")
+                new CustomEvent('refreshAppointmentDialogData')
               );
             } catch (error) {
-              console.error("Erro ao criar serviço:", error);
+              console.error('Erro ao criar serviço:', error);
             }
           }}
           onCancel={() => {
             setOpenServiceFormDialog(false);
             setServiceFormData({
-              name: "",
-              description: "",
-              price: "",
-              duration: "",
-              category: "",
+              name: '',
+              description: '',
+              price: '',
+              duration: '',
+              category: '',
               isActive: true,
             });
           }}

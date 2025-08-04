@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
+import React, { useState, useEffect } from 'react';
+import { AppLayout } from '@/components/layout/AppLayout';
 import {
   Calendar as CalendarIcon,
   Plus,
@@ -15,46 +15,46 @@ import {
   Calendar1,
   CalendarMinus2,
   CalendarFold,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Calendar } from "@/components/ui/calendar";
-import { ptBR } from "date-fns/locale";
-import { StatsCard } from "@/components/dashboard/StatsCard";
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Calendar } from '@/components/ui/calendar';
+import { ptBR } from 'date-fns/locale';
+import { StatsCard } from '@/components/dashboard/StatsCard';
 import {
   AddAppointmentDialog,
   AppointmentDataList,
   FilterDialog,
   AppointmentProfileDialog,
-} from "@/components/agenda";
-import { AddEmployeeDialog } from "@/components/funcionarios";
-import { ServiceFormDialog } from "@/components/servicos";
-import { AddPatientDialog } from "@/components/pacientes";
-import { toast } from "sonner";
-import { appointmentService } from "@/services/appointmentService";
+} from '@/components/agenda';
+import { AddEmployeeDialog } from '@/components/funcionarios';
+import { ServiceFormDialog } from '@/components/servicos';
+import { AddPatientDialog } from '@/components/pacientes';
+import { toast } from 'sonner';
+import { appointmentService } from '@/services/appointmentService';
 import {
   Appointment,
   CreateAppointmentData,
   UpdateAppointmentData,
-} from "@/types/appointment";
-import { Patient } from "@/types/patient";
-import { Employee } from "@/types/employee";
-import { Service } from "@/types/service";
-import { patientService } from "@/services/patientService";
-import { employeeService } from "@/services/employeeService";
-import { serviceService } from "@/services/servicesService";
-import { useAppointments } from "@/context/AppointmentContext";
+} from '@/types/appointment';
+import { Patient } from '@/types/patient';
+import { Employee } from '@/types/employee';
+import { Service } from '@/types/service';
+import { patientService } from '@/services/patientService';
+import { employeeService } from '@/services/employeeService';
+import { serviceService } from '@/services/servicesService';
+import { useAppointments } from '@/context/AppointmentContext';
 
 const Agenda = () => {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
   const [openAddAppointmentDialog, setOpenAddAppointmentDialog] =
     useState(false);
@@ -62,11 +62,11 @@ const Agenda = () => {
   const [openAddServiceDialog, setOpenAddServiceDialog] = useState(false);
   const [openAddEmployeeDialog, setOpenAddEmployeeDialog] = useState(false);
   const [serviceFormData, setServiceFormData] = useState({
-    name: "",
-    description: "",
-    price: "",
-    duration: "",
-    category: "",
+    name: '',
+    description: '',
+    price: '',
+    duration: '',
+    category: '',
     isActive: true,
   });
   // Escuta evento para abrir o dialog de novo paciente
@@ -74,23 +74,23 @@ const Agenda = () => {
     const handlerPatient = () => setOpenAddPatientDialog(true);
     const handlerService = () => setOpenAddServiceDialog(true);
     const handlerEmployee = () => setOpenAddEmployeeDialog(true);
-    window.addEventListener("openAddPatientDialog", handlerPatient);
-    window.addEventListener("openAddServiceDialog", handlerService);
-    window.addEventListener("openAddEmployeeDialog", handlerEmployee);
+    window.addEventListener('openAddPatientDialog', handlerPatient);
+    window.addEventListener('openAddServiceDialog', handlerService);
+    window.addEventListener('openAddEmployeeDialog', handlerEmployee);
     return () => {
-      window.removeEventListener("openAddPatientDialog", handlerPatient);
-      window.removeEventListener("openAddServiceDialog", handlerService);
-      window.removeEventListener("openAddEmployeeDialog", handlerEmployee);
+      window.removeEventListener('openAddPatientDialog', handlerPatient);
+      window.removeEventListener('openAddServiceDialog', handlerService);
+      window.removeEventListener('openAddEmployeeDialog', handlerEmployee);
     };
   }, []);
-  const [filterStatus, setFilterStatus] = useState("");
-  const [filterDoctor, setFilterDoctor] = useState("");
-  const [filterTimeRange, setFilterTimeRange] = useState("");
-  const [filterService, setFilterService] = useState("");
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterDoctor, setFilterDoctor] = useState('');
+  const [filterTimeRange, setFilterTimeRange] = useState('');
+  const [filterService, setFilterService] = useState('');
 
   // Estados para controle de data e visualização
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<"day" | "week" | "month">("day");
+  const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
   const [currentMonth, setCurrentMonth] = useState(() => {
     const today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), 1);
@@ -111,8 +111,18 @@ const Agenda = () => {
     if (openViewEditDialog) {
       (async () => {
         setPatients(await patientService.getAllPatients());
-        setEmployees(await employeeService.getAllEmployees());
-        setServices(await serviceService.getAllServices());
+        const allEmployees = await employeeService.getAllEmployees();
+        // Filtrar apenas funcionários ativos
+        const activeEmployees = allEmployees.filter(
+          (employee) => employee.status === 'ativo'
+        );
+        setEmployees(activeEmployees);
+        const allServices = await serviceService.getAllServices();
+        // Filtrar apenas serviços ativos
+        const activeServices = allServices.filter(
+          (service) => service.active === true
+        );
+        setServices(activeServices);
       })();
     }
   }, [openViewEditDialog]);
@@ -134,14 +144,14 @@ const Agenda = () => {
   const doctors = Array.from(
     new Set(
       appointments.map(
-        (a) => a.employee?.fullName || "Funcionário não encontrado"
+        (a) => a.employee?.fullName || 'Funcionário não encontrado'
       )
     )
   );
 
   // Funções utilitárias para navegação de data
   const formatDate = (date: Date) => {
-    return date.toISOString().split("T")[0];
+    return date.toISOString().split('T')[0];
   };
 
   const isToday = (date: Date) => {
@@ -176,14 +186,14 @@ const Agenda = () => {
   };
 
   // Navegação de data
-  const navigateDate = (direction: "prev" | "next") => {
+  const navigateDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(selectedDate);
-    if (viewMode === "day") {
-      newDate.setDate(newDate.getDate() + (direction === "next" ? 1 : -1));
-    } else if (viewMode === "week") {
-      newDate.setDate(newDate.getDate() + (direction === "next" ? 7 : -7));
-    } else if (viewMode === "month") {
-      newDate.setMonth(newDate.getMonth() + (direction === "next" ? 1 : -1));
+    if (viewMode === 'day') {
+      newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1));
+    } else if (viewMode === 'week') {
+      newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7));
+    } else if (viewMode === 'month') {
+      newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1));
     }
     setSelectedDate(newDate);
   };
@@ -192,19 +202,19 @@ const Agenda = () => {
   const getFilteredAppointmentsByView = () => {
     let dateFilteredAppointments = appointments;
 
-    if (viewMode === "day") {
+    if (viewMode === 'day') {
       dateFilteredAppointments = appointments.filter(
         (appointment) =>
           formatDate(new Date(appointment.appointmentAt)) ===
           formatDate(selectedDate)
       );
-    } else if (viewMode === "week") {
+    } else if (viewMode === 'week') {
       const weekDates = getWeekDates(selectedDate);
       const weekDatesStr = weekDates.map((d) => formatDate(d));
       dateFilteredAppointments = appointments.filter((appointment) =>
         weekDatesStr.includes(formatDate(new Date(appointment.appointmentAt)))
       );
-    } else if (viewMode === "month") {
+    } else if (viewMode === 'month') {
       const monthDates = getMonthDates(selectedDate);
       const monthDatesStr = monthDates.map((d) => formatDate(d));
       dateFilteredAppointments = appointments.filter((appointment) =>
@@ -247,7 +257,7 @@ const Agenda = () => {
       setOpenAddAppointmentDialog(false);
       // Toast de sucesso/erro já é disparado pelo service
     } catch (error) {
-      console.error("Erro ao agendar consulta:", error);
+      console.error('Erro ao agendar consulta:', error);
       // Toast de erro já é disparado pelo service
     }
   };
@@ -270,14 +280,14 @@ const Agenda = () => {
           <StatsCard
             title="Consultas Agendadas"
             value={
-              filteredAppointments.filter((a) => a.status === "agendada").length
+              filteredAppointments.filter((a) => a.status === 'agendada').length
             }
             icon={CalendarIcon}
           />
           <StatsCard
             title="Consultas Confirmadas"
             value={
-              filteredAppointments.filter((a) => a.status === "confirmada")
+              filteredAppointments.filter((a) => a.status === 'confirmada')
                 .length
             }
             icon={CalendarCheck2}
@@ -285,7 +295,7 @@ const Agenda = () => {
           <StatsCard
             title="Consultas Reagendadas"
             value={
-              filteredAppointments.filter((a) => a.status === "reagendada")
+              filteredAppointments.filter((a) => a.status === 'reagendada')
                 .length
             }
             icon={CalendarSync}
@@ -293,7 +303,7 @@ const Agenda = () => {
           <StatsCard
             title="Consultas Realizadas"
             value={
-              filteredAppointments.filter((a) => a.status === "realizada")
+              filteredAppointments.filter((a) => a.status === 'realizada')
                 .length
             }
             icon={CalendarFold}
@@ -360,9 +370,9 @@ const Agenda = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  setSearch("");
-                  setFilterStatus("");
-                  setFilterDoctor("");
+                  setSearch('');
+                  setFilterStatus('');
+                  setFilterDoctor('');
                 }}
                 className="text-xs h-auto p-1"
               >
@@ -396,11 +406,11 @@ const Agenda = () => {
                     className="w-full"
                     classNames={{
                       months:
-                        "flex w-full flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 flex-1",
-                      month: "space-y-2 w-full flex flex-col",
-                      table: "w-full h-full border-collapse space-y-1",
-                      head_row: "",
-                      row: "w-full mt-2",
+                        'flex w-full flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 flex-1',
+                      month: 'space-y-2 w-full flex flex-col',
+                      table: 'w-full h-full border-collapse space-y-1',
+                      head_row: '',
+                      row: 'w-full mt-2',
                     }}
                     modifiers={{
                       today: isToday,
@@ -412,7 +422,7 @@ const Agenda = () => {
                         ),
                     }}
                     modifiersClassNames={{
-                      hasAppointments: "has-appointment-day",
+                      hasAppointments: 'has-appointment-day',
                     }}
                   />
                   <style>{`
@@ -437,27 +447,27 @@ const Agenda = () => {
                 {/* View Mode Selector */}
                 <div className="flex items-center justify-center gap-1 w-full p-1 bg-muted rounded-lg">
                   <Button
-                    variant={viewMode === "day" ? "default" : "ghost"}
+                    variant={viewMode === 'day' ? 'default' : 'ghost'}
                     size="sm"
-                    onClick={() => setViewMode("day")}
+                    onClick={() => setViewMode('day')}
                     className="gap-1 text-xs flex-1 sm:flex-none"
                   >
                     <Calendar1 className="w-3 h-3" />
                     <span className="hidden sm:inline">Dia</span>
                   </Button>
                   <Button
-                    variant={viewMode === "week" ? "default" : "ghost"}
+                    variant={viewMode === 'week' ? 'default' : 'ghost'}
                     size="sm"
-                    onClick={() => setViewMode("week")}
+                    onClick={() => setViewMode('week')}
                     className="gap-1 text-xs flex-1 sm:flex-none"
                   >
                     <CalendarMinus2 className="w-3 h-3" />
                     <span className="hidden sm:inline">Semana</span>
                   </Button>
                   <Button
-                    variant={viewMode === "month" ? "default" : "ghost"}
+                    variant={viewMode === 'month' ? 'default' : 'ghost'}
                     size="sm"
-                    onClick={() => setViewMode("month")}
+                    onClick={() => setViewMode('month')}
                     className="gap-1 text-xs flex-1 sm:flex-none"
                   >
                     <CalendarDays className="w-3 h-3" />
@@ -469,34 +479,34 @@ const Agenda = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigateDate("prev")}
+                    onClick={() => navigateDate('prev')}
                     className="gap-1 text-xs"
                   >
                     <ChevronLeft className="w-3 h-3" />
                     Anterior
                   </Button>
                   <span className="flex-1 text-center font-medium text-sm">
-                    {viewMode === "day" &&
-                      selectedDate.toLocaleDateString("pt-BR", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
+                    {viewMode === 'day' &&
+                      selectedDate.toLocaleDateString('pt-BR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
                       })}
-                    {viewMode === "week" &&
-                      `Semana de ${selectedDate.toLocaleDateString("pt-BR", {
-                        day: "numeric",
-                        month: "short",
+                    {viewMode === 'week' &&
+                      `Semana de ${selectedDate.toLocaleDateString('pt-BR', {
+                        day: 'numeric',
+                        month: 'short',
                       })}`}
-                    {viewMode === "month" &&
-                      selectedDate.toLocaleDateString("pt-BR", {
-                        month: "long",
-                        year: "numeric",
+                    {viewMode === 'month' &&
+                      selectedDate.toLocaleDateString('pt-BR', {
+                        month: 'long',
+                        year: 'numeric',
                       })}
                   </span>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigateDate("next")}
+                    onClick={() => navigateDate('next')}
                     className="gap-1 text-xs"
                   >
                     Próximo
@@ -520,15 +530,15 @@ const Agenda = () => {
               height="600px"
               getBorderColor={(appointment) => {
                 switch (appointment.status) {
-                  case "confirmada":
-                    return "green";
-                  case "pendente":
-                    return "gray";
-                  case "cancelada":
-                  case "reagendada":
-                  case "concluida":
+                  case 'confirmada':
+                    return 'green';
+                  case 'pendente':
+                    return 'gray';
+                  case 'cancelada':
+                  case 'reagendada':
+                  case 'concluida':
                   default:
-                    return "blue";
+                    return 'blue';
                 }
               }}
               selectedDate={selectedDate}
@@ -565,11 +575,11 @@ const Agenda = () => {
               setOpenAddPatientDialog(false);
               // Notifica o AddAppointmentDialog para recarregar seus dados
               window.dispatchEvent(
-                new CustomEvent("refreshAppointmentDialogData")
+                new CustomEvent('refreshAppointmentDialogData')
               );
-              toast.success("Paciente cadastrado com sucesso!");
+              toast.success('Paciente cadastrado com sucesso!');
             } catch (error) {
-              console.error("Erro ao criar paciente:", error);
+              console.error('Erro ao criar paciente:', error);
             }
           }}
         />
@@ -585,20 +595,20 @@ const Agenda = () => {
               await serviceService.createService(serviceData);
               setOpenAddServiceDialog(false);
               setServiceFormData({
-                name: "",
-                description: "",
-                price: "",
-                duration: "",
-                category: "",
+                name: '',
+                description: '',
+                price: '',
+                duration: '',
+                category: '',
                 isActive: true,
               });
               // Notifica o AddAppointmentDialog para recarregar seus dados
               window.dispatchEvent(
-                new CustomEvent("refreshAppointmentDialogData")
+                new CustomEvent('refreshAppointmentDialogData')
               );
-              toast.success("Serviço cadastrado com sucesso!");
+              toast.success('Serviço cadastrado com sucesso!');
             } catch (error) {
-              console.error("Erro ao criar serviço:", error);
+              console.error('Erro ao criar serviço:', error);
             }
           }}
           onCancel={() => setOpenAddServiceDialog(false)}
@@ -613,7 +623,7 @@ const Agenda = () => {
               setOpenAddEmployeeDialog(false);
               // Notifica o AddAppointmentDialog para recarregar seus dados
               window.dispatchEvent(
-                new CustomEvent("refreshAppointmentDialogData")
+                new CustomEvent('refreshAppointmentDialogData')
               );
             } catch (error) {
               // Error is already handled in the service
