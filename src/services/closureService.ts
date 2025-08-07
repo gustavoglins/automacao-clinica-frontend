@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { webhookService, WebhookOperation } from './webhookService';
 import { Closure } from '@/types/closure';
 
 export const closureService = {
@@ -32,6 +33,9 @@ export const closureService = {
       throw new Error('Não foi possível criar o fechamento');
     }
 
+    // Enviar notificação de webhook
+    await webhookService.notifyClosures(WebhookOperation.INSERT);
+
     return data;
   },
 
@@ -54,6 +58,9 @@ export const closureService = {
       throw new Error('Não foi possível atualizar o fechamento');
     }
 
+    // Enviar notificação de webhook
+    await webhookService.notifyClosures(WebhookOperation.UPDATE);
+
     return data;
   },
 
@@ -68,6 +75,9 @@ export const closureService = {
       console.error('Erro ao deletar fechamento:', error);
       throw new Error('Não foi possível deletar o fechamento');
     }
+
+    // Enviar notificação de webhook
+    await webhookService.notifyClosures(WebhookOperation.DELETE);
   },
 
   // Buscar fechamentos por data

@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
+import { webhookService, WebhookOperation } from './webhookService';
 import type {
   Service,
   CreateServiceData,
@@ -150,6 +151,9 @@ class ServiceService {
 
       toast.success('Serviço adicionado com sucesso!');
 
+      // Enviar notificação de webhook
+      await webhookService.notifyServices(WebhookOperation.INSERT);
+
       return ServiceTransformer.fromSupabase(data);
     } catch (error) {
       console.error('Error creating service:', error);
@@ -175,6 +179,9 @@ class ServiceService {
       if (error) throw error;
 
       toast.success('Serviço atualizado com sucesso!');
+
+      // Enviar notificação de webhook
+      await webhookService.notifyServices(WebhookOperation.UPDATE);
 
       return ServiceTransformer.fromSupabase(data);
     } catch (error) {
@@ -227,6 +234,9 @@ class ServiceService {
       }
 
       toast.success('Serviço removido com sucesso!');
+
+      // Enviar notificação de webhook
+      await webhookService.notifyServices(WebhookOperation.DELETE);
     } catch (error) {
       console.error('❌ Erro ao deletar serviço:', error);
       // Toast já foi mostrado acima, não duplicar

@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
 import { isValidPhone, onlyNumbers } from '@/lib/utils';
+import { webhookService, WebhookOperation } from './webhookService';
 import type {
   Employee,
   CreateEmployeeData,
@@ -298,6 +299,9 @@ class EmployeeService {
 
       toast.success('Funcionário adicionado com sucesso!');
 
+      // Enviar notificação de webhook
+      await webhookService.notifyEmployees(WebhookOperation.INSERT);
+
       return EmployeeTransformer.fromSupabase(data);
     } catch (error) {
       console.error('Error creating employee:', error);
@@ -352,6 +356,9 @@ class EmployeeService {
 
       toast.success('Funcionário adicionado com sucesso!');
 
+      // Enviar notificação de webhook
+      await webhookService.notifyEmployees(WebhookOperation.INSERT);
+
       return EmployeeTransformer.fromSupabase(data);
     } catch (error) {
       console.error('❌ Erro ao criar funcionário:', error);
@@ -377,6 +384,9 @@ class EmployeeService {
       if (error) throw error;
 
       toast.success('Funcionário atualizado com sucesso!');
+
+      // Enviar notificação de webhook
+      await webhookService.notifyEmployees(WebhookOperation.UPDATE);
 
       return EmployeeTransformer.fromSupabase(data);
     } catch (error) {
@@ -435,6 +445,9 @@ class EmployeeService {
 
       toast.success('Funcionário atualizado com sucesso!');
 
+      // Enviar notificação de webhook
+      await webhookService.notifyEmployees(WebhookOperation.UPDATE);
+
       return EmployeeTransformer.fromSupabase(data);
     } catch (error) {
       console.error('Error updating employee:', error);
@@ -458,6 +471,9 @@ class EmployeeService {
 
       // Sempre mostrar toast de sucesso se não houve erro
       toast.success('Funcionário removido com sucesso!');
+
+      // Enviar notificação de webhook
+      await webhookService.notifyEmployees(WebhookOperation.DELETE);
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
       console.error('Error deleting employee:', error);

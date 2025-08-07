@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { webhookService, WebhookOperation } from './webhookService';
 import type {
   ClinicAddress,
   CreateClinicAddressInput,
@@ -111,6 +112,9 @@ export const clinicAddressService = {
         throw new Error('Erro ao criar endereço da clínica');
       }
 
+      // Enviar notificação de webhook
+      await webhookService.notifyClinicAddress(WebhookOperation.INSERT);
+
       return {
         id: data.id,
         logradouro: data.logradouro,
@@ -158,6 +162,9 @@ export const clinicAddressService = {
         console.error('Erro ao atualizar endereço:', error);
         throw new Error('Erro ao atualizar endereço da clínica');
       }
+
+      // Enviar notificação de webhook
+      await webhookService.notifyClinicAddress(WebhookOperation.UPDATE);
 
       return {
         id: data.id,

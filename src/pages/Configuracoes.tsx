@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useClinic } from '@/context/ClinicContext';
 import { supabase } from '@/lib/supabaseClient';
+import { webhookService, WebhookOperation } from '@/services/webhookService';
 import { Clock, Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -105,6 +106,17 @@ const Configuracoes = () => {
         toast.error('Erro ao salvar horários de funcionamento');
       } else {
         toast.success('Horários de funcionamento salvos com sucesso!');
+
+        // Enviar notificação de webhook
+        try {
+          await webhookService.notifyClinicHours(WebhookOperation.UPDATE);
+          console.log('✅ [Webhook] Notificação enviada para clinic-hours');
+        } catch (webhookError) {
+          console.error(
+            '❌ [Webhook] Erro ao enviar notificação:',
+            webhookError
+          );
+        }
       }
     } catch (error) {
       console.error('Erro ao salvar horários:', error);

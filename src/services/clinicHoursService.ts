@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
+import { webhookService, WebhookOperation } from './webhookService';
 import type {
   ClinicHours,
   CreateClinicHoursData,
@@ -111,11 +112,110 @@ export const clinicHoursService = {
       }
 
       toast.success('Horário de funcionamento salvo com sucesso!');
+
+      // Enviar notificação de webhook (para operações individuais)
+      await webhookService.notifyClinicHours(WebhookOperation.UPDATE);
+
       return transformFromSupabase(data);
     } catch (error) {
       console.error('Erro ao salvar horário de funcionamento:', error);
       toast.error('Erro ao salvar horário de funcionamento');
       return null;
+    }
+  },
+
+  // Criar ou atualizar horário de funcionamento (sem webhook - para uso em lote)
+  async upsertClinicHoursWithoutWebhook(
+    dayOfWeek: string,
+    hoursData: Omit<CreateClinicHoursData, 'dayOfWeek'>
+  ): Promise<ClinicHours | null> {
+    try {
+      const dataToUpsert = transformToSupabase({
+        dayOfWeek,
+        ...hoursData,
+      });
+
+      const { data, error } = await supabase
+        .from('clinic_hours')
+        .upsert(dataToUpsert, {
+          onConflict: 'day_of_week',
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Erro ao salvar horário de funcionamento:', error);
+        return null;
+      }
+
+      return transformFromSupabase(data);
+    } catch (error) {
+      console.error('Erro ao salvar horário de funcionamento:', error);
+      return null;
+    }
+  },
+
+  // Salvar múltiplos horários de funcionamento em lote
+  async saveMultipleClinicHours(
+    hoursArray: Array<
+      { dayOfWeek: string } & Omit<CreateClinicHoursData, 'dayOfWeek'>
+    >
+  ): Promise<boolean> {
+    try {
+      console.log('🔔 [DEBUG] Iniciando salvamento de horários múltiplos...');
+
+      for (const hours of hoursArray) {
+        console.log(
+          `🔔 [DEBUG] Salvando horário para ${hours.dayOfWeek}:`,
+          hours
+        );
+
+        const result = await this.upsertClinicHoursWithoutWebhook(
+          hours.dayOfWeek,
+          {
+            openTime: hours.openTime,
+            closeTime: hours.closeTime,
+            isOpen: hours.isOpen,
+          }
+        );
+
+        if (!result) {
+          console.error(
+            `❌ [DEBUG] Falha ao salvar horário para ${hours.dayOfWeek}`
+          );
+        } else {
+          console.log(
+            `✅ [DEBUG] Horário salvo com sucesso para ${hours.dayOfWeek}`
+          );
+        }
+      }
+
+      console.log('🔔 [DEBUG] Enviando notificação de webhook...');
+
+      // SEMPRE enviar notificação de webhook, independente de sucesso individual
+      await webhookService.notifyClinicHours(WebhookOperation.UPDATE);
+
+      console.log('✅ [DEBUG] Webhook enviado com sucesso!');
+
+      toast.success('Horários de funcionamento salvos com sucesso!');
+
+      return true;
+    } catch (error) {
+      console.error(
+        '❌ [DEBUG] Erro ao salvar horários de funcionamento:',
+        error
+      );
+      toast.error('Erro ao salvar horários de funcionamento');
+
+      // Mesmo com erro, tentar enviar webhook
+      try {
+        await webhookService.notifyClinicHours(WebhookOperation.UPDATE);
+        console.log('🔔 [DEBUG] Webhook enviado mesmo com erro no salvamento');
+      } catch (webhookError) {
+        console.error('❌ [DEBUG] Erro ao enviar webhook:', webhookError);
+      }
+
+      return false;
     }
   },
 
@@ -147,6 +247,10 @@ export const clinicHoursService = {
       }
 
       toast.success('Horário de funcionamento atualizado com sucesso!');
+
+      // Enviar notificação de webhook
+      await webhookService.notifyClinicHours(WebhookOperation.UPDATE);
+
       return transformFromSupabase(data);
     } catch (error) {
       console.error('Erro ao atualizar horário de funcionamento:', error);
