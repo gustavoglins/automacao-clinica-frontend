@@ -1,14 +1,15 @@
-import { AppLayout } from "@/components/layout/AppLayout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { useClinic } from "@/context/ClinicContext";
-import { supabase } from "@/lib/supabaseClient";
-import { Clock, Settings } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { AppLayout } from '@/components/layout/AppLayout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { useClinic } from '@/context/ClinicContext';
+import { supabase } from '@/lib/supabaseClient';
+import { Clock, Settings } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { ClinicAddressSettings } from '@/components/configuracoes';
 
 // Interface para os horários da clínica
 interface ClinicHour {
@@ -21,37 +22,37 @@ interface ClinicHour {
 
 // Mapeamento dos dias da semana para o padrão do banco
 const diasSemanaMap = {
-  segunda: "monday",
-  terca: "tuesday",
-  quarta: "wednesday",
-  quinta: "thursday",
-  sexta: "friday",
-  sabado: "saturday",
-  domingo: "sunday",
+  segunda: 'monday',
+  terca: 'tuesday',
+  quarta: 'wednesday',
+  quinta: 'thursday',
+  sexta: 'friday',
+  sabado: 'saturday',
+  domingo: 'sunday',
 };
 
 const Configuracoes = () => {
   const { clinicName, setClinicName } = useClinic();
   const [notificacoes, setNotificacoes] = useState(true);
   const [nomeClinica, setNomeClinica] = useState(clinicName);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
 
   // Estados para funcionamento da clínica
   const [horarioFuncionamento, setHorarioFuncionamento] = useState({
-    segunda: { ativo: true, inicio: "08:00", fim: "18:00" },
-    terca: { ativo: true, inicio: "08:00", fim: "18:00" },
-    quarta: { ativo: true, inicio: "08:00", fim: "18:00" },
-    quinta: { ativo: true, inicio: "08:00", fim: "18:00" },
-    sexta: { ativo: true, inicio: "08:00", fim: "18:00" },
-    sabado: { ativo: true, inicio: "08:00", fim: "12:00" },
-    domingo: { ativo: false, inicio: "08:00", fim: "18:00" },
+    segunda: { ativo: true, inicio: '08:00', fim: '18:00' },
+    terca: { ativo: true, inicio: '08:00', fim: '18:00' },
+    quarta: { ativo: true, inicio: '08:00', fim: '18:00' },
+    quinta: { ativo: true, inicio: '08:00', fim: '18:00' },
+    sexta: { ativo: true, inicio: '08:00', fim: '18:00' },
+    sabado: { ativo: true, inicio: '08:00', fim: '12:00' },
+    domingo: { ativo: false, inicio: '08:00', fim: '18:00' },
   });
 
   const [configAgendamento, setConfigAgendamento] = useState({
-    duracaoConsulta: "30",
-    intervaloConsultas: "15",
-    antecedenciaMinima: "1",
-    antecedenciaMaxima: "90",
+    duracaoConsulta: '30',
+    intervaloConsultas: '15',
+    antecedenciaMinima: '1',
+    antecedenciaMaxima: '90',
   });
 
   const [loading, setLoading] = useState(false);
@@ -64,12 +65,12 @@ const Configuracoes = () => {
 
       // Primeiro, busca os registros existentes
       const { data: existingData, error: fetchError } = await supabase
-        .from("clinic_hours")
-        .select("*");
+        .from('clinic_hours')
+        .select('*');
 
       if (fetchError) {
-        console.error("Erro ao buscar horários existentes:", fetchError);
-        toast.error("Erro ao buscar horários existentes");
+        console.error('Erro ao buscar horários existentes:', fetchError);
+        toast.error('Erro ao buscar horários existentes');
         return;
       }
 
@@ -93,21 +94,21 @@ const Configuracoes = () => {
 
       // Faz upsert (insert ou update)
       const { error } = await supabase
-        .from("clinic_hours")
+        .from('clinic_hours')
         .upsert(horariosParaSalvar, {
-          onConflict: "day_of_week",
+          onConflict: 'day_of_week',
           ignoreDuplicates: false,
         });
 
       if (error) {
-        console.error("Erro ao salvar horários:", error);
-        toast.error("Erro ao salvar horários de funcionamento");
+        console.error('Erro ao salvar horários:', error);
+        toast.error('Erro ao salvar horários de funcionamento');
       } else {
-        toast.success("Horários de funcionamento salvos com sucesso!");
+        toast.success('Horários de funcionamento salvos com sucesso!');
       }
     } catch (error) {
-      console.error("Erro ao salvar horários:", error);
-      toast.error("Erro ao salvar horários de funcionamento");
+      console.error('Erro ao salvar horários:', error);
+      toast.error('Erro ao salvar horários de funcionamento');
     } finally {
       setLoading(false);
     }
@@ -119,25 +120,25 @@ const Configuracoes = () => {
       try {
         setLoadingHorarios(true);
         const { data, error } = await supabase
-          .from("clinic_hours")
-          .select("*")
-          .order("id");
+          .from('clinic_hours')
+          .select('*')
+          .order('id');
 
         if (error) {
-          console.error("Erro ao carregar horários:", error);
+          console.error('Erro ao carregar horários:', error);
           return;
         }
 
         if (data && data.length > 0) {
           // Converte os dados do Supabase para o formato do estado local
           const horariosDB = {
-            segunda: { ativo: true, inicio: "08:00", fim: "18:00" },
-            terca: { ativo: true, inicio: "08:00", fim: "18:00" },
-            quarta: { ativo: true, inicio: "08:00", fim: "18:00" },
-            quinta: { ativo: true, inicio: "08:00", fim: "18:00" },
-            sexta: { ativo: true, inicio: "08:00", fim: "18:00" },
-            sabado: { ativo: true, inicio: "08:00", fim: "12:00" },
-            domingo: { ativo: false, inicio: "08:00", fim: "18:00" },
+            segunda: { ativo: true, inicio: '08:00', fim: '18:00' },
+            terca: { ativo: true, inicio: '08:00', fim: '18:00' },
+            quarta: { ativo: true, inicio: '08:00', fim: '18:00' },
+            quinta: { ativo: true, inicio: '08:00', fim: '18:00' },
+            sexta: { ativo: true, inicio: '08:00', fim: '18:00' },
+            sabado: { ativo: true, inicio: '08:00', fim: '12:00' },
+            domingo: { ativo: false, inicio: '08:00', fim: '18:00' },
           };
 
           Object.entries(diasSemanaMap).forEach(([diaLocal, diaDB]) => {
@@ -154,7 +155,7 @@ const Configuracoes = () => {
           setHorarioFuncionamento(horariosDB);
         }
       } catch (error) {
-        console.error("Erro ao carregar horários:", error);
+        console.error('Erro ao carregar horários:', error);
       } finally {
         setLoadingHorarios(false);
       }
@@ -166,7 +167,7 @@ const Configuracoes = () => {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     setClinicName(nomeClinica);
-    toast.success("Informações da clínica salvas com sucesso!");
+    toast.success('Informações da clínica salvas com sucesso!');
   };
 
   const handleHorarioChange = (
@@ -184,13 +185,13 @@ const Configuracoes = () => {
   };
 
   const diasSemana = [
-    { key: "segunda", label: "Segunda-feira" },
-    { key: "terca", label: "Terça-feira" },
-    { key: "quarta", label: "Quarta-feira" },
-    { key: "quinta", label: "Quinta-feira" },
-    { key: "sexta", label: "Sexta-feira" },
-    { key: "sabado", label: "Sábado" },
-    { key: "domingo", label: "Domingo" },
+    { key: 'segunda', label: 'Segunda-feira' },
+    { key: 'terca', label: 'Terça-feira' },
+    { key: 'quarta', label: 'Quarta-feira' },
+    { key: 'quinta', label: 'Quinta-feira' },
+    { key: 'sexta', label: 'Sexta-feira' },
+    { key: 'sabado', label: 'Sábado' },
+    { key: 'domingo', label: 'Domingo' },
   ];
 
   return (
@@ -223,6 +224,9 @@ const Configuracoes = () => {
             </form>
           </CardContent>
         </Card>
+
+        {/* Seção de Endereços da Clínica */}
+        <ClinicAddressSettings />
 
         {/* Seção de Funcionamento da Clínica */}
         <Card>
@@ -259,7 +263,7 @@ const Configuracoes = () => {
                             ].ativo
                           }
                           onCheckedChange={(checked) =>
-                            handleHorarioChange(dia.key, "ativo", checked)
+                            handleHorarioChange(dia.key, 'ativo', checked)
                           }
                         />
                         <Label className="font-medium text-sm sm:text-base min-w-[100px] sm:min-w-[120px]">
@@ -280,7 +284,7 @@ const Configuracoes = () => {
                             onChange={(e) =>
                               handleHorarioChange(
                                 dia.key,
-                                "inicio",
+                                'inicio',
                                 e.target.value
                               )
                             }
@@ -297,7 +301,7 @@ const Configuracoes = () => {
                             onChange={(e) =>
                               handleHorarioChange(
                                 dia.key,
-                                "fim",
+                                'fim',
                                 e.target.value
                               )
                             }
@@ -407,8 +411,8 @@ const Configuracoes = () => {
               disabled={loading}
             >
               {loading
-                ? "Salvando..."
-                : "Salvar Configurações de Funcionamento"}
+                ? 'Salvando...'
+                : 'Salvar Configurações de Funcionamento'}
             </Button>
           </CardContent>
         </Card>
