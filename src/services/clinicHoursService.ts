@@ -1,11 +1,11 @@
-import { supabase } from "@/lib/supabaseClient";
-import { toast } from "sonner";
+import { supabase } from '@/lib/supabaseClient';
+import { toast } from 'sonner';
 import type {
   ClinicHours,
   CreateClinicHoursData,
   UpdateClinicHoursData,
   DayOfWeek,
-} from "@/types/clinicHours";
+} from '@/types/clinicHours';
 
 interface SupabaseClinicHours {
   id: number;
@@ -27,7 +27,7 @@ function transformFromSupabase(data: SupabaseClinicHours): ClinicHours {
 
 function transformToSupabase(
   data: CreateClinicHoursData
-): Omit<SupabaseClinicHours, "id"> {
+): Omit<SupabaseClinicHours, 'id'> {
   return {
     day_of_week: data.dayOfWeek,
     open_time: data.openTime,
@@ -41,20 +41,20 @@ export const clinicHoursService = {
   async getAllClinicHours(): Promise<ClinicHours[]> {
     try {
       const { data, error } = await supabase
-        .from("clinic_hours")
-        .select("*")
-        .order("id");
+        .from('clinic_hours')
+        .select('*')
+        .order('id');
 
       if (error) {
-        console.error("Erro ao buscar horários de funcionamento:", error);
-        toast.error("Erro ao carregar horários de funcionamento");
+        console.error('Erro ao buscar horários de funcionamento:', error);
+        toast.error('Erro ao carregar horários de funcionamento');
         return [];
       }
 
       return data.map(transformFromSupabase);
     } catch (error) {
-      console.error("Erro ao buscar horários de funcionamento:", error);
-      toast.error("Erro ao carregar horários de funcionamento");
+      console.error('Erro ao buscar horários de funcionamento:', error);
+      toast.error('Erro ao carregar horários de funcionamento');
       return [];
     }
   },
@@ -63,24 +63,24 @@ export const clinicHoursService = {
   async getClinicHoursByDay(dayOfWeek: string): Promise<ClinicHours | null> {
     try {
       const { data, error } = await supabase
-        .from("clinic_hours")
-        .select("*")
-        .eq("day_of_week", dayOfWeek)
+        .from('clinic_hours')
+        .select('*')
+        .eq('day_of_week', dayOfWeek)
         .single();
 
       if (error) {
-        if (error.code === "PGRST116") {
+        if (error.code === 'PGRST116') {
           return null; // Não encontrado
         }
-        console.error("Erro ao buscar horário de funcionamento:", error);
-        toast.error("Erro ao carregar horário de funcionamento");
+        console.error('Erro ao buscar horário de funcionamento:', error);
+        toast.error('Erro ao carregar horário de funcionamento');
         return null;
       }
 
       return transformFromSupabase(data);
     } catch (error) {
-      console.error("Erro ao buscar horário de funcionamento:", error);
-      toast.error("Erro ao carregar horário de funcionamento");
+      console.error('Erro ao buscar horário de funcionamento:', error);
+      toast.error('Erro ao carregar horário de funcionamento');
       return null;
     }
   },
@@ -88,7 +88,7 @@ export const clinicHoursService = {
   // Criar ou atualizar horário de funcionamento
   async upsertClinicHours(
     dayOfWeek: string,
-    hoursData: Omit<CreateClinicHoursData, "dayOfWeek">
+    hoursData: Omit<CreateClinicHoursData, 'dayOfWeek'>
   ): Promise<ClinicHours | null> {
     try {
       const dataToUpsert = transformToSupabase({
@@ -97,24 +97,24 @@ export const clinicHoursService = {
       });
 
       const { data, error } = await supabase
-        .from("clinic_hours")
+        .from('clinic_hours')
         .upsert(dataToUpsert, {
-          onConflict: "day_of_week",
+          onConflict: 'day_of_week',
         })
         .select()
         .single();
 
       if (error) {
-        console.error("Erro ao salvar horário de funcionamento:", error);
-        toast.error("Erro ao salvar horário de funcionamento");
+        console.error('Erro ao salvar horário de funcionamento:', error);
+        toast.error('Erro ao salvar horário de funcionamento');
         return null;
       }
 
-      toast.success("Horário de funcionamento salvo com sucesso!");
+      toast.success('Horário de funcionamento salvo com sucesso!');
       return transformFromSupabase(data);
     } catch (error) {
-      console.error("Erro ao salvar horário de funcionamento:", error);
-      toast.error("Erro ao salvar horário de funcionamento");
+      console.error('Erro ao salvar horário de funcionamento:', error);
+      toast.error('Erro ao salvar horário de funcionamento');
       return null;
     }
   },
@@ -134,23 +134,23 @@ export const clinicHoursService = {
       if (hoursData.isOpen !== undefined) updateData.is_open = hoursData.isOpen;
 
       const { data, error } = await supabase
-        .from("clinic_hours")
+        .from('clinic_hours')
         .update(updateData)
-        .eq("id", id)
+        .eq('id', id)
         .select()
         .single();
 
       if (error) {
-        console.error("Erro ao atualizar horário de funcionamento:", error);
-        toast.error("Erro ao atualizar horário de funcionamento");
+        console.error('Erro ao atualizar horário de funcionamento:', error);
+        toast.error('Erro ao atualizar horário de funcionamento');
         return null;
       }
 
-      toast.success("Horário de funcionamento atualizado com sucesso!");
+      toast.success('Horário de funcionamento atualizado com sucesso!');
       return transformFromSupabase(data);
     } catch (error) {
-      console.error("Erro ao atualizar horário de funcionamento:", error);
-      toast.error("Erro ao atualizar horário de funcionamento");
+      console.error('Erro ao atualizar horário de funcionamento:', error);
+      toast.error('Erro ao atualizar horário de funcionamento');
       return null;
     }
   },
@@ -163,8 +163,8 @@ export const clinicHoursService = {
   ): string[] {
     const timeSlots: string[] = [];
 
-    const [openHour, openMinute] = openTime.split(":").map(Number);
-    const [closeHour, closeMinute] = closeTime.split(":").map(Number);
+    const [openHour, openMinute] = openTime.split(':').map(Number);
+    const [closeHour, closeMinute] = closeTime.split(':').map(Number);
 
     const openDate = new Date();
     openDate.setHours(openHour, openMinute, 0, 0);
@@ -175,8 +175,8 @@ export const clinicHoursService = {
     const current = new Date(openDate);
 
     while (current < closeDate) {
-      const hours = current.getHours().toString().padStart(2, "0");
-      const minutes = current.getMinutes().toString().padStart(2, "0");
+      const hours = current.getHours().toString().padStart(2, '0');
+      const minutes = current.getMinutes().toString().padStart(2, '0');
       timeSlots.push(`${hours}:${minutes}`);
 
       current.setMinutes(current.getMinutes() + intervalMinutes);
