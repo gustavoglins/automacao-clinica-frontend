@@ -31,7 +31,8 @@ class WebhookService {
 
   constructor(config?: Partial<WebhookConfig>) {
     this.config = {
-      baseUrl: 'http://localhost:5678/webhook-test',
+      // baseUrl: 'http://localhost:5678/webhook-test',
+      baseUrl: 'http://localhost:5678/webhook',
       timeout: 5000,
       retryAttempts: 3,
       retryDelay: 1000,

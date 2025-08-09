@@ -75,9 +75,6 @@ export const closureService = {
       console.error('Erro ao deletar fechamento:', error);
       throw new Error('Não foi possível deletar o fechamento');
     }
-
-    // Enviar notificação de webhook
-    await webhookService.notifyClosures(WebhookOperation.DELETE);
   },
 
   // Buscar fechamentos por data
