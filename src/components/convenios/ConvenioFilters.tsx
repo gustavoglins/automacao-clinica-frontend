@@ -1,0 +1,149 @@
+import React from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Search, Plus } from 'lucide-react';
+
+interface ConvenioFiltersProps {
+  searchTerm: string;
+  abrangenciaFilter: string;
+  coberturaFilter: string;
+  statusFilter: string;
+  onSearchChange: (value: string) => void;
+  onAbrangenciaChange: (value: string) => void;
+  onCoberturaChange: (value: string) => void;
+  onStatusChange: (value: string) => void;
+  onAddNew: () => void;
+}
+
+const coberturaOptions = [
+  { value: 'odontologico', label: 'Odontológico' },
+  { value: 'medico-odontologico', label: 'Médico-Odontológico' },
+];
+
+export const ConvenioFilters: React.FC<ConvenioFiltersProps> = ({
+  searchTerm,
+  abrangenciaFilter,
+  coberturaFilter,
+  statusFilter,
+  onSearchChange,
+  onAbrangenciaChange,
+  onCoberturaChange,
+  onStatusChange,
+  onAddNew,
+}) => {
+  const clearFilters = () => {
+    onSearchChange('');
+    onAbrangenciaChange('all');
+    onCoberturaChange('all');
+    onStatusChange('all');
+  };
+
+  const hasActiveFilters =
+    searchTerm ||
+    abrangenciaFilter !== 'all' ||
+    coberturaFilter !== 'all' ||
+    statusFilter !== 'all';
+
+  return (
+    <div className="flex flex-col gap-4 p-6 bg-card rounded-lg border shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar convênios..."
+              value={searchTerm}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Input
+            placeholder="Abrangência (ex: Nacional)"
+            value={abrangenciaFilter === 'all' ? '' : abrangenciaFilter}
+            onChange={(e) => onAbrangenciaChange(e.target.value || 'all')}
+            className="w-full sm:w-[180px]"
+          />
+          <Select value={coberturaFilter} onValueChange={onCoberturaChange}>
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue placeholder="Cobertura" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas coberturas</SelectItem>
+              {coberturaOptions.map((c) => (
+                <SelectItem key={c.value} value={c.value}>
+                  {c.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={onStatusChange}>
+            <SelectTrigger className="w-full sm:w-[150px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos status</SelectItem>
+              <SelectItem value="active">Ativo</SelectItem>
+              <SelectItem value="inactive">Inativo</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button onClick={onAddNew} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Novo Convênio
+          </Button>
+        </div>
+      </div>
+
+      {hasActiveFilters && (
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <Separator orientation="vertical" className="h-4" />
+            <div className="flex items-center gap-2">
+              <span>Filtros ativos:</span>
+              {searchTerm && (
+                <Badge variant="secondary">Busca: {searchTerm}</Badge>
+              )}
+              {abrangenciaFilter !== 'all' && (
+                <Badge variant="secondary">
+                  Abrangência: {abrangenciaFilter}
+                </Badge>
+              )}
+              {coberturaFilter !== 'all' && (
+                <Badge variant="secondary">
+                  Cobertura:{' '}
+                  {
+                    coberturaOptions.find((c) => c.value === coberturaFilter)
+                      ?.label
+                  }
+                </Badge>
+              )}
+              {statusFilter !== 'all' && (
+                <Badge variant="secondary">
+                  Status: {statusFilter === 'active' ? 'Ativos' : 'Inativos'}
+                </Badge>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="text-xs h-auto p-1"
+              >
+                Limpar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

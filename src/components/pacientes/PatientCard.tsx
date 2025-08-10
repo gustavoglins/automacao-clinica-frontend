@@ -1,8 +1,8 @@
-import { Phone, Mail } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Patient } from "@/types/patient";
-import { getPatientStatusBadge, getPlanBadge } from "@/lib/badgeUtils";
+import { Phone, Mail } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Patient } from '@/types/patient';
+import { getPatientStatusBadge, getPlanBadge } from '@/lib/badgeUtils';
 
 interface PatientCardProps {
   patient: Patient;
@@ -10,12 +10,17 @@ interface PatientCardProps {
 }
 
 export const PatientCard = ({ patient, onViewRecord }: PatientCardProps) => {
-  const getInitials = (fullName: string) => {
-    return fullName
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .slice(0, 2);
+  const getInitials = (fullName?: string | null) => {
+    const name = (fullName || '').trim();
+    if (!name) return '??';
+    return (
+      name
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((n) => n[0]?.toUpperCase() || '')
+        .join('')
+        .slice(0, 2) || '??'
+    );
   };
 
   const calculateAge = (birthDate: string) => {
@@ -33,11 +38,11 @@ export const PatientCard = ({ patient, onViewRecord }: PatientCardProps) => {
   };
 
   const formatCPF = (cpf: string) => {
-    if (!cpf) return "Não informado";
-    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    if (!cpf) return 'Não informado';
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   };
 
-  const statusBadge = getPatientStatusBadge(patient.status || "ativo");
+  const statusBadge = getPatientStatusBadge(patient.status || 'ativo');
   const planBadge = getPlanBadge();
 
   return (
@@ -51,17 +56,17 @@ export const PatientCard = ({ patient, onViewRecord }: PatientCardProps) => {
         <div className="space-y-1 min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
-              {patient.fullName}
+              {patient.fullName || 'Nome não informado'}
             </h3>
             <Badge
               variant={statusBadge.variant}
               className={`${statusBadge.className} text-xs`}
             >
-              {patient.status === "ativo"
-                ? "Ativo"
-                : patient.status === "inativo"
-                ? "Inativo"
-                : "Ativo"}
+              {patient.status === 'ativo'
+                ? 'Ativo'
+                : patient.status === 'inativo'
+                ? 'Inativo'
+                : 'Ativo'}
             </Badge>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-gray-600">

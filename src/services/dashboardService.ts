@@ -68,12 +68,40 @@ export const dashboardService = {
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-      const { data: monthlyPayments } = await supabase
-        .from('payments')
-        .select('amount_paid')
-        .gte('paid_at', startOfMonth.toISOString())
-        .lte('paid_at', endOfMonth.toISOString())
-        .eq('status', 'pago');
+      let monthlyPayments: { amount_paid: number | null }[] | null = null;
+      try {
+        const {
+          data,
+          error: paymentsError,
+          status,
+        } = await supabase
+          .from('payments')
+          .select('amount_paid')
+          .gte('paid_at', startOfMonth.toISOString())
+          .lte('paid_at', endOfMonth.toISOString())
+          .eq('status', 'pago');
+        if (paymentsError) {
+          // Ignora erro se tabela não existir (404 / undefined_table) ou permissão negada
+          const pgError = paymentsError as { code?: string } | null;
+          if (status === 404 || pgError?.code === '42P01') {
+            console.warn(
+              'Tabela payments inexistente. Considerando receita 0.'
+            );
+          } else {
+            console.warn(
+              'Erro ao buscar payments, usando receita 0:',
+              paymentsError
+            );
+          }
+        } else {
+          monthlyPayments = data;
+        }
+      } catch (paymentsUnexpected) {
+        console.warn(
+          'Falha inesperada ao consultar payments:',
+          paymentsUnexpected
+        );
+      }
 
       const monthlyRevenue =
         monthlyPayments?.reduce(

@@ -7,6 +7,7 @@ import {
   UserCheck,
   Users,
   CalendarX,
+  Building2,
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 
@@ -29,6 +30,7 @@ const mainItems = [
   { title: 'Pacientes', url: '/pacientes', icon: Users },
   { title: 'Funcionários', url: '/funcionarios', icon: UserCheck },
   { title: 'Serviços', url: '/servicos', icon: Briefcase },
+  { title: 'Convênios', url: '/convenios', icon: Building2 },
 ];
 
 const businessItems = [

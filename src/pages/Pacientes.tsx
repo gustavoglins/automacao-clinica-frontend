@@ -47,13 +47,17 @@ const Pacientes = () => {
   const { patients, setPatients, loading, fetchPatients } = usePatients();
 
   // Aplicar filtros
-  const searchFiltered = patients.filter(
-    (patient) =>
-      patient.fullName.toLowerCase().includes(query.toLowerCase()) ||
-      (patient.email &&
-        patient.email.toLowerCase().includes(query.toLowerCase())) ||
-      (patient.phone && patient.phone.includes(query))
-  );
+  const safeQuery = query.toLowerCase();
+  const searchFiltered = patients.filter((patient) => {
+    const name = patient.fullName?.toLowerCase?.() || '';
+    const email = patient.email?.toLowerCase?.() || '';
+    const phone = patient.phone || '';
+    return (
+      name.includes(safeQuery) ||
+      (email && email.includes(safeQuery)) ||
+      (phone && phone.includes(query))
+    );
+  });
 
   const filteredPatients = filterStatus
     ? searchFiltered.filter((patient) => patient.status === filterStatus)
