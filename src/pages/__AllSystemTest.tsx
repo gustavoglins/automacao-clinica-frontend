@@ -264,6 +264,41 @@ const AllSystemTest: React.FC = () => {
 
   return (
     <div style={{ padding: 24, fontFamily: 'sans-serif' }}>
+      <div className="relative overflow-hidden rounded-lg border border-red-300/40 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 px-5 py-4 shadow-lg">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(251,191,36,0.18),transparent_60%)]" />
+        <div className="relative flex gap-4">
+          <div className="h-8 w-14 p-6 text-[2rem] flex items-center justify-center rounded-full bg-gradient-to-br from-red-400 to-red-600 text-white font-bold shadow-inner shadow-red-900/30 ring-4 ring-red-400/10">
+            !
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm leading-relaxed text-red-50/90">
+              <span className="font-semibold tracking-wide text-red-300">
+                AVISO CRÍTICO:
+              </span>{' '}
+              {/* Esta página executa operações reais. Utilize apenas em ambiente
+                autorizado. Todos os registros criados são temporários e serão
+                removidos no final do teste completo. */}
+              As operações realizadas nesta página podem comprometer dados,
+              configurações, o funcionamento do sistema, o agente de
+              inteligência artificial ou outros serviços.{' '}
+              <b>
+                A Norvand Tecnologia LTDA não se responsabiliza por quaisquer
+                consequências decorrentes do uso indevido ou incorreto das
+                funcionalidades aqui disponíveis
+              </b>
+              . Recomenda-se que apenas desenvolvedores e especialistas da
+              Norvand utilizem as funções desta página.
+            </p>
+          </div>
+        </div>
+      </div>
+      <br />
+      <hr />
+      <hr />
+      <hr />
+      <hr />
+      <hr />
+      <br />
       <h1>Teste Completo do Sistema</h1>
       <p>
         Esta página executa chamadas aos principais serviços. Use Modo Completo
