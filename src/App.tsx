@@ -23,6 +23,7 @@ import Pacientes from './pages/Pacientes';
 import Relatorios from './pages/Relatorios';
 import Servicos from './pages/Servicos';
 import Convenios from './pages/Convenios';
+import AllSystemTest from './pages/__AllSystemTest';
 
 const queryClient = new QueryClient();
 
@@ -118,6 +119,15 @@ const App = () => (
                             element={
                               <ProtectedRoute>
                                 <Fechamentos />
+                              </ProtectedRoute>
+                            }
+                          />
+                          {/* Rota oculta para página de testes completos do sistema */}
+                          <Route
+                            path="/__all-tests"
+                            element={
+                              <ProtectedRoute>
+                                <AllSystemTest />
                               </ProtectedRoute>
                             }
                           />
