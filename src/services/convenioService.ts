@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
+import { webhookService, WebhookOperation } from './webhookService';
 import type {
   Convenio,
   CreateConvenioData,
@@ -87,6 +88,8 @@ class ConvenioService {
         .single();
       if (error) throw error;
       toast.success('Convênio cadastrado com sucesso');
+      // Webhook (não bloqueante em caso de falha interna)
+      await webhookService.notifyConvenios(WebhookOperation.INSERT);
       return ConvenioTransformer.fromSupabase(data);
     } catch (e: unknown) {
       const err = e as { code?: string } | undefined;
@@ -110,6 +113,7 @@ class ConvenioService {
         .single();
       if (error) throw error;
       toast.success('Convênio atualizado com sucesso');
+      await webhookService.notifyConvenios(WebhookOperation.UPDATE);
       return ConvenioTransformer.fromSupabase(data);
     } catch (e: unknown) {
       const err = e as { code?: string } | undefined;
@@ -127,6 +131,7 @@ class ConvenioService {
       const { error } = await supabase.from('convenios').delete().eq('id', id);
       if (error) throw error;
       toast.success('Convênio removido');
+      await webhookService.notifyConvenios(WebhookOperation.DELETE);
     } catch (e) {
       console.error('Erro ao remover convênio', e);
       toast.error('Erro ao remover convênio');

@@ -17,6 +17,7 @@ export enum WebhookEntity {
   CLINIC_CLOSURES = 'closures',
   SERVICES = 'services',
   EMPLOYEES = 'employees',
+  CONVENIOS = 'convenios',
 }
 
 interface WebhookConfig {
@@ -50,6 +51,7 @@ class WebhookService {
       [WebhookEntity.CLINIC_CLOSURES]: 'listener-clinic-closures',
       [WebhookEntity.SERVICES]: 'listener-services',
       [WebhookEntity.EMPLOYEES]: 'listener-employees',
+      [WebhookEntity.CONVENIOS]: 'listener-insurance',
     };
 
     return `${this.config.baseUrl}/${endpoints[entity]}`;
@@ -152,6 +154,10 @@ class WebhookService {
 
   async notifyEmployees(operation: WebhookOperation): Promise<void> {
     return this.notify(WebhookEntity.EMPLOYEES, operation);
+  }
+
+  async notifyConvenios(operation: WebhookOperation): Promise<void> {
+    return this.notify(WebhookEntity.CONVENIOS, operation);
   }
 }
 
