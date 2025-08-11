@@ -234,6 +234,9 @@ class ServiceService {
       }
 
       toast.success('Serviço removido com sucesso!');
+
+      // Notificar webhook de deleção
+      await webhookService.notifyServices(WebhookOperation.DELETE, id);
     } catch (error) {
       console.error('❌ Erro ao deletar serviço:', error);
       // Toast já foi mostrado acima, não duplicar

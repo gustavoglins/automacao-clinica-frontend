@@ -11,7 +11,7 @@ import type {
   AppointmentStats,
   ValidationResult,
   APPOINTMENT_STATUS_LABELS,
-  APPOINTMENT_STATUS_COLORS
+  APPOINTMENT_STATUS_COLORS,
 } from '@/types/appointment';
 import { AppointmentStatus } from '@/types/appointment';
 
@@ -23,7 +23,7 @@ export type {
   AppointmentFilters,
   AppointmentStats,
   ValidationResult,
-  AppointmentStatus
+  AppointmentStatus,
 };
 
 export { APPOINTMENT_STATUS_LABELS, APPOINTMENT_STATUS_COLORS };
@@ -45,37 +45,47 @@ class AppointmentTransformer {
       appointmentEnd: supabaseAppointment.appointment_end,
       status: supabaseAppointment.status,
       createdAt: supabaseAppointment.created_at,
-      updatedAt: supabaseAppointment.updated_at
+      updatedAt: supabaseAppointment.updated_at,
     };
   }
 
   /**
    * Transform CreateAppointmentData to Supabase insert format
    */
-  static toSupabaseInsert(appointmentData: CreateAppointmentData): SupabaseAppointmentInsert {
+  static toSupabaseInsert(
+    appointmentData: CreateAppointmentData
+  ): SupabaseAppointmentInsert {
     return {
       patient_id: appointmentData.patientId,
       employee_id: appointmentData.employeeId,
       service_id: appointmentData.serviceId,
       appointment_at: appointmentData.appointmentAt,
       appointment_end: appointmentData.appointmentEnd,
-      status: appointmentData.status || AppointmentStatus.AGENDADA
+      status: appointmentData.status || AppointmentStatus.AGENDADA,
     };
   }
 
   /**
    * Transform UpdateAppointmentData to Supabase update format
    */
-  static toSupabaseUpdate(appointmentData: UpdateAppointmentData): SupabaseAppointmentUpdate {
+  static toSupabaseUpdate(
+    appointmentData: UpdateAppointmentData
+  ): SupabaseAppointmentUpdate {
     const updateData: SupabaseAppointmentUpdate = {};
 
     // Only include fields that are provided
-    if (appointmentData.patientId !== undefined) updateData.patient_id = appointmentData.patientId;
-    if (appointmentData.employeeId !== undefined) updateData.employee_id = appointmentData.employeeId;
-    if (appointmentData.serviceId !== undefined) updateData.service_id = appointmentData.serviceId;
-    if (appointmentData.appointmentAt !== undefined) updateData.appointment_at = appointmentData.appointmentAt;
-    if (appointmentData.appointmentEnd !== undefined) updateData.appointment_end = appointmentData.appointmentEnd;
-    if (appointmentData.status !== undefined) updateData.status = appointmentData.status;
+    if (appointmentData.patientId !== undefined)
+      updateData.patient_id = appointmentData.patientId;
+    if (appointmentData.employeeId !== undefined)
+      updateData.employee_id = appointmentData.employeeId;
+    if (appointmentData.serviceId !== undefined)
+      updateData.service_id = appointmentData.serviceId;
+    if (appointmentData.appointmentAt !== undefined)
+      updateData.appointment_at = appointmentData.appointmentAt;
+    if (appointmentData.appointmentEnd !== undefined)
+      updateData.appointment_end = appointmentData.appointmentEnd;
+    if (appointmentData.status !== undefined)
+      updateData.status = appointmentData.status;
 
     return updateData;
   }
@@ -89,12 +99,14 @@ class AppointmentService {
     try {
       const { data, error } = await supabase
         .from('appointments')
-        .select(`
+        .select(
+          `
           *,
           patient:patients(full_name, phone, email),
           employee:employees(full_name, role),
           service:services(name, duration_minutes, price)
-        `)
+        `
+        )
         .order('appointment_at');
 
       if (error) throw error;
@@ -114,12 +126,14 @@ class AppointmentService {
     try {
       const { data, error } = await supabase
         .from('appointments')
-        .select(`
+        .select(
+          `
           *,
           patient:patients(full_name, phone, email),
           employee:employees(full_name, role),
           service:services(name, duration_minutes, price)
-        `)
+        `
+        )
         .eq('id', id)
         .single();
 
@@ -138,19 +152,24 @@ class AppointmentService {
   /**
    * Create a new appointment
    */
-  async createAppointment(appointmentData: CreateAppointmentData): Promise<Appointment> {
+  async createAppointment(
+    appointmentData: CreateAppointmentData
+  ): Promise<Appointment> {
     try {
-      const insertData = AppointmentTransformer.toSupabaseInsert(appointmentData);
+      const insertData =
+        AppointmentTransformer.toSupabaseInsert(appointmentData);
 
       const { data, error } = await supabase
         .from('appointments')
         .insert(insertData)
-        .select(`
+        .select(
+          `
           *,
           patient:patients(full_name, phone, email),
           employee:employees(full_name, role),
           service:services(name, duration_minutes, price)
-        `)
+        `
+        )
         .single();
 
       if (error) throw error;
@@ -189,20 +208,25 @@ class AppointmentService {
   /**
    * Update an existing appointment
    */
-  async updateAppointment(appointmentData: UpdateAppointmentData): Promise<Appointment> {
+  async updateAppointment(
+    appointmentData: UpdateAppointmentData
+  ): Promise<Appointment> {
     try {
-      const updateData = AppointmentTransformer.toSupabaseUpdate(appointmentData);
+      const updateData =
+        AppointmentTransformer.toSupabaseUpdate(appointmentData);
 
       const { data, error } = await supabase
         .from('appointments')
         .update(updateData)
         .eq('id', appointmentData.id)
-        .select(`
+        .select(
+          `
           *,
           patient:patients(full_name, phone, email),
           employee:employees(full_name, role),
           service:services(name, duration_minutes, price)
-        `)
+        `
+        )
         .single();
 
       if (error) throw error;
@@ -250,12 +274,14 @@ class AppointmentService {
 
       const { data, error } = await supabase
         .from('appointments')
-        .select(`
+        .select(
+          `
           *,
           patient:patients(full_name, phone, email),
           employee:employees(full_name, role),
           service:services(name, duration_minutes, price)
-        `)
+        `
+        )
         .gte('appointment_at', startOfDay.toISOString())
         .lte('appointment_at', endOfDay.toISOString())
         .order('appointment_at');
@@ -277,12 +303,14 @@ class AppointmentService {
     try {
       const { data, error } = await supabase
         .from('appointments')
-        .select(`
+        .select(
+          `
           *,
           patient:patients(full_name, phone, email),
           employee:employees(full_name, role),
           service:services(name, duration_minutes, price)
-        `)
+        `
+        )
         .eq('employee_id', employeeId)
         .order('appointment_at');
 
@@ -307,13 +335,17 @@ class AppointmentService {
 
       const { data, error } = await supabase
         .from('appointments')
-        .select(`
+        .select(
+          `
           *,
           patient:patients(full_name, phone, email),
           employee:employees(full_name, role),
           service:services(name, duration_minutes, price)
-        `)
-        .or(`patient.full_name.ilike.%${searchTerm}%,employee.full_name.ilike.%${searchTerm}%,service.name.ilike.%${searchTerm}%`)
+        `
+        )
+        .or(
+          `patient.full_name.ilike.%${searchTerm}%,employee.full_name.ilike.%${searchTerm}%,service.name.ilike.%${searchTerm}%`
+        )
         .order('appointment_at');
 
       if (error) throw error;
@@ -329,11 +361,11 @@ class AppointmentService {
   /**
    * Filter appointments by various criteria
    */
-  async filterAppointments(filters: AppointmentFilters): Promise<Appointment[]> {
+  async filterAppointments(
+    filters: AppointmentFilters
+  ): Promise<Appointment[]> {
     try {
-      let query = supabase
-        .from('appointments')
-        .select(`
+      let query = supabase.from('appointments').select(`
           *,
           patient:patients(full_name, phone, email),
           employee:employees(full_name, role),
@@ -342,7 +374,9 @@ class AppointmentService {
 
       // Apply search filter
       if (filters.search) {
-        query = query.or(`patient.full_name.ilike.%${filters.search}%,employee.full_name.ilike.%${filters.search}%,service.name.ilike.%${filters.search}%`);
+        query = query.or(
+          `patient.full_name.ilike.%${filters.search}%,employee.full_name.ilike.%${filters.search}%,service.name.ilike.%${filters.search}%`
+        );
       }
 
       // Apply status filter
@@ -442,7 +476,7 @@ class AppointmentService {
       if (statusError) throw statusError;
 
       const byStatus: Record<string, number> = {};
-      statusData?.forEach(appointment => {
+      statusData?.forEach((appointment) => {
         byStatus[appointment.status] = (byStatus[appointment.status] || 0) + 1;
       });
 
@@ -454,8 +488,9 @@ class AppointmentService {
       if (employeeError) throw employeeError;
 
       const byEmployee: Record<string, number> = {};
-      employeeData?.forEach(appointment => {
-        byEmployee[appointment.employee_id] = (byEmployee[appointment.employee_id] || 0) + 1;
+      employeeData?.forEach((appointment) => {
+        byEmployee[appointment.employee_id] =
+          (byEmployee[appointment.employee_id] || 0) + 1;
       });
 
       return {
@@ -464,7 +499,7 @@ class AppointmentService {
         thisWeek: thisWeek || 0,
         thisMonth: thisMonth || 0,
         byStatus,
-        byEmployee
+        byEmployee,
       };
     } catch (error) {
       console.error('Error getting appointment stats:', error);
@@ -508,14 +543,14 @@ class AppointmentService {
       appointment.patient = {
         fullName: data.patient.full_name,
         phone: data.patient.phone,
-        email: data.patient.email
+        email: data.patient.email,
       };
     }
 
     if (data.employee) {
       appointment.employee = {
         fullName: data.employee.full_name,
-        role: data.employee.role
+        role: data.employee.role,
       };
     }
 
@@ -523,7 +558,7 @@ class AppointmentService {
       appointment.service = {
         name: data.service.name,
         durationMinutes: data.service.duration_minutes,
-        price: data.service.price
+        price: data.service.price,
       };
     }
 
@@ -533,7 +568,9 @@ class AppointmentService {
   /**
    * Validate appointment data
    */
-  validateAppointmentData(data: CreateAppointmentData | UpdateAppointmentData): ValidationResult {
+  validateAppointmentData(
+    data: CreateAppointmentData | UpdateAppointmentData
+  ): ValidationResult {
     const errors: string[] = [];
 
     // Validate required fields
@@ -571,10 +608,10 @@ class AppointmentService {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 }
 
 // Export singleton instance
-export const appointmentService = new AppointmentService(); 
+export const appointmentService = new AppointmentService();

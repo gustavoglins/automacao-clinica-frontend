@@ -1,6 +1,6 @@
-import { supabase } from "@/lib/supabaseClient";
-import { toast } from "sonner";
-import { isValidPhone, onlyNumbers } from "@/lib/utils";
+import { supabase } from '@/lib/supabaseClient';
+import { toast } from 'sonner';
+import { isValidPhone, onlyNumbers } from '@/lib/utils';
 import type {
   Patient,
   CreatePatientData,
@@ -12,7 +12,7 @@ import type {
   PatientFilters,
   PatientStats,
   ValidationResult,
-} from "@/types/patient";
+} from '@/types/patient';
 
 // Re-export types for backward compatibility
 export type {
@@ -89,9 +89,9 @@ class PatientService {
   async getAllPatients(): Promise<Patient[]> {
     try {
       const { data, error } = await supabase
-        .from("patients_with_status")
-        .select("*")
-        .order("full_name");
+        .from('patients_with_status')
+        .select('*')
+        .order('full_name');
 
       if (error) throw error;
 
@@ -107,8 +107,8 @@ class PatientService {
         status: patient.status, // Campo vindo da view
       }));
     } catch (error) {
-      console.error("Error fetching patients:", error);
-      toast.error("Erro ao carregar pacientes");
+      console.error('Error fetching patients:', error);
+      toast.error('Erro ao carregar pacientes');
       throw error;
     }
   }
@@ -119,9 +119,9 @@ class PatientService {
   async getPatientById(id: string): Promise<Patient | null> {
     try {
       const { data, error } = await supabase
-        .from("patients")
-        .select("*")
-        .eq("id", id)
+        .from('patients')
+        .select('*')
+        .eq('id', id)
         .single();
 
       if (error) throw error;
@@ -130,8 +130,8 @@ class PatientService {
 
       return PatientTransformer.fromSupabase(data);
     } catch (error) {
-      console.error("Error fetching patient by ID:", error);
-      toast.error("Erro ao carregar paciente");
+      console.error('Error fetching patient by ID:', error);
+      toast.error('Erro ao carregar paciente');
       throw error;
     }
   }
@@ -144,19 +144,19 @@ class PatientService {
       const insertData = PatientTransformer.toSupabaseInsert(patientData);
 
       const { data, error } = await supabase
-        .from("patients")
+        .from('patients')
         .insert(insertData)
         .select()
         .single();
 
       if (error) throw error;
 
-      toast.success("Paciente adicionado com sucesso!");
+      toast.success('Paciente adicionado com sucesso!');
 
       return PatientTransformer.fromSupabase(data);
     } catch (error) {
-      console.error("Error creating patient:", error);
-      toast.error("Erro ao adicionar paciente");
+      console.error('Error creating patient:', error);
+      toast.error('Erro ao adicionar paciente');
       throw error;
     }
   }
@@ -169,20 +169,20 @@ class PatientService {
       const updateData = PatientTransformer.toSupabaseUpdate(patientData);
 
       const { data, error } = await supabase
-        .from("patients")
+        .from('patients')
         .update(updateData)
-        .eq("id", patientData.id)
+        .eq('id', patientData.id)
         .select()
         .single();
 
       if (error) throw error;
 
-      toast.success("Paciente atualizado com sucesso!");
+      toast.success('Paciente atualizado com sucesso!');
 
       return PatientTransformer.fromSupabase(data);
     } catch (error) {
-      console.error("Error updating patient:", error);
-      toast.error("Erro ao atualizar paciente");
+      console.error('Error updating patient:', error);
+      toast.error('Erro ao atualizar paciente');
       throw error;
     }
   }
@@ -192,14 +192,16 @@ class PatientService {
    */
   async deletePatient(id: string): Promise<void> {
     try {
-      const { error } = await supabase.from("patients").delete().eq("id", id);
+      const { error } = await supabase.from('patients').delete().eq('id', id);
 
       if (error) throw error;
 
-      toast.success("Paciente removido com sucesso!");
+      toast.success('Paciente removido com sucesso!');
+
+      // Notificar webhook
     } catch (error) {
-      console.error("Error deleting patient:", error);
-      toast.error("Erro ao remover paciente");
+      console.error('Error deleting patient:', error);
+      toast.error('Erro ao remover paciente');
       throw error;
     }
   }
@@ -214,19 +216,19 @@ class PatientService {
       }
 
       const { data, error } = await supabase
-        .from("patients")
-        .select("*")
+        .from('patients')
+        .select('*')
         .or(
           `full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`
         )
-        .order("full_name");
+        .order('full_name');
 
       if (error) throw error;
 
       return data.map(PatientTransformer.fromSupabase);
     } catch (error) {
-      console.error("Error searching patients:", error);
-      toast.error("Erro ao buscar pacientes");
+      console.error('Error searching patients:', error);
+      toast.error('Erro ao buscar pacientes');
       throw error;
     }
   }
@@ -236,7 +238,7 @@ class PatientService {
    */
   async filterPatients(filters: PatientFilters): Promise<Patient[]> {
     try {
-      let query = supabase.from("patients").select("*");
+      let query = supabase.from('patients').select('*');
 
       // Apply search filter
       if (filters.search) {
@@ -245,14 +247,14 @@ class PatientService {
         );
       }
 
-      const { data, error } = await query.order("full_name");
+      const { data, error } = await query.order('full_name');
 
       if (error) throw error;
 
       return data.map(PatientTransformer.fromSupabase);
     } catch (error) {
-      console.error("Error filtering patients:", error);
-      toast.error("Erro ao filtrar pacientes");
+      console.error('Error filtering patients:', error);
+      toast.error('Erro ao filtrar pacientes');
       throw error;
     }
   }
@@ -264,16 +266,16 @@ class PatientService {
     try {
       // Get total patients from the new view
       const { count: total, error: totalError } = await supabase
-        .from("patients_with_status")
-        .select("*", { count: "exact", head: true });
+        .from('patients_with_status')
+        .select('*', { count: 'exact', head: true });
 
       if (totalError) throw totalError;
 
       // Get active patients from the new view
       const { count: active, error: activeError } = await supabase
-        .from("patients_with_status")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "ativo");
+        .from('patients_with_status')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'ativo');
 
       if (activeError) throw activeError;
 
@@ -283,19 +285,19 @@ class PatientService {
       startOfMonth.setHours(0, 0, 0, 0);
 
       const { count: newThisMonth, error: monthError } = await supabase
-        .from("patients_with_status")
-        .select("*", { count: "exact", head: true })
-        .gte("created_at", startOfMonth.toISOString());
+        .from('patients_with_status')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', startOfMonth.toISOString());
 
       if (monthError) throw monthError;
 
       // Get upcoming appointments count
       const { count: upcomingAppointments, error: appointmentsError } =
         await supabase
-          .from("appointments")
-          .select("*", { count: "exact", head: true })
-          .gte("appointment_at", new Date().toISOString())
-          .eq("status", "agendada");
+          .from('appointments')
+          .select('*', { count: 'exact', head: true })
+          .gte('appointment_at', new Date().toISOString())
+          .eq('status', 'agendada');
 
       if (appointmentsError) throw appointmentsError;
 
@@ -306,8 +308,8 @@ class PatientService {
         upcomingAppointments: upcomingAppointments || 0,
       };
     } catch (error) {
-      console.error("Error getting patient stats:", error);
-      toast.error("Erro ao carregar estatísticas");
+      console.error('Error getting patient stats:', error);
+      toast.error('Erro ao carregar estatísticas');
       throw error;
     }
   }
@@ -322,32 +324,32 @@ class PatientService {
 
     // Validate required fields
     if (!data.fullName?.trim()) {
-      errors.push("Nome completo é obrigatório");
+      errors.push('Nome completo é obrigatório');
     }
 
     if (!data.cpf?.trim()) {
-      errors.push("CPF é obrigatório");
+      errors.push('CPF é obrigatório');
     } else if (!this.isValidCPF(data.cpf)) {
-      errors.push("CPF inválido");
+      errors.push('CPF inválido');
     }
 
     if (!data.birthDate) {
-      errors.push("Data de nascimento é obrigatória");
+      errors.push('Data de nascimento é obrigatória');
     } else {
       const birthDate = new Date(data.birthDate);
       const today = new Date();
       if (birthDate > today) {
-        errors.push("Data de nascimento não pode ser no futuro");
+        errors.push('Data de nascimento não pode ser no futuro');
       }
     }
 
     // Validate optional fields
     if (data.phone && !isValidPhone(data.phone)) {
-      errors.push("Telefone inválido");
+      errors.push('Telefone inválido');
     }
 
     if (data.email && !this.isValidEmail(data.email)) {
-      errors.push("E-mail inválido");
+      errors.push('E-mail inválido');
     }
 
     return {
@@ -361,7 +363,7 @@ class PatientService {
    */
   private isValidCPF(cpf: string): boolean {
     // Remove non-numeric characters
-    const cleanCPF = cpf.replace(/\D/g, "");
+    const cleanCPF = cpf.replace(/\D/g, '');
 
     // Check if it has 11 digits
     if (cleanCPF.length !== 11) return false;
@@ -405,8 +407,8 @@ export const patientService = new PatientService();
 export const normalizeText = (text: string) => {
   return text
     .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // Remove acentos
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
     .trim();
 };
 
@@ -419,8 +421,8 @@ export const searchPatients = (patients: Patient[], searchTerm: string) => {
     // Campos pesquisáveis normalizados
     const searchableFields = [
       normalizeText(patient.fullName),
-      normalizeText(patient.email || ""),
-      patient.phone?.replace(/\D/g, "") || "", // Apenas números
+      normalizeText(patient.email || ''),
+      patient.phone?.replace(/\D/g, '') || '', // Apenas números
     ];
 
     // Verifica se o termo está presente em qualquer campo

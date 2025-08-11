@@ -131,7 +131,7 @@ class ConvenioService {
       const { error } = await supabase.from('convenios').delete().eq('id', id);
       if (error) throw error;
       toast.success('Convênio removido');
-      await webhookService.notifyConvenios(WebhookOperation.DELETE);
+      await webhookService.notifyConvenios(WebhookOperation.DELETE, id);
     } catch (e) {
       console.error('Erro ao remover convênio', e);
       toast.error('Erro ao remover convênio');

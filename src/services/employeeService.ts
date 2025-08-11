@@ -471,6 +471,9 @@ class EmployeeService {
 
       // Sempre mostrar toast de sucesso se não houve erro
       toast.success('Funcionário removido com sucesso!');
+
+      // Notificar webhook
+      await webhookService.notifyEmployees(WebhookOperation.DELETE, id);
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
       console.error('Error deleting employee:', error);

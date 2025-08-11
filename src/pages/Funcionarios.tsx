@@ -83,14 +83,19 @@ function Funcionarios() {
 
   // Filter employees based on current filters
   const filteredEmployees = employees.filter((employee) => {
-    const searchLower = filters.search.toLowerCase();
-    const searchNumbers = onlyNumbers(filters.search);
+    const rawSearch = filters.search.trim();
+    const searchLower = rawSearch.toLowerCase();
+    const searchNumbers = onlyNumbers(rawSearch);
 
-    const matchesSearch =
-      employee.fullName.toLowerCase().includes(searchLower) ||
-      (employee.email && employee.email.toLowerCase().includes(searchLower)) ||
-      (employee.phone && employee.phone.includes(searchNumbers)) ||
-      (employee.phone && employee.phone.includes(filters.search));
+    // Se não há busca, todos passam
+    let matchesSearch = true;
+    if (rawSearch) {
+      matchesSearch =
+        employee.fullName.toLowerCase().includes(searchLower) ||
+        (!!employee.email && employee.email.toLowerCase().includes(searchLower)) ||
+        (searchNumbers !== '' && !!employee.phone && employee.phone.includes(searchNumbers)) ||
+        (!!employee.phone && employee.phone.includes(rawSearch));
+    }
 
     const matchesRole =
       !filters.role || filters.role === 'all' || employee.role === filters.role;

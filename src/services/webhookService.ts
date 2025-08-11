@@ -62,22 +62,37 @@ class WebhookService {
    */
   async notify(
     entity: WebhookEntity,
-    operation: WebhookOperation
+    operation: WebhookOperation,
+    resourceId?: string | number
   ): Promise<void> {
-    const url = this.getEndpoint(entity);
+    let url = this.getEndpoint(entity);
+    if (operation === WebhookOperation.DELETE && resourceId !== undefined) {
+      // Acrescenta o ID como query param para facilitar consumo
+      const separator = url.includes('?') ? '&' : '?';
+      url = `${url}${separator}id=${encodeURIComponent(resourceId)}`;
+    }
 
     console.log(
       `🔔 [Webhook] Enviando notificação: ${operation} para ${entity} -> ${url}`
     );
 
     try {
-      await this.sendWithRetry(url);
+      const method = operation === WebhookOperation.DELETE ? 'DELETE' : 'POST';
+      const body =
+        operation === WebhookOperation.DELETE && resourceId !== undefined
+          ? JSON.stringify({ id: resourceId })
+          : undefined;
+      await this.sendWithRetry(url, method, body);
       console.log(
-        `✅ [Webhook] Notificação enviada com sucesso: ${operation} ${entity}`
+        `✅ [Webhook] Notificação enviada com sucesso: ${operation} ${entity}${
+          resourceId !== undefined ? ' id=' + resourceId : ''
+        }`
       );
     } catch (error) {
       console.error(
-        `❌ [Webhook] Falha ao enviar notificação: ${operation} ${entity}`,
+        `❌ [Webhook] Falha ao enviar notificação: ${operation} ${entity}${
+          resourceId !== undefined ? ' id=' + resourceId : ''
+        }`,
         error
       );
       // Não lançamos o erro para não interromper a operação principal
@@ -87,17 +102,25 @@ class WebhookService {
   /**
    * Envia a requisição com retry
    */
-  private async sendWithRetry(url: string, attempt = 1): Promise<void> {
+  private async sendWithRetry(
+    url: string,
+    method: 'POST' | 'DELETE',
+    body?: string,
+    attempt = 1
+  ): Promise<void> {
     console.log(
-      `🌐 [Webhook] Tentativa ${attempt} - Enviando POST para: ${url}`
+      `🌐 [Webhook] Tentativa ${attempt} - Enviando ${method} para: ${url}${
+        body ? ' (com body)' : ''
+      }`
     );
 
     try {
       const response = await fetch(url, {
-        method: 'POST',
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
+        body,
         signal: AbortSignal.timeout(this.config.timeout),
       });
 
@@ -120,7 +143,7 @@ class WebhookService {
           `🔄 [Webhook] Tentativa ${attempt} falhou, tentando novamente em ${this.config.retryDelay}ms...`
         );
         await this.delay(this.config.retryDelay);
-        return this.sendWithRetry(url, attempt + 1);
+        return this.sendWithRetry(url, method, body, attempt + 1);
       }
       throw error;
     }
@@ -136,28 +159,46 @@ class WebhookService {
   /**
    * Métodos de conveniência para cada entidade
    */
-  async notifyClinicAddress(operation: WebhookOperation): Promise<void> {
-    return this.notify(WebhookEntity.CLINIC_ADDRESS, operation);
+  async notifyClinicAddress(
+    operation: WebhookOperation,
+    id?: string | number
+  ): Promise<void> {
+    return this.notify(WebhookEntity.CLINIC_ADDRESS, operation, id);
   }
 
-  async notifyClinicHours(operation: WebhookOperation): Promise<void> {
-    return this.notify(WebhookEntity.CLINIC_HOURS, operation);
+  async notifyClinicHours(
+    operation: WebhookOperation,
+    id?: string | number
+  ): Promise<void> {
+    return this.notify(WebhookEntity.CLINIC_HOURS, operation, id);
   }
 
-  async notifyClosures(operation: WebhookOperation): Promise<void> {
-    return this.notify(WebhookEntity.CLINIC_CLOSURES, operation);
+  async notifyClosures(
+    operation: WebhookOperation,
+    id?: string | number
+  ): Promise<void> {
+    return this.notify(WebhookEntity.CLINIC_CLOSURES, operation, id);
   }
 
-  async notifyServices(operation: WebhookOperation): Promise<void> {
-    return this.notify(WebhookEntity.SERVICES, operation);
+  async notifyServices(
+    operation: WebhookOperation,
+    id?: string | number
+  ): Promise<void> {
+    return this.notify(WebhookEntity.SERVICES, operation, id);
   }
 
-  async notifyEmployees(operation: WebhookOperation): Promise<void> {
-    return this.notify(WebhookEntity.EMPLOYEES, operation);
+  async notifyEmployees(
+    operation: WebhookOperation,
+    id?: string | number
+  ): Promise<void> {
+    return this.notify(WebhookEntity.EMPLOYEES, operation, id);
   }
 
-  async notifyConvenios(operation: WebhookOperation): Promise<void> {
-    return this.notify(WebhookEntity.CONVENIOS, operation);
+  async notifyConvenios(
+    operation: WebhookOperation,
+    id?: string | number
+  ): Promise<void> {
+    return this.notify(WebhookEntity.CONVENIOS, operation, id);
   }
 }
 
