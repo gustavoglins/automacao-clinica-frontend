@@ -280,31 +280,28 @@ const Agenda = () => {
           <StatsCard
             title="Consultas Agendadas"
             value={
-              filteredAppointments.filter((a) => a.status === 'agendada').length
+              appointments.filter((a) => a.status === 'agendada').length
             }
             icon={CalendarIcon}
           />
           <StatsCard
             title="Consultas Confirmadas"
             value={
-              filteredAppointments.filter((a) => a.status === 'confirmada')
-                .length
+              appointments.filter((a) => a.status === 'confirmada').length
             }
             icon={CalendarCheck2}
           />
           <StatsCard
             title="Consultas Reagendadas"
             value={
-              filteredAppointments.filter((a) => a.status === 'reagendada')
-                .length
+              appointments.filter((a) => a.status === 'reagendada').length
             }
             icon={CalendarSync}
           />
           <StatsCard
             title="Consultas Realizadas"
             value={
-              filteredAppointments.filter((a) => a.status === 'realizada')
-                .length
+              appointments.filter((a) => a.status === 'realizada').length
             }
             icon={CalendarFold}
           />

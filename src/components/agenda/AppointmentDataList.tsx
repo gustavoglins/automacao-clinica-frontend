@@ -1,21 +1,21 @@
-import React from "react";
-import { DataList } from "@/components/ui/data-list";
-import { createFetchDataFromArray } from "@/lib/dataListUtils";
-import { Appointment } from "@/types/appointment";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, User, Stethoscope, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { DataList } from '@/components/ui/data-list';
+import { createFetchDataFromArray } from '@/lib/dataListUtils';
+import { Appointment } from '@/types/appointment';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Clock, User, Stethoscope, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface AppointmentDataListProps {
   appointments: Appointment[];
   onViewAppointment?: (appointment: Appointment) => void;
   onAddNew?: () => void;
-  pagination?: "paged" | "infinite";
+  pagination?: 'paged' | 'infinite';
   pageSize?: number;
   height?: string;
-  viewMode?: "day" | "week" | "month";
-  getBorderColor?: (appointment: Appointment) => "green" | "gray" | "blue";
+  viewMode?: 'day' | 'week' | 'month';
+  getBorderColor?: (appointment: Appointment) => 'green' | 'gray' | 'blue';
   selectedDate?: Date;
 }
 
@@ -23,10 +23,10 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
   appointments,
   onViewAppointment,
   onAddNew,
-  pagination = "paged",
+  pagination = 'paged',
   pageSize = 6,
-  height = "500px",
-  viewMode = "day",
+  height = '500px',
+  viewMode = 'day',
   getBorderColor,
   selectedDate,
 }) => {
@@ -34,33 +34,33 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "confirmada":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "pendente":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "reagendada":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "cancelada":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "concluida":
-        return "bg-gray-100 text-gray-800 border-gray-200";
+      case 'confirmada':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'pendente':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'reagendada':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'cancelada':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'concluida':
+        return 'bg-gray-100 text-gray-800 border-gray-200';
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "confirmada":
-        return "Confirmada";
-      case "pendente":
-        return "Pendente";
-      case "reagendada":
-        return "Reagendada";
-      case "cancelada":
-        return "Cancelada";
-      case "concluida":
-        return "Concluída";
+      case 'confirmada':
+        return 'Confirmada';
+      case 'pendente':
+        return 'Pendente';
+      case 'reagendada':
+        return 'Reagendada';
+      case 'cancelada':
+        return 'Cancelada';
+      case 'concluida':
+        return 'Concluída';
       default:
         return status;
     }
@@ -68,19 +68,19 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
 
   const renderAppointmentItem = (appointment: Appointment) => {
     const appointmentDate = new Date(appointment.appointmentAt);
-    const formattedDate = appointmentDate.toLocaleDateString("pt-BR");
-    const formattedTime = appointmentDate.toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
+    const formattedDate = appointmentDate.toLocaleDateString('pt-BR');
+    const formattedTime = appointmentDate.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
     });
 
     // Definir cor da borda esquerda
-    let borderColor = "border-l-blue-500";
+    let borderColor = 'border-l-blue-500';
     if (getBorderColor) {
       const color = getBorderColor(appointment);
-      if (color === "green") borderColor = "border-l-green-500";
-      else if (color === "gray") borderColor = "border-l-gray-400";
-      else borderColor = "border-l-blue-500";
+      if (color === 'green') borderColor = 'border-l-green-500';
+      else if (color === 'gray') borderColor = 'border-l-gray-400';
+      else borderColor = 'border-l-blue-500';
     }
 
     return (
@@ -94,15 +94,15 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
           </div>
           <div>
             <p className="font-medium text-gray-900">
-              {appointment.patient?.fullName || "Paciente não encontrado"}
+              {appointment.patient?.fullName || 'Paciente não encontrado'}
             </p>
             <p className="text-sm text-gray-600">
-              {appointment.service?.name || "Serviço não encontrado"}
+              {appointment.service?.name || 'Serviço não encontrado'}
             </p>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-xs text-gray-500 flex items-center gap-1">
                 <User className="w-3 h-3" />
-                {appointment.employee?.fullName || "Funcionário não encontrado"}
+                {appointment.employee?.fullName || 'Funcionário não encontrado'}
               </span>
               <span className="text-xs text-gray-500 flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
@@ -120,7 +120,7 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
             <Button size="sm" variant="outline">
               Ver Mais
             </Button>
-            {appointment.status === "pendente" && (
+            {appointment.status === 'pendente' && (
               <Button size="sm" variant="default">
                 Confirmar
               </Button>
@@ -132,24 +132,31 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
   };
 
   const getTitle = () => {
-    let title = "Consultas Agendadas";
+    let title = '';
     if (selectedDate) {
-      if (viewMode === "day") {
-        title += ` - ${selectedDate.toLocaleDateString("pt-BR", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
+      if (viewMode === 'day') {
+        // Dia da semana por extenso, primeira letra maiúscula
+        const weekday = selectedDate.toLocaleDateString('pt-BR', {
+          weekday: 'long',
+        });
+        const weekdayCapitalized =
+          weekday.charAt(0).toUpperCase() + weekday.slice(1);
+        const dateStr = selectedDate.toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        });
+        title = `${weekdayCapitalized}, ${dateStr}`;
+      } else if (viewMode === 'week') {
+        title = `Semana de ${selectedDate.toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
         })}`;
-      } else if (viewMode === "week") {
-        title += ` - Semana de ${selectedDate.toLocaleDateString("pt-BR", {
-          day: "2-digit",
-          month: "2-digit",
-        })}`;
-      } else if (viewMode === "month") {
-        title += ` - ${selectedDate.toLocaleDateString("pt-BR", {
-          month: "long",
-          year: "numeric",
-        })}`;
+      } else if (viewMode === 'month') {
+        title = selectedDate.toLocaleDateString('pt-BR', {
+          month: 'long',
+          year: 'numeric',
+        });
       }
     }
     return title;
@@ -159,18 +166,18 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
     const total = appointments.length;
     // Realizadas: status === 'realizada'
     const realizadas = appointments.filter(
-      (a) => a.status === "realizada"
+      (a) => a.status === 'realizada'
     ).length;
     // Agendadas: status === 'agendada'
     const agendadas = appointments.filter(
-      (a) => a.status === "agendada"
+      (a) => a.status === 'agendada'
     ).length;
 
     return `${total} consulta${
-      total !== 1 ? "s" : ""
+      total !== 1 ? 's' : ''
     } • ${realizadas} realizada${
-      realizadas !== 1 ? "s" : ""
-    } • ${agendadas} agendada${agendadas !== 1 ? "s" : ""}`;
+      realizadas !== 1 ? 's' : ''
+    } • ${agendadas} agendada${agendadas !== 1 ? 's' : ''}`;
   };
 
   return (
@@ -187,11 +194,11 @@ export const AppointmentDataList: React.FC<AppointmentDataListProps> = ({
       }
       emptyStateTitle="Nenhuma consulta agendada"
       emptyStateDescription={`Não há consultas agendadas para ${
-        viewMode === "day"
-          ? "hoje"
-          : viewMode === "week"
-          ? "esta semana"
-          : "este mês"
+        viewMode === 'day'
+          ? 'hoje'
+          : viewMode === 'week'
+          ? 'esta semana'
+          : 'este mês'
       }.`}
       emptyStateAction={
         onAddNew && (
