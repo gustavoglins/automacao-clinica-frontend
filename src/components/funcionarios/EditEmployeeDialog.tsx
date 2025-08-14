@@ -1,26 +1,26 @@
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { employeeService, type Employee } from "@/services/employeeService";
-import { toast } from "sonner";
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { employeeService, type Employee } from '@/services/employeeService';
+import { toast } from 'sonner';
 import {
   applyPhoneMask,
   applyCpfMask,
@@ -28,8 +28,8 @@ import {
   isValidPhone,
   formatPhone,
   getPhoneInfo,
-} from "@/lib/utils";
-import { RequiredFieldsNote } from "@/components/ui/required-fields-note";
+} from '@/lib/utils';
+import { RequiredFieldsNote } from '@/components/ui/required-fields-note';
 import {
   UserPen,
   User,
@@ -40,7 +40,7 @@ import {
   Check,
   X,
   Clock,
-} from "lucide-react";
+} from 'lucide-react';
 
 interface EditEmployeeDialogProps {
   employee: Employee | null;
@@ -57,24 +57,24 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
   employeeWorkDays,
 }) => {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    cpf: "",
-    role: "",
-    specialty: "",
-    registrationNumber: "",
-    hireDate: "",
-    salary: "",
-    status: "ativo",
+    name: '',
+    email: '',
+    phone: '',
+    cpf: '',
+    role: '',
+    specialty: '',
+    registrationNumber: '',
+    hireDate: '',
+    salary: '',
+    status: 'ativo',
     visibleOnSchedule: true,
     acceptsOnlineBooking: true,
     showContact: false,
-    avatarUrl: "",
-    notes: "",
-    workDays: ["Seg", "Ter", "Qua", "Qui", "Sex"] as string[],
-    startHour: "08:00",
-    endHour: "18:00",
+    avatarUrl: '',
+    notes: '',
+    workDays: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'] as string[],
+    startHour: '08:00',
+    endHour: '18:00',
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -82,43 +82,43 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
   React.useEffect(() => {
     if (employee) {
       // Ordem dos botões e mapeamento: [Seg, Ter, Qua, Qui, Sex, Sáb, Dom]
-      const diasPadrao = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+      const diasPadrao = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
       let workDays: string[] = [];
       if (Array.isArray(employeeWorkDays) && employeeWorkDays.length > 0) {
         // 0=Dom, 1=Seg, ..., 6=Sáb
         // Para marcar corretamente, converte cada número para a string do botão correspondente
         // 0->Dom, 1->Seg, ..., 6->Sáb
-        const mapNumToStr = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+        const mapNumToStr = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         workDays = employeeWorkDays
-          .map((n) => mapNumToStr[n] ?? "")
+          .map((n) => mapNumToStr[n] ?? '')
           .filter(Boolean);
       } else if (Array.isArray(employee.workDays)) {
         // fallback para compatibilidade antiga
         const normalizarDia = (dia: string) => {
           const mapa: Record<string, string> = {
-            seg: "Seg",
-            segunda: "Seg",
-            "segunda-feira": "Seg",
-            ter: "Ter",
-            terca: "Ter",
-            terça: "Ter",
-            "terça-feira": "Ter",
-            qua: "Qua",
-            quarta: "Qua",
-            "quarta-feira": "Qua",
-            qui: "Qui",
-            quinta: "Qui",
-            "quinta-feira": "Qui",
-            sex: "Sex",
-            sexta: "Sex",
-            "sexta-feira": "Sex",
-            sab: "Sáb",
-            sabado: "Sáb",
-            sábado: "Sáb",
-            dom: "Dom",
-            domingo: "Dom",
+            seg: 'Seg',
+            segunda: 'Seg',
+            'segunda-feira': 'Seg',
+            ter: 'Ter',
+            terca: 'Ter',
+            terça: 'Ter',
+            'terça-feira': 'Ter',
+            qua: 'Qua',
+            quarta: 'Qua',
+            'quarta-feira': 'Qua',
+            qui: 'Qui',
+            quinta: 'Qui',
+            'quinta-feira': 'Qui',
+            sex: 'Sex',
+            sexta: 'Sex',
+            'sexta-feira': 'Sex',
+            sab: 'Sáb',
+            sabado: 'Sáb',
+            sábado: 'Sáb',
+            dom: 'Dom',
+            domingo: 'Dom',
           };
-          const key = dia.toLowerCase().replace(/[-_\s]/g, "");
+          const key = dia.toLowerCase().replace(/[-_\s]/g, '');
           for (const k in mapa) {
             if (key.startsWith(k)) return mapa[k];
           }
@@ -131,19 +131,19 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
       }
       setFormData((prev) => ({
         ...prev,
-        name: employee.fullName || "",
-        email: employee.email || "",
-        phone: formatPhone(employee.phone || ""),
-        cpf: applyCpfMask(employee.cpf || ""),
-        role: typeof employee.role === "string" ? employee.role : "",
-        specialty: employee.specialty ?? "",
-        registrationNumber: employee.crmNumber || "",
-        hireDate: employee.hiredAt || "",
-        salary: employee.salary?.toString() || "",
-        status: employee.status || "ativo",
+        name: employee.fullName || '',
+        email: employee.email || '',
+        phone: formatPhone(employee.phone || ''),
+        cpf: applyCpfMask(employee.cpf || ''),
+        role: typeof employee.role === 'string' ? employee.role : '',
+        specialty: employee.specialty ?? '',
+        registrationNumber: employee.crmNumber || '',
+        hireDate: employee.hiredAt || '',
+        salary: employee.salary?.toString() || '',
+        status: employee.status || 'ativo',
         workDays,
-        startHour: employee.startHour || "08:00",
-        endHour: employee.endHour || "18:00",
+        startHour: employee.startHour || '08:00',
+        endHour: employee.endHour || '18:00',
       }));
     }
   }, [employee, employeeWorkDays]);
@@ -159,7 +159,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
         phoneValue = phoneDigits;
       } else if (phoneDigits.length > 0) {
         toast.error(
-          "O telefone deve conter exatamente 11 dígitos (DDD + número)."
+          'O telefone deve conter exatamente 11 dígitos (DDD + número).'
         );
         return;
       }
@@ -176,7 +176,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
         role: formData.role,
         specialty: formData.specialty,
         salary: formData.salary ? parseFloat(formData.salary) : null,
-        status: formData.status as "ativo" | "inativo",
+        status: formData.status as 'ativo' | 'inativo',
         workDays: formData.workDays,
         startHour: formData.startHour,
         endHour: formData.endHour,
@@ -188,8 +188,8 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
       onEmployeeUpdated();
       onClose();
     } catch (error) {
-      console.error("Erro ao atualizar funcionário:", error);
-      toast.error("Erro ao atualizar funcionário. Tente novamente.");
+      console.error('Erro ao atualizar funcionário:', error);
+      toast.error('Erro ao atualizar funcionário. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -199,10 +199,10 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
     field: keyof typeof formData,
     value: string | boolean | string[]
   ) => {
-    if (field === "phone") {
+    if (field === 'phone') {
       const maskedValue = applyPhoneMask(value as string);
       setFormData((prev) => ({ ...prev, [field]: maskedValue }));
-    } else if (field === "cpf") {
+    } else if (field === 'cpf') {
       const maskedValue = applyCpfMask(value as string);
       setFormData((prev) => ({ ...prev, [field]: maskedValue }));
     } else {
@@ -243,7 +243,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => handleChange("name", e.target.value)}
+                    onChange={(e) => handleChange('name', e.target.value)}
                     required
                   />
                 </div>
@@ -255,7 +255,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                   <Input
                     id="cpf"
                     value={formData.cpf}
-                    onChange={(e) => handleChange("cpf", e.target.value)}
+                    onChange={(e) => handleChange('cpf', e.target.value)}
                     placeholder="000.000.000-00"
                     required
                   />
@@ -280,7 +280,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
+                    onChange={(e) => handleChange('email', e.target.value)}
                     placeholder="exemplo@email.com"
                   />
                 </div>
@@ -290,7 +290,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                   <Input
                     id="phone"
                     value={formData.phone}
-                    onChange={(e) => handleChange("phone", e.target.value)}
+                    onChange={(e) => handleChange('phone', e.target.value)}
                     placeholder="(11) 99999-9999"
                   />
                 </div>
@@ -314,55 +314,53 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                   </Label>
                   <Select
                     value={formData.role}
-                    onValueChange={(value) => handleChange("role", value)}
+                    onValueChange={(value) => handleChange('role', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o cargo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="acupuntura_odonto">
-                        Acupuntura Odonto
-                      </SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="atendente">Atendente</SelectItem>
-                      <SelectItem value="auxiliar_saude_bucal">
-                        Auxiliar Saúde Bucal
-                      </SelectItem>
-                      <SelectItem value="cirurgiao_buco_maxilo">
-                        Cirurgião Buco-Maxilo
-                      </SelectItem>
+                      <SelectItem value="diretor">Diretor</SelectItem>
+                      <SelectItem value="gerente">Gerente</SelectItem>
                       <SelectItem value="coordenador">Coordenador</SelectItem>
                       <SelectItem value="dentista">Dentista</SelectItem>
-                      <SelectItem value="diretor">Diretor</SelectItem>
+                      <SelectItem value="ortodontista">Ortodontista</SelectItem>
                       <SelectItem value="endodontista">Endodontista</SelectItem>
-                      <SelectItem value="estoquista">Estoquista</SelectItem>
-                      <SelectItem value="financeiro">Financeiro</SelectItem>
-                      <SelectItem value="gerente">Gerente</SelectItem>
-                      <SelectItem value="higienista">Higienista</SelectItem>
-                      <SelectItem value="implantodontista">
-                        Implantodontista
-                      </SelectItem>
-                      <SelectItem value="limpeza">Limpeza</SelectItem>
-                      <SelectItem value="marketing">Marketing</SelectItem>
-                      <SelectItem value="odontopediatra">
-                        Odontopediatra
-                      </SelectItem>
                       <SelectItem value="periodontista">
                         Periodontista
                       </SelectItem>
-                      <SelectItem value="protesista">Protesista</SelectItem>
-                      <SelectItem value="recepcionista">
-                        Recepcionista
+                      <SelectItem value="implantodontista">
+                        Implantodontista
                       </SelectItem>
-                      <SelectItem value="rh">RH</SelectItem>
-                      <SelectItem value="secretaria">Secretária</SelectItem>
-                      <SelectItem value="suporte_tecnico">
-                        Suporte Técnico
+                      <SelectItem value="protesista">Protesista</SelectItem>
+                      <SelectItem value="odontopediatra">
+                        Odontopediatra
+                      </SelectItem>
+                      <SelectItem value="cirurgiao_buco_maxilo">
+                        Cirurgião Buco Maxilo
+                      </SelectItem>
+                      <SelectItem value="higienista">Higienista</SelectItem>
+                      <SelectItem value="auxiliar_saude_bucal">
+                        Auxiliar Saúde Bucal
                       </SelectItem>
                       <SelectItem value="tecnico_saude_bucal">
                         Técnico Saúde Bucal
                       </SelectItem>
+                      <SelectItem value="recepcionista">
+                        Recepcionista
+                      </SelectItem>
+                      <SelectItem value="atendente">Atendente</SelectItem>
+                      <SelectItem value="secretaria">Secretária</SelectItem>
+                      <SelectItem value="financeiro">Financeiro</SelectItem>
+                      <SelectItem value="estoquista">Estoquista</SelectItem>
+                      <SelectItem value="limpeza">Limpeza</SelectItem>
                       <SelectItem value="estagiario">Estagiário</SelectItem>
+                      <SelectItem value="suporte_tecnico">
+                        Suporte Técnico
+                      </SelectItem>
+                      <SelectItem value="marketing">Marketing</SelectItem>
+                      <SelectItem value="rh">RH</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -371,11 +369,11 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                   <Label htmlFor="specialty">Especialidade</Label>
                   <Select
                     value={
-                      typeof formData.specialty === "string"
+                      typeof formData.specialty === 'string'
                         ? formData.specialty
-                        : ""
+                        : ''
                     }
-                    onValueChange={(value) => handleChange("specialty", value)}
+                    onValueChange={(value) => handleChange('specialty', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione uma especialidade" />
@@ -456,7 +454,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                     id="registrationNumber"
                     value={formData.registrationNumber}
                     onChange={(e) =>
-                      handleChange("registrationNumber", e.target.value)
+                      handleChange('registrationNumber', e.target.value)
                     }
                     placeholder="CRO 12345"
                   />
@@ -468,7 +466,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                   </Label>
                   <Select
                     value={formData.status}
-                    onValueChange={(value) => handleChange("status", value)}
+                    onValueChange={(value) => handleChange('status', value)}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -500,7 +498,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                     type="number"
                     step="0.01"
                     value={formData.salary}
-                    onChange={(e) => handleChange("salary", e.target.value)}
+                    onChange={(e) => handleChange('salary', e.target.value)}
                     placeholder="0,00"
                   />
                 </div>
@@ -511,7 +509,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                     id="hireDate"
                     type="date"
                     value={formData.hireDate}
-                    onChange={(e) => handleChange("hireDate", e.target.value)}
+                    onChange={(e) => handleChange('hireDate', e.target.value)}
                   />
                 </div>
               </div>
@@ -530,7 +528,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
               <div className="space-y-2">
                 <Label>Dias de Trabalho *</Label>
                 <div className="flex flex-wrap gap-2">
-                  {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map(
+                  {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(
                     (day) => {
                       const selected = formData.workDays.includes(day);
                       return (
@@ -539,14 +537,14 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                           type="button"
                           className={`px-3 py-1 rounded-full border text-sm transition-colors ${
                             selected
-                              ? "bg-primary text-white border-primary shadow"
-                              : "bg-muted text-foreground border-muted-foreground hover:bg-primary/10"
+                              ? 'bg-primary text-white border-primary shadow'
+                              : 'bg-muted text-foreground border-muted-foreground hover:bg-primary/10'
                           }`}
                           onClick={() => {
                             const workDays = formData.workDays.includes(day)
                               ? formData.workDays.filter((d) => d !== day)
                               : [...formData.workDays, day];
-                            handleChange("workDays", workDays);
+                            handleChange('workDays', workDays);
                           }}
                         >
                           {day}
@@ -566,7 +564,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                     id="startHour"
                     type="time"
                     value={formData.startHour}
-                    onChange={(e) => handleChange("startHour", e.target.value)}
+                    onChange={(e) => handleChange('startHour', e.target.value)}
                     required
                   />
                 </div>
@@ -578,7 +576,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
                     id="endHour"
                     type="time"
                     value={formData.endHour}
-                    onChange={(e) => handleChange("endHour", e.target.value)}
+                    onChange={(e) => handleChange('endHour', e.target.value)}
                     required
                   />
                 </div>
