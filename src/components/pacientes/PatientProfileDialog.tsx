@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import EditPatientDialog from './EditPatientDialog';
 import { AddAppointmentDialog } from '@/components/agenda';
 import { AddEmployeeDialog } from '@/components/funcionarios/AddEmployeeDialog';
@@ -33,6 +33,8 @@ import { getPatientStatusBadge, getPlanBadge } from '@/lib/badgeUtils';
 import { patientService } from '@/services/patientService';
 import { employeeService } from '@/services/employeeService';
 import { serviceService } from '@/services/servicesService';
+import { appointmentService } from '@/services/appointmentService';
+import type { Appointment } from '@/types/appointment';
 
 interface PatientProfileDialogProps {
   patient: Patient | null;
@@ -60,6 +62,32 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
   const [openAddEmployeeDialog, setOpenAddEmployeeDialog] = useState(false);
   const [openAddPatientDialog, setOpenAddPatientDialog] = useState(false);
   const [openServiceFormDialog, setOpenServiceFormDialog] = useState(false);
+
+  // Próxima consulta do paciente
+  const [nextAppointment, setNextAppointment] = useState<Appointment | null>(
+    null
+  );
+  const [loadingNextAppointment, setLoadingNextAppointment] = useState(false);
+
+  useEffect(() => {
+    const loadNext = async () => {
+      if (!patient?.id) return;
+      setLoadingNextAppointment(true);
+      try {
+        const appt = await appointmentService.getNextAppointmentForPatient(
+          patient.id
+        );
+        setNextAppointment(appt);
+      } catch (e) {
+        // erro já notificado no service
+      } finally {
+        setLoadingNextAppointment(false);
+      }
+    };
+    if (isOpen) {
+      loadNext();
+    }
+  }, [isOpen, patient?.id]);
 
   // Listener para eventos globais de abrir dialogs (igual ao Dashboard)
   React.useEffect(() => {
@@ -93,6 +121,17 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
   const formatDate = (dateString: string) => {
     if (!dateString) return 'Não informado';
     return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
+  const formatDateTime = (dateString?: string) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   const formatPhone = (phone: string) => {
@@ -157,10 +196,10 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
             {/* Patient Header */}
             <div className="flex items-start gap-6">
               <div className="relative">
-                <div className="w-20 h-20 bg-gradient-to-br from-green-600 to-emerald-700 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg">
                   {getInitials(patient.fullName)}
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-sm"></div>
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border rounded-full border-3 border-white shadow-sm"></div>
               </div>
               <div className="flex-1 min-w-0">
                 <h2 className="text-3xl font-bold text-gray-900 mb-2 truncate">
@@ -242,29 +281,35 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
 
             <Separator />
 
-            {/* Próxima Consulta */}
-            {patient.nextVisit && (
-              <div className="bg-white border border-gray-100 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-5 flex items-center gap-2">
-                  <CalendarIcon className="w-5 h-5 text-green-600" />
-                  Próxima Consulta
-                </h3>
+            {/* Próxima Consulta (dinâmico) */}
+            <div className="bg-white border border-gray-100 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-5 flex items-center gap-2">
+                <CalendarIcon className="w-5 h-5 text-green-600" />
+                Próxima Consulta
+              </h3>
+              {loadingNextAppointment ? (
+                <div className="text-sm text-gray-500">Carregando...</div>
+              ) : nextAppointment ? (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-semibold text-green-800">
-                      Dr. João Silva
+                      {nextAppointment.employee?.fullName || 'Profissional'}
                     </span>
                     <span className="text-green-700 font-medium">
-                      {formatDate(patient.nextVisit)} • 07:15 - 08:00
+                      {formatDateTime(nextAppointment.appointmentAt)}
                     </span>
                   </div>
                   <p className="text-green-700 text-sm mb-1">
-                    Consulta de rotina agendada
+                    {nextAppointment.service?.name || 'Consulta'}
                   </p>
-                  <p className="text-green-600 text-sm">Consultório 02</p>
+                  {/* Espaço para sala/consultório futuramente */}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="text-sm text-gray-500">
+                  Nenhuma consulta futura encontrada
+                </div>
+              )}
+            </div>
 
             {/* Contact Details */}
             <div className="bg-white border border-gray-100 rounded-xl p-6">
@@ -297,7 +342,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
             </div>
 
             {/* Medical Information */}
-            <div className="bg-white border border-gray-100 rounded-xl p-6">
+            {/* <div className="bg-white border border-gray-100 rounded-xl p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-5 flex items-center gap-2">
                 <Stethoscope className="w-5 h-5 text-green-600" />
                 Informações Médicas
@@ -309,24 +354,24 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                       Próxima Consulta
                     </p>
                     <p className="text-gray-900 font-medium">
-                      {patient.nextVisit
-                        ? formatDate(patient.nextVisit)
+                      {nextAppointment
+                        ? formatDateTime(nextAppointment.appointmentAt)
                         : 'Não agendada'}
                     </p>
                   </div>
                 </div>
                 <div className="space-y-4">
-                  {/* <div>
+                  <div>
                     <p className="text-sm font-medium text-gray-500 mb-1">
                       Última Visita
                     </p>
                     <p className="text-gray-900 font-medium">
-                      {formatDate(patient.lastVisit || "")}
+                      {formatDate(patient.lastVisit || '')}
                     </p>
-                  </div> */}
+                  </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </DialogContent>
       </Dialog>

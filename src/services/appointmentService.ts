@@ -43,6 +43,7 @@ class AppointmentTransformer {
       serviceId: supabaseAppointment.service_id,
       appointmentAt: supabaseAppointment.appointment_at,
       appointmentEnd: supabaseAppointment.appointment_end,
+      date: supabaseAppointment.date,
       status: supabaseAppointment.status,
       createdAt: supabaseAppointment.created_at,
       updatedAt: supabaseAppointment.updated_at,
@@ -55,12 +56,23 @@ class AppointmentTransformer {
   static toSupabaseInsert(
     appointmentData: CreateAppointmentData
   ): SupabaseAppointmentInsert {
+    // Deriva o campo date (YYYY-MM-DD) a partir do appointmentAt caso não venha informado
+    const toLocalDateString = (iso: string) => {
+      const d = new Date(iso);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
     return {
       patient_id: appointmentData.patientId,
       employee_id: appointmentData.employeeId,
       service_id: appointmentData.serviceId,
       appointment_at: appointmentData.appointmentAt,
       appointment_end: appointmentData.appointmentEnd,
+      date:
+        appointmentData.date ||
+        toLocalDateString(appointmentData.appointmentAt),
       status: appointmentData.status || AppointmentStatus.AGENDADA,
     };
   }
@@ -84,6 +96,16 @@ class AppointmentTransformer {
       updateData.appointment_at = appointmentData.appointmentAt;
     if (appointmentData.appointmentEnd !== undefined)
       updateData.appointment_end = appointmentData.appointmentEnd;
+    // Se for enviado appointmentAt sem date, mantemos a consistência derivando a data
+    if (appointmentData.date !== undefined) {
+      updateData.date = appointmentData.date;
+    } else if (appointmentData.appointmentAt !== undefined) {
+      const d = new Date(appointmentData.appointmentAt);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      updateData.date = `${y}-${m}-${day}`;
+    }
     if (appointmentData.status !== undefined)
       updateData.status = appointmentData.status;
 
@@ -266,12 +288,6 @@ class AppointmentService {
    */
   async getAppointmentsByDate(date: string): Promise<Appointment[]> {
     try {
-      const startOfDay = new Date(date);
-      startOfDay.setHours(0, 0, 0, 0);
-
-      const endOfDay = new Date(date);
-      endOfDay.setHours(23, 59, 59, 999);
-
       const { data, error } = await supabase
         .from('appointments')
         .select(
@@ -282,8 +298,7 @@ class AppointmentService {
           service:services(name, duration_minutes, price)
         `
         )
-        .gte('appointment_at', startOfDay.toISOString())
-        .lte('appointment_at', endOfDay.toISOString())
+        .eq('date', date)
         .order('appointment_at');
 
       if (error) throw error;
@@ -320,6 +335,47 @@ class AppointmentService {
     } catch (error) {
       console.error('Error fetching appointments by employee:', error);
       toast.error('Erro ao carregar agendamentos do funcionário');
+      throw error;
+    }
+  }
+
+  /**
+   * Get the next upcoming appointment for a given patient
+   */
+  async getNextAppointmentForPatient(
+    patientId: string
+  ): Promise<Appointment | null> {
+    try {
+      const nowIso = new Date().toISOString();
+      const { data, error } = await supabase
+        .from('appointments')
+        .select(
+          `
+          *,
+          patient:patients(full_name, phone, email),
+          employee:employees(full_name, role),
+          service:services(name, duration_minutes, price)
+        `
+        )
+        .eq('patient_id', patientId)
+        .gte('appointment_at', nowIso)
+        .in('status', [
+          AppointmentStatus.AGENDADA,
+          AppointmentStatus.CONFIRMADA,
+          AppointmentStatus.REAGENDADA,
+          AppointmentStatus.EM_ANDAMENTO,
+        ])
+        .order('appointment_at', { ascending: true })
+        .limit(1);
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) return null;
+
+      return this.transformWithRelations(data[0]);
+    } catch (error) {
+      console.error('Error fetching next appointment for patient:', error);
+      toast.error('Erro ao buscar próxima consulta do paciente');
       throw error;
     }
   }
@@ -396,11 +452,13 @@ class AppointmentService {
 
       // Apply date range filter
       if (filters.dateRange) {
+        const toDateOnly = (s: string) =>
+          new Date(s).toISOString().slice(0, 10);
         if (filters.dateRange.start) {
-          query = query.gte('appointment_at', filters.dateRange.start);
+          query = query.gte('date', toDateOnly(filters.dateRange.start));
         }
         if (filters.dateRange.end) {
-          query = query.lte('appointment_at', filters.dateRange.end);
+          query = query.lte('date', toDateOnly(filters.dateRange.end));
         }
       }
 
@@ -430,15 +488,12 @@ class AppointmentService {
 
       // Get today's appointments
       const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
+      const todayStr = today.toISOString().slice(0, 10);
 
       const { count: todayCount, error: todayError } = await supabase
         .from('appointments')
         .select('*', { count: 'exact', head: true })
-        .gte('appointment_at', today.toISOString())
-        .lt('appointment_at', tomorrow.toISOString());
+        .eq('date', todayStr);
 
       if (todayError) throw todayError;
 
@@ -451,8 +506,8 @@ class AppointmentService {
       const { count: thisWeek, error: weekError } = await supabase
         .from('appointments')
         .select('*', { count: 'exact', head: true })
-        .gte('appointment_at', startOfWeek.toISOString())
-        .lt('appointment_at', endOfWeek.toISOString());
+        .gte('date', startOfWeek.toISOString().slice(0, 10))
+        .lt('date', endOfWeek.toISOString().slice(0, 10));
 
       if (weekError) throw weekError;
 
@@ -463,8 +518,8 @@ class AppointmentService {
       const { count: thisMonth, error: monthError } = await supabase
         .from('appointments')
         .select('*', { count: 'exact', head: true })
-        .gte('appointment_at', startOfMonth.toISOString())
-        .lte('appointment_at', endOfMonth.toISOString());
+        .gte('date', startOfMonth.toISOString().slice(0, 10))
+        .lte('date', endOfMonth.toISOString().slice(0, 10));
 
       if (monthError) throw monthError;
 
@@ -518,6 +573,7 @@ class AppointmentService {
     service_id: number;
     appointment_at: string;
     appointment_end: string;
+    date: string;
     status: string;
     created_at: string;
     updated_at: string;

@@ -6,6 +6,7 @@ export interface Appointment {
   serviceId: number;
   appointmentAt: string; // TIMESTAMP WITH TIME ZONE
   appointmentEnd: string; // TIMESTAMP WITH TIME ZONE
+  date: string; // DATE (yyyy-mm-dd)
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -35,6 +36,8 @@ export interface CreateAppointmentData {
   serviceId: number;
   appointmentAt: string;
   appointmentEnd: string;
+  // Opcional para permitir override; se não informado será derivado de appointmentAt
+  date?: string;
   status?: string;
 }
 
@@ -51,6 +54,7 @@ export interface SupabaseAppointment {
   service_id: number;
   appointment_at: string;
   appointment_end: string;
+  date: string;
   status: string;
   created_at: string;
   updated_at: string;
@@ -63,6 +67,7 @@ export interface SupabaseAppointmentInsert {
   service_id: number;
   appointment_at: string;
   appointment_end: string;
+  date: string;
   status: string;
 }
 
@@ -73,6 +78,7 @@ export interface SupabaseAppointmentUpdate {
   service_id?: number;
   appointment_at?: string;
   appointment_end?: string;
+  date?: string;
   status?: string;
 }
 
@@ -107,7 +113,7 @@ export enum AppointmentStatus {
   CANCELADA = 'cancelada',
   NAO_COMPARECEU = 'nao_compareceu',
   EM_ANDAMENTO = 'em_andamento',
-  REALIZADA = 'realizada'
+  REALIZADA = 'realizada',
 }
 
 // Mapeamento de status para exibição
@@ -118,7 +124,7 @@ export const APPOINTMENT_STATUS_LABELS: Record<string, string> = {
   [AppointmentStatus.CANCELADA]: 'Cancelada',
   [AppointmentStatus.NAO_COMPARECEU]: 'Não Compareceu',
   [AppointmentStatus.EM_ANDAMENTO]: 'Em Andamento',
-  [AppointmentStatus.REALIZADA]: 'Realizada'
+  [AppointmentStatus.REALIZADA]: 'Realizada',
 };
 
 // Cores para cada status
@@ -129,11 +135,11 @@ export const APPOINTMENT_STATUS_COLORS: Record<string, string> = {
   [AppointmentStatus.CANCELADA]: 'bg-red-100 text-red-800',
   [AppointmentStatus.NAO_COMPARECEU]: 'bg-gray-100 text-gray-800',
   [AppointmentStatus.EM_ANDAMENTO]: 'bg-purple-100 text-purple-800',
-  [AppointmentStatus.REALIZADA]: 'bg-emerald-100 text-emerald-800'
+  [AppointmentStatus.REALIZADA]: 'bg-emerald-100 text-emerald-800',
 };
 
 // Resultado de validação
 export interface ValidationResult {
   isValid: boolean;
   errors: string[];
-} 
+}
