@@ -48,8 +48,8 @@ export const PatientCard = ({ patient, onViewRecord }: PatientCardProps) => {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-white border border-gray-200 rounded-xl gap-3 sm:gap-4">
       <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
-          <span className="font-semibold text-blue-600 text-sm sm:text-base">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
+          <span className="font-semibold text-green-700 text-sm sm:text-base">
             {getInitials(patient.fullName)}
           </span>
         </div>

@@ -196,7 +196,7 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
             {/* Patient Header */}
             <div className="flex items-start gap-6">
               <div className="relative">
-                <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg">
+                <div className="w-20 h-20 bg-green-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg">
                   {getInitials(patient.fullName)}
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border rounded-full border-3 border-white shadow-sm"></div>
