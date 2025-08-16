@@ -43,15 +43,13 @@ export const dashboardService = {
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
+      const todayStr = today.toISOString().slice(0, 10);
 
-      // Consultas de hoje
+      // Consultas de hoje (usar coluna date para evitar problemas de fuso)
       const { count: todayAppointments } = await supabase
         .from('appointments')
         .select('*', { count: 'exact', head: true })
-        .gte('appointment_at', today.toISOString())
-        .lt('appointment_at', tomorrow.toISOString());
+        .eq('date', todayStr);
 
       // Total de pacientes
       const { count: totalPatients } = await supabase
@@ -117,8 +115,8 @@ export const dashboardService = {
       const { count: completedAppointments } = await supabase
         .from('appointments')
         .select('*', { count: 'exact', head: true })
-        .gte('appointment_at', startOfMonth.toISOString())
-        .lte('appointment_at', endOfMonth.toISOString())
+        .gte('date', startOfMonth.toISOString().slice(0, 10))
+        .lte('date', endOfMonth.toISOString().slice(0, 10))
         .eq('status', 'realizada');
 
       const attendanceRate = totalAppointments
@@ -151,8 +149,7 @@ export const dashboardService = {
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
+      const todayStr = today.toISOString().slice(0, 10);
 
       const { data, error } = await supabase
         .from('appointments')
@@ -169,58 +166,21 @@ export const dashboardService = {
           employees(full_name)
         `
         )
-        .gte('appointment_at', today.toISOString())
-        .lt('appointment_at', tomorrow.toISOString())
+        .eq('date', todayStr)
         .order('appointment_at', { ascending: true });
 
       if (error) throw error;
 
       const results: TodayAppointment[] = [];
       for (const appointment of data || []) {
-        // Paciente
-        let patientName = appointment.patients?.[0]?.full_name;
-        if (!patientName && appointment.patient_id) {
-          const { data: patientData } = await supabase
-            .from('patients')
-            .select('full_name')
-            .eq('id', appointment.patient_id)
-            .single();
-          if (patientData && patientData.full_name)
-            patientName = patientData.full_name;
-        }
-        if (!patientName) patientName = 'Paciente não encontrado';
-
-        // Serviço
-        let serviceName = appointment.services?.[0]?.name;
-        let durationMinutes = appointment.services?.[0]?.duration_minutes;
-        if ((!serviceName || !durationMinutes) && appointment.service_id) {
-          const { data: serviceData } = await supabase
-            .from('services')
-            .select('name, duration_minutes')
-            .eq('id', appointment.service_id)
-            .single();
-          if (serviceData) {
-            if (!serviceName && serviceData.name)
-              serviceName = serviceData.name;
-            if (!durationMinutes && serviceData.duration_minutes)
-              durationMinutes = serviceData.duration_minutes;
-          }
-        }
-        if (!serviceName) serviceName = 'Serviço não encontrado';
-        if (!durationMinutes) durationMinutes = 30;
-
-        // Funcionário
-        let employeeName = appointment.employees?.[0]?.full_name;
-        if (!employeeName && appointment.employee_id) {
-          const { data: employeeData } = await supabase
-            .from('employees')
-            .select('full_name')
-            .eq('id', appointment.employee_id)
-            .single();
-          if (employeeData && employeeData.full_name)
-            employeeName = employeeData.full_name;
-        }
-        if (!employeeName) employeeName = 'Funcionário não encontrado';
+        const patientName =
+          appointment.patients?.[0]?.full_name || 'Paciente não encontrado';
+        const serviceName =
+          appointment.services?.[0]?.name || 'Serviço não encontrado';
+        const durationMinutes =
+          appointment.services?.[0]?.duration_minutes || 30;
+        const employeeName =
+          appointment.employees?.[0]?.full_name || 'Funcionário não encontrado';
 
         results.push({
           id: appointment.id,
@@ -253,13 +213,14 @@ export const dashboardService = {
           status,
           patient_id,
           employee_id,
-          patients(full_name),
+          patients(full_name, birth_date, email, phone),
           services(name, duration_minutes),
           employees(full_name),
           service_id
         `
         )
         .gte('appointment_at', now.toISOString())
+        .in('status', ['agendada', 'confirmada', 'reagendada', 'em_andamento'])
         .order('appointment_at', { ascending: true })
         .limit(1);
 
@@ -273,12 +234,27 @@ export const dashboardService = {
       const appointmentDate = new Date(appointment.appointment_at);
       const timeDiff = appointmentDate.getTime() - now.getTime();
 
-      // Buscar paciente pelo id
+      // Buscar paciente pelo id/relacionamento
       let patientName = 'Paciente não encontrado';
       let patientAge: number | undefined = undefined;
       let patientEmail: string | undefined = undefined;
       let patientPhone: string | undefined = undefined;
-      if (appointment.patient_id) {
+      if (appointment.patients?.[0]) {
+        const p = appointment.patients[0];
+        if (p.full_name) patientName = p.full_name;
+        if (p.birth_date) {
+          const birthDate = new Date(p.birth_date);
+          const today = new Date();
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const m = today.getMonth() - birthDate.getMonth();
+          if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+          patientAge = age;
+        }
+        if (p.email) patientEmail = p.email;
+        if (p.phone) patientPhone = p.phone;
+      } else if (appointment.patient_id) {
         const { data: patientData } = await supabase
           .from('patients')
           .select('full_name, birth_date, email, phone')
@@ -296,34 +272,39 @@ export const dashboardService = {
             }
             patientAge = age;
           }
-          if (patientData.email) patientEmail = patientData.email;
-          if (patientData.phone) patientPhone = patientData.phone;
+          patientEmail = patientData.email || undefined;
+          patientPhone = patientData.phone || undefined;
         }
       }
 
-      // Buscar funcionário pelo id
+      // Funcionário
       let employeeName = 'Funcionário não encontrado';
-      if (appointment.employee_id) {
+      if (appointment.employees?.[0]?.full_name) {
+        employeeName = appointment.employees[0].full_name;
+      } else if (appointment.employee_id) {
         const { data: employeeData } = await supabase
           .from('employees')
           .select('full_name')
           .eq('id', appointment.employee_id)
           .single();
-        if (employeeData && employeeData.full_name)
-          employeeName = employeeData.full_name;
+        if (employeeData?.full_name) employeeName = employeeData.full_name;
       }
 
-      // Buscar serviço pelo id
+      // Serviço
       let serviceName = 'Serviço não encontrado';
       let durationMinutes = 30;
-      if (appointment.service_id) {
+      if (appointment.services?.[0]) {
+        const s = appointment.services[0];
+        if (s.name) serviceName = s.name;
+        if (s.duration_minutes) durationMinutes = s.duration_minutes;
+      } else if (appointment.service_id) {
         const { data: serviceData } = await supabase
           .from('services')
           .select('name, duration_minutes')
           .eq('id', appointment.service_id)
           .single();
-        if (serviceData && serviceData.name) serviceName = serviceData.name;
-        if (serviceData && serviceData.duration_minutes)
+        if (serviceData?.name) serviceName = serviceData.name;
+        if (serviceData?.duration_minutes)
           durationMinutes = serviceData.duration_minutes;
       }
 

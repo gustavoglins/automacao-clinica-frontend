@@ -150,13 +150,16 @@ const Agenda = () => {
   );
 
   // Funções utilitárias para navegação de data
-  const formatDate = (date: Date) => {
-    return date.toISOString().split('T')[0];
+  const toLocalDateStr = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   };
 
   const isToday = (date: Date) => {
     const today = new Date();
-    return formatDate(date) === formatDate(today);
+    return toLocalDateStr(date) === toLocalDateStr(today);
   };
 
   const getWeekDates = (date: Date) => {
@@ -203,23 +206,31 @@ const Agenda = () => {
     let dateFilteredAppointments = appointments;
 
     if (viewMode === 'day') {
-      dateFilteredAppointments = appointments.filter(
-        (appointment) =>
-          formatDate(new Date(appointment.appointmentAt)) ===
-          formatDate(selectedDate)
-      );
+      const selStr = toLocalDateStr(selectedDate);
+      dateFilteredAppointments = appointments.filter((appointment) => {
+        const apptDateStr =
+          appointment.date ||
+          toLocalDateStr(new Date(appointment.appointmentAt));
+        return apptDateStr === selStr;
+      });
     } else if (viewMode === 'week') {
       const weekDates = getWeekDates(selectedDate);
-      const weekDatesStr = weekDates.map((d) => formatDate(d));
-      dateFilteredAppointments = appointments.filter((appointment) =>
-        weekDatesStr.includes(formatDate(new Date(appointment.appointmentAt)))
-      );
+      const weekDatesStr = weekDates.map((d) => toLocalDateStr(d));
+      dateFilteredAppointments = appointments.filter((appointment) => {
+        const apptDateStr =
+          appointment.date ||
+          toLocalDateStr(new Date(appointment.appointmentAt));
+        return weekDatesStr.includes(apptDateStr);
+      });
     } else if (viewMode === 'month') {
       const monthDates = getMonthDates(selectedDate);
-      const monthDatesStr = monthDates.map((d) => formatDate(d));
-      dateFilteredAppointments = appointments.filter((appointment) =>
-        monthDatesStr.includes(formatDate(new Date(appointment.appointmentAt)))
-      );
+      const monthDatesStr = monthDates.map((d) => toLocalDateStr(d));
+      dateFilteredAppointments = appointments.filter((appointment) => {
+        const apptDateStr =
+          appointment.date ||
+          toLocalDateStr(new Date(appointment.appointmentAt));
+        return monthDatesStr.includes(apptDateStr);
+      });
     }
 
     // Aplicar filtros adicionais
@@ -279,30 +290,22 @@ const Agenda = () => {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           <StatsCard
             title="Consultas Agendadas"
-            value={
-              appointments.filter((a) => a.status === 'agendada').length
-            }
+            value={appointments.filter((a) => a.status === 'agendada').length}
             icon={CalendarIcon}
           />
           <StatsCard
             title="Consultas Confirmadas"
-            value={
-              appointments.filter((a) => a.status === 'confirmada').length
-            }
+            value={appointments.filter((a) => a.status === 'confirmada').length}
             icon={CalendarCheck2}
           />
           <StatsCard
             title="Consultas Reagendadas"
-            value={
-              appointments.filter((a) => a.status === 'reagendada').length
-            }
+            value={appointments.filter((a) => a.status === 'reagendada').length}
             icon={CalendarSync}
           />
           <StatsCard
             title="Consultas Realizadas"
-            value={
-              appointments.filter((a) => a.status === 'realizada').length
-            }
+            value={appointments.filter((a) => a.status === 'realizada').length}
             icon={CalendarFold}
           />
         </div>
@@ -412,11 +415,11 @@ const Agenda = () => {
                     modifiers={{
                       today: isToday,
                       hasAppointments: (date) =>
-                        appointments.some(
-                          (a) =>
-                            formatDate(new Date(a.appointmentAt)) ===
-                            formatDate(date)
-                        ),
+                        appointments.some((a) => {
+                          const apptDateStr =
+                            a.date || toLocalDateStr(new Date(a.appointmentAt));
+                          return apptDateStr === toLocalDateStr(date);
+                        }),
                     }}
                     modifiersClassNames={{
                       hasAppointments: 'has-appointment-day',
