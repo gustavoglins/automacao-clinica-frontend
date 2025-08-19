@@ -1,5 +1,5 @@
-import { LucideIcon } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { LucideIcon } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface StatsCardProps {
   title: string;
@@ -7,7 +7,7 @@ interface StatsCardProps {
   icon: LucideIcon;
   change?: {
     value: string;
-    type: "increase" | "decrease" | "neutral";
+    type: 'increase' | 'decrease' | 'neutral';
   };
   gradient?: boolean;
 }
@@ -21,21 +21,17 @@ export function StatsCard({
 }: StatsCardProps) {
   const getChangeColor = (type: string) => {
     switch (type) {
-      case "increase":
-        return "text-success";
-      case "decrease":
-        return "text-destructive";
+      case 'increase':
+        return 'text-success';
+      case 'decrease':
+        return 'text-destructive';
       default:
-        return "text-muted-foreground";
+        return 'text-muted-foreground';
     }
   };
 
   return (
-    <Card
-      className={`shadow-card hover:shadow-hover transition-all duration-300 ${
-        gradient ? "bg-gradient-card" : ""
-      }`}
-    >
+    <Card className={`shadow-card ${gradient ? 'bg-gradient-card' : ''}`}>
       <CardContent className="p-3 sm:p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1 sm:space-y-2 min-w-0 flex-1">
@@ -59,7 +55,7 @@ export function StatsCard({
           </div>
           <div
             className={`p-2 sm:p-3 rounded-full ${
-              gradient ? "bg-primary/10" : "bg-primary/5"
+              gradient ? 'bg-primary/10' : 'bg-primary/5'
             } shrink-0`}
           >
             <Icon className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
