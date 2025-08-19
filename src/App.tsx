@@ -23,6 +23,7 @@ import Pacientes from './pages/Pacientes';
 import Relatorios from './pages/Relatorios';
 import Servicos from './pages/Servicos';
 import Convenios from './pages/Convenios';
+import Pagamentos from './pages/Pagamentos';
 import AllSystemTest from './pages/__AllSystemTest';
 
 const queryClient = new QueryClient();
@@ -103,6 +104,14 @@ const App = () => (
                             element={
                               <ProtectedRoute>
                                 <Relatorios />
+                              </ProtectedRoute>
+                            }
+                          />
+                          <Route
+                            path="/pagamentos"
+                            element={
+                              <ProtectedRoute>
+                                <Pagamentos />
                               </ProtectedRoute>
                             }
                           />

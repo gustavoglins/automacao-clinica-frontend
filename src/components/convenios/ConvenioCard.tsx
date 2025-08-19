@@ -2,7 +2,13 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, Building2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Edit, Trash2, MoreVertical, Building2 } from 'lucide-react';
 import { Convenio } from '@/types/convenio';
 
 interface ConvenioCardProps {
@@ -27,18 +33,39 @@ export const ConvenioCard: React.FC<ConvenioCardProps> = ({
                 {convenio.nome}
               </span>
             </CardTitle>
-            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <Badge variant="outline" className="text-[10px] font-medium">
                 {convenio.tipo_cobertura}
               </Badge>
               <Badge
-                variant={convenio.ativo ? 'default' : 'secondary'}
+                variant={convenio.ativo ? 'success' : 'muted'}
                 className="text-[10px] font-medium"
               >
                 {convenio.ativo ? 'Ativo' : 'Inativo'}
               </Badge>
             </div>
           </div>
+          {/* Menu de ações no canto superior direito */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit?.(convenio)}>
+                <Edit className="w-4 h-4 mr-2" />
+                Editar
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onDelete?.(convenio)}
+                className="text-red-600"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Excluir
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 text-xs text-muted-foreground flex-1">
@@ -68,24 +95,7 @@ export const ConvenioCard: React.FC<ConvenioCardProps> = ({
             {convenio.observacoes?.trim() || 'Não informado'}
           </div>
         </div>
-        <div className="mt-auto flex justify-end gap-2 pt-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-7 w-7"
-            onClick={() => onEdit?.(convenio)}
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </Button>
-          <Button
-            variant="destructive"
-            size="icon"
-            className="h-7 w-7"
-            onClick={() => onDelete?.(convenio)}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
-        </div>
+        {/* Ações movidas para o menu de 3 pontos no cabeçalho */}
       </CardContent>
     </Card>
   );

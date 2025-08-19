@@ -8,6 +8,7 @@ import {
   Users,
   CalendarX,
   Building2,
+  CreditCard,
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 
@@ -39,6 +40,7 @@ const businessItems = [
 ];
 
 const systemItems = [
+  { title: 'Pagamentos', url: '/pagamentos', icon: CreditCard },
   { title: 'Fechamentos', url: '/fechamentos', icon: CalendarX },
   { title: 'Configurações', url: '/configuracoes', icon: Settings },
 ];
