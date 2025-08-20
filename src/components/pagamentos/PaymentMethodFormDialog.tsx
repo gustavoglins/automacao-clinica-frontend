@@ -83,7 +83,7 @@ export const PaymentMethodFormDialog: React.FC<
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <CreditCard className="w-5 h-5 text-primary" />
+                <FileText className="w-5 h-5 text-primary" />
                 Informações do Método
               </CardTitle>
             </CardHeader>

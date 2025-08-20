@@ -14,11 +14,9 @@ import { Search, Plus } from 'lucide-react';
 
 interface ConvenioFiltersProps {
   searchTerm: string;
-  abrangenciaFilter: string;
   coberturaFilter: string;
   statusFilter: string;
   onSearchChange: (value: string) => void;
-  onAbrangenciaChange: (value: string) => void;
   onCoberturaChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onAddNew: () => void;
@@ -31,27 +29,21 @@ const coberturaOptions = [
 
 export const ConvenioFilters: React.FC<ConvenioFiltersProps> = ({
   searchTerm,
-  abrangenciaFilter,
   coberturaFilter,
   statusFilter,
   onSearchChange,
-  onAbrangenciaChange,
   onCoberturaChange,
   onStatusChange,
   onAddNew,
 }) => {
   const clearFilters = () => {
     onSearchChange('');
-    onAbrangenciaChange('all');
     onCoberturaChange('all');
     onStatusChange('all');
   };
 
   const hasActiveFilters =
-    searchTerm ||
-    abrangenciaFilter !== 'all' ||
-    coberturaFilter !== 'all' ||
-    statusFilter !== 'all';
+    searchTerm || coberturaFilter !== 'all' || statusFilter !== 'all';
 
   return (
     <div className="flex flex-col gap-4 p-6 bg-card rounded-lg border shadow-sm">
@@ -66,12 +58,6 @@ export const ConvenioFilters: React.FC<ConvenioFiltersProps> = ({
               className="pl-10"
             />
           </div>
-          <Input
-            placeholder="Abrangência (ex: Nacional)"
-            value={abrangenciaFilter === 'all' ? '' : abrangenciaFilter}
-            onChange={(e) => onAbrangenciaChange(e.target.value || 'all')}
-            className="w-full sm:w-[180px]"
-          />
           <Select value={coberturaFilter} onValueChange={onCoberturaChange}>
             <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder="Cobertura" />
@@ -112,11 +98,6 @@ export const ConvenioFilters: React.FC<ConvenioFiltersProps> = ({
               <span>Filtros ativos:</span>
               {searchTerm && (
                 <Badge variant="secondary">Busca: {searchTerm}</Badge>
-              )}
-              {abrangenciaFilter !== 'all' && (
-                <Badge variant="secondary">
-                  Abrangência: {abrangenciaFilter}
-                </Badge>
               )}
               {coberturaFilter !== 'all' && (
                 <Badge variant="secondary">

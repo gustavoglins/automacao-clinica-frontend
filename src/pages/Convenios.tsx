@@ -28,7 +28,6 @@ const ConveniosPage: React.FC = () => {
   const { convenios, setConvenios, loading } = useConvenios();
   const [filtered, setFiltered] = useState<Convenio[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [abrangenciaFilter, setAbrangenciaFilter] = useState('all');
   const [coberturaFilter, setCoberturaFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -70,11 +69,7 @@ const ConveniosPage: React.FC = () => {
         c.nome.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    if (abrangenciaFilter !== 'all') {
-      list = list.filter((c) =>
-        c.abrangencia.toLowerCase().includes(abrangenciaFilter.toLowerCase())
-      );
-    }
+    // Abrangência filter removed
     if (coberturaFilter !== 'all') {
       list = list.filter((c) => c.tipo_cobertura === coberturaFilter);
     }
@@ -84,7 +79,7 @@ const ConveniosPage: React.FC = () => {
       );
     }
     setFiltered(list);
-  }, [convenios, searchTerm, abrangenciaFilter, coberturaFilter, statusFilter]);
+  }, [convenios, searchTerm, coberturaFilter, statusFilter]);
 
   const resetForm = () => {
     setFormData({
@@ -189,10 +184,7 @@ const ConveniosPage: React.FC = () => {
   };
 
   const hasFilters =
-    searchTerm !== '' ||
-    abrangenciaFilter !== 'all' ||
-    coberturaFilter !== 'all' ||
-    statusFilter !== 'all';
+    searchTerm !== '' || coberturaFilter !== 'all' || statusFilter !== 'all';
 
   // Estatísticas simples
   const total = convenios.length;
@@ -248,11 +240,9 @@ const ConveniosPage: React.FC = () => {
         <div className="space-y-4 sm:space-y-6">
           <ConvenioFilters
             searchTerm={searchTerm}
-            abrangenciaFilter={abrangenciaFilter}
             coberturaFilter={coberturaFilter}
             statusFilter={statusFilter}
             onSearchChange={setSearchTerm}
-            onAbrangenciaChange={setAbrangenciaFilter}
             onCoberturaChange={setCoberturaFilter}
             onStatusChange={setStatusFilter}
             onAddNew={openAdd}
