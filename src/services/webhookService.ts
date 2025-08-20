@@ -18,6 +18,7 @@ export enum WebhookEntity {
   SERVICES = 'services',
   EMPLOYEES = 'employees',
   CONVENIOS = 'convenios',
+  PAYMENT_METHODS = 'payment-methods',
 }
 
 interface WebhookConfig {
@@ -52,6 +53,7 @@ class WebhookService {
       [WebhookEntity.SERVICES]: 'listener-services',
       [WebhookEntity.EMPLOYEES]: 'listener-employees',
       [WebhookEntity.CONVENIOS]: 'listener-insurance',
+      [WebhookEntity.PAYMENT_METHODS]: 'listener-payment-methods',
     };
 
     return `${this.config.baseUrl}/${endpoints[entity]}`;
@@ -199,6 +201,13 @@ class WebhookService {
     id?: string | number
   ): Promise<void> {
     return this.notify(WebhookEntity.CONVENIOS, operation, id);
+  }
+
+  async notifyPaymentMethods(
+    operation: WebhookOperation,
+    id?: string | number
+  ): Promise<void> {
+    return this.notify(WebhookEntity.PAYMENT_METHODS, operation, id);
   }
 }
 

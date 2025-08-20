@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
+import { webhookService, WebhookOperation } from '@/services/webhookService';
 import type {
   PaymentMethod,
   CreatePaymentMethodData,
@@ -71,6 +72,8 @@ class PaymentMethodService {
         .single();
       if (error) throw error;
       toast.success('Método de pagamento adicionado');
+      // Webhook: INSERT
+      await webhookService.notifyPaymentMethods(WebhookOperation.INSERT);
       return PaymentMethodTransformer.fromSupabase(
         data as SupabasePaymentMethod
       );
@@ -91,6 +94,8 @@ class PaymentMethodService {
         .single();
       if (error) throw error;
       toast.success('Método de pagamento atualizado');
+      // Webhook: UPDATE
+      await webhookService.notifyPaymentMethods(WebhookOperation.UPDATE);
       return PaymentMethodTransformer.fromSupabase(
         data as SupabasePaymentMethod
       );
@@ -108,6 +113,8 @@ class PaymentMethodService {
         .eq('id', id);
       if (error) throw error;
       toast.success('Método de pagamento removido');
+      // Webhook: DELETE
+      await webhookService.notifyPaymentMethods(WebhookOperation.DELETE, id);
     } catch (e) {
       toast.error('Erro ao remover método de pagamento');
       throw e;
