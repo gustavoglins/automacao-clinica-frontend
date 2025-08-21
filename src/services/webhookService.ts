@@ -30,6 +30,7 @@ interface WebhookConfig {
 
 class WebhookService {
   private config: WebhookConfig;
+  private apiKey?: string;
 
   constructor(config?: Partial<WebhookConfig>) {
     this.config = {
@@ -40,6 +41,17 @@ class WebhookService {
       retryDelay: 1000,
       ...config,
     };
+
+    // Lê a API Key do ambiente (suporte a NRD_API_KEY e VITE_NRD_API_KEY)
+    // NRD_ é exposto via envPrefix no Vite config
+    const env = import.meta.env as Record<string, string | undefined>;
+    this.apiKey =
+      (env.NRD_API_KEY || env.VITE_NRD_API_KEY)?.trim() || undefined;
+    if (!this.apiKey) {
+      console.warn(
+        '⚠️ [Webhook] NRD_API_KEY não definido no ambiente. Requisições serão enviadas sem apikey.'
+      );
+    }
   }
 
   /**
@@ -117,11 +129,16 @@ class WebhookService {
     );
 
     try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (this.apiKey) {
+        headers['apikey'] = this.apiKey;
+      }
+
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body,
         signal: AbortSignal.timeout(this.config.timeout),
       });
