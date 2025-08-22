@@ -227,10 +227,6 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                       <SelectValue placeholder="Selecione o cargo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="diretor">Diretor</SelectItem>
-                      <SelectItem value="gerente">Gerente</SelectItem>
-                      <SelectItem value="coordenador">Coordenador</SelectItem>
                       <SelectItem value="dentista">Dentista</SelectItem>
                       <SelectItem value="ortodontista">Ortodontista</SelectItem>
                       <SelectItem value="endodontista">Endodontista</SelectItem>
@@ -247,27 +243,17 @@ export const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
                       <SelectItem value="cirurgiao_buco_maxilo">
                         Cirurgião Buco Maxilo
                       </SelectItem>
-                      <SelectItem value="higienista">Higienista</SelectItem>
                       <SelectItem value="auxiliar_saude_bucal">
-                        Auxiliar Saúde Bucal
-                      </SelectItem>
-                      <SelectItem value="tecnico_saude_bucal">
-                        Técnico Saúde Bucal
+                        Auxiliar de Saúde Bucal
                       </SelectItem>
                       <SelectItem value="recepcionista">
                         Recepcionista
                       </SelectItem>
-                      <SelectItem value="atendente">Atendente</SelectItem>
-                      <SelectItem value="secretaria">Secretária</SelectItem>
-                      <SelectItem value="financeiro">Financeiro</SelectItem>
-                      <SelectItem value="estoquista">Estoquista</SelectItem>
-                      <SelectItem value="limpeza">Limpeza</SelectItem>
-                      <SelectItem value="estagiario">Estagiário</SelectItem>
-                      <SelectItem value="suporte_tecnico">
-                        Suporte Técnico
+                      <SelectItem value="gerente">Gerente</SelectItem>
+                      <SelectItem value="higienista">Higienista</SelectItem>
+                      <SelectItem value="tecnico_saude_bucal">
+                        Técnico em Saúde Bucal
                       </SelectItem>
-                      <SelectItem value="marketing">Marketing</SelectItem>
-                      <SelectItem value="rh">RH</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

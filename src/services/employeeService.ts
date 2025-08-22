@@ -83,6 +83,21 @@ class EmployeeTransformer {
     // Mapear valores do frontend para os ENUMs do banco
     const mapRoleToEnum = (role: string): string => {
       const roleMap: Record<string, string> = {
+        // Valores do frontend (enum format)
+        dentista: 'dentista',
+        ortodontista: 'ortodontista',
+        endodontista: 'endodontista',
+        periodontista: 'periodontista',
+        implantodontista: 'implantodontista',
+        protesista: 'protesista',
+        odontopediatra: 'odontopediatra',
+        cirurgiao_buco_maxilo: 'cirurgiao_buco_maxilo',
+        auxiliar_saude_bucal: 'auxiliar_saude_bucal',
+        recepcionista: 'recepcionista',
+        gerente: 'gerente',
+        higienista: 'higienista',
+        tecnico_saude_bucal: 'tecnico_saude_bucal',
+        // Valores antigos para compatibilidade (primeira letra maiúscula)
         Dentista: 'dentista',
         Assistente: 'auxiliar_saude_bucal',
         Recepcionista: 'recepcionista',
