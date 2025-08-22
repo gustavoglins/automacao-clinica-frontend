@@ -8,7 +8,8 @@ export default defineConfig(({ mode }) => ({
   envPrefix: ['VITE_', 'NRD_'],
   server: {
     host: '::',
-    port: 8080,
+    // Porta padrão ajustada para 8081
+    port: 8081,
   },
   plugins: [react(), mode === 'development' && componentTagger()].filter(
     Boolean

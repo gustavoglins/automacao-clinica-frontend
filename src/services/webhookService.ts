@@ -46,7 +46,7 @@ class WebhookService {
     // NRD_ é exposto via envPrefix no Vite config
     const env = import.meta.env as Record<string, string | undefined>;
     this.apiKey =
-      (env.NRD_API_KEY || env.VITE_NRD_API_KEY)?.trim() || undefined;
+      (env.VITE_NRD_API_KEY || env.VITE_NRD_API_KEY)?.trim() || undefined;
     if (!this.apiKey) {
       console.warn(
         '⚠️ [Webhook] NRD_API_KEY não definido no ambiente. Requisições serão enviadas sem apikey.'
