@@ -15,7 +15,7 @@ import {
 import EditPatientDialog from '@/components/pacientes/EditPatientDialog';
 import { Patient, PatientStatus } from '@/types/patient';
 import { patientService } from '@/services/patientService';
-import { usePatients } from '@/context/PatientContext';
+import { usePatients } from '@/context';
 
 const Pacientes = () => {
   const [search, setSearch] = useState('');

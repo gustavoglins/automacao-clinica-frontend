@@ -1,13 +1,15 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
   dashboardService,
   DashboardStats,
   TodayAppointment,
   NextAppointment,
-} from "@/services/dashboardService";
-import { employeeService } from "@/services/employeeService";
-import { serviceService } from "@/services/servicesService";
-import { appointmentService } from "@/services/appointmentService";
+} from '@/services/dashboardService';
+import { employeeService } from '@/services/employeeService';
+import { serviceService } from '@/services/servicesService';
+import { appointmentService } from '@/services/appointmentService';
+import { isBackendEnabled } from '@/lib/apiClient';
+import DashboardContext from './internal/DashboardContextInternal';
 
 interface DashboardContextProps {
   stats: DashboardStats;
@@ -20,16 +22,7 @@ interface DashboardContextProps {
   fetchDashboardData: () => Promise<void>;
 }
 
-const DashboardContext = createContext<DashboardContextProps | undefined>(
-  undefined
-);
-
-export function useDashboard() {
-  const ctx = useContext(DashboardContext);
-  if (!ctx)
-    throw new Error("useDashboard must be used within DashboardProvider");
-  return ctx;
-}
+// Hook movido para hooks/useDashboard.ts
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [stats, setStats] = useState<DashboardStats>({
@@ -54,6 +47,23 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
+      if (!isBackendEnabled) {
+        // Fallback: zera estatísticas
+        setStats({
+          todayAppointments: 0,
+          totalPatients: 0,
+          activePatients: 0,
+          monthlyRevenue: 0,
+          attendanceRate: 0,
+          totalAppointments: 0,
+        });
+        setTodayAppointments([]);
+        setNextAppointment(null);
+        setActiveEmployees(0);
+        setActiveServices(0);
+        setAllScheduledAppointments(0);
+        return;
+      }
       const [
         statsData,
         appointmentsData,
@@ -72,12 +82,10 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       setStats(statsData);
       setTodayAppointments(appointmentsData);
       setNextAppointment(nextAppointmentData);
-      setActiveEmployees(employees.filter((e) => e.status === "ativo").length);
+      setActiveEmployees(employees.filter((e) => e.status === 'ativo').length);
       setActiveServices(serviceStats.active);
-
-      // Contar consultas com status agendada, confirmada e reagendada
       const scheduledAppointments = allAppointments.filter((appointment) =>
-        ["agendada", "confirmada", "reagendada"].includes(appointment.status)
+        ['agendada', 'confirmada', 'reagendada'].includes(appointment.status)
       );
       setAllScheduledAppointments(scheduledAppointments.length);
     } catch (error) {

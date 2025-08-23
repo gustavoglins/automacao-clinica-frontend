@@ -1,6 +1,7 @@
-import { supabase } from '@/lib/supabaseClient';
+// Backend-only payment method service
 import { toast } from 'sonner';
 import { webhookService, WebhookOperation } from '@/services/webhookService';
+import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/apiClient';
 import type {
   PaymentMethod,
   CreatePaymentMethodData,
@@ -49,12 +50,10 @@ class PaymentMethodTransformer {
 class PaymentMethodService {
   async getAll(): Promise<PaymentMethod[]> {
     try {
-      const { data, error } = await supabase
-        .from('payment_methods')
-        .select('*')
-        .order('name');
-      if (error) throw error;
-      return (data || []).map(PaymentMethodTransformer.fromSupabase);
+      const rows = await apiGet<SupabasePaymentMethod[]>(
+        '/api/payment-methods'
+      );
+      return rows.map(PaymentMethodTransformer.fromSupabase);
     } catch (e) {
       console.error('Erro ao buscar métodos de pagamento', e);
       toast.error('Erro ao carregar métodos de pagamento');
@@ -65,18 +64,13 @@ class PaymentMethodService {
   async create(payload: CreatePaymentMethodData): Promise<PaymentMethod> {
     try {
       const insertData = PaymentMethodTransformer.toSupabaseInsert(payload);
-      const { data, error } = await supabase
-        .from('payment_methods')
-        .insert(insertData)
-        .select()
-        .single();
-      if (error) throw error;
-      toast.success('Método de pagamento adicionado');
-      // Webhook: INSERT
-      await webhookService.notifyPaymentMethods(WebhookOperation.INSERT);
-      return PaymentMethodTransformer.fromSupabase(
-        data as SupabasePaymentMethod
+      const created = await apiPost<SupabasePaymentMethod>(
+        '/api/payment-methods',
+        insertData
       );
+      toast.success('Método de pagamento adicionado');
+      await webhookService.notifyPaymentMethods(WebhookOperation.INSERT);
+      return PaymentMethodTransformer.fromSupabase(created);
     } catch (e) {
       toast.error('Erro ao adicionar método de pagamento');
       throw e;
@@ -86,19 +80,13 @@ class PaymentMethodService {
   async update(payload: UpdatePaymentMethodData): Promise<PaymentMethod> {
     try {
       const updateData = PaymentMethodTransformer.toSupabaseUpdate(payload);
-      const { data, error } = await supabase
-        .from('payment_methods')
-        .update(updateData)
-        .eq('id', payload.id)
-        .select()
-        .single();
-      if (error) throw error;
-      toast.success('Método de pagamento atualizado');
-      // Webhook: UPDATE
-      await webhookService.notifyPaymentMethods(WebhookOperation.UPDATE);
-      return PaymentMethodTransformer.fromSupabase(
-        data as SupabasePaymentMethod
+      const updated = await apiPut<SupabasePaymentMethod>(
+        `/api/payment-methods/${payload.id}`,
+        updateData
       );
+      toast.success('Método de pagamento atualizado');
+      await webhookService.notifyPaymentMethods(WebhookOperation.UPDATE);
+      return PaymentMethodTransformer.fromSupabase(updated);
     } catch (e) {
       toast.error('Erro ao atualizar método de pagamento');
       throw e;
@@ -107,13 +95,8 @@ class PaymentMethodService {
 
   async delete(id: number): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('payment_methods')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
+      await apiDelete(`/api/payment-methods/${id}`);
       toast.success('Método de pagamento removido');
-      // Webhook: DELETE
       await webhookService.notifyPaymentMethods(WebhookOperation.DELETE, id);
     } catch (e) {
       toast.error('Erro ao remover método de pagamento');
@@ -122,33 +105,24 @@ class PaymentMethodService {
   }
 
   async search(term: string): Promise<PaymentMethod[]> {
-    if (!term.trim()) return this.getAll();
-    const { data, error } = await supabase
-      .from('payment_methods')
-      .select('*')
-      .ilike('name', `%${term}%`)
-      .order('name');
-    if (error) {
-      toast.error('Erro na busca');
-      throw error;
-    }
-    return (data || []).map(PaymentMethodTransformer.fromSupabase);
+    const all = await this.getAll();
+    const t = term.trim().toLowerCase();
+    if (!t) return all;
+    return all.filter((m) => m.name.toLowerCase().includes(t));
   }
 
   async filter(filters: PaymentMethodFilters): Promise<PaymentMethod[]> {
-    let query = supabase.from('payment_methods').select('*');
-    if (filters.search) {
-      query = query.ilike('name', `%${filters.search}%`);
-    }
-    if (filters.active !== undefined) {
-      query = query.eq('active', filters.active);
-    }
-    const { data, error } = await query.order('name');
-    if (error) {
-      toast.error('Erro ao filtrar métodos de pagamento');
-      throw error;
-    }
-    return (data || []).map(PaymentMethodTransformer.fromSupabase);
+    const all = await this.getAll();
+    return all.filter((m) => {
+      if (
+        filters.search &&
+        !m.name.toLowerCase().includes(filters.search.toLowerCase())
+      )
+        return false;
+      if (filters.active !== undefined && m.active !== filters.active)
+        return false;
+      return true;
+    });
   }
 
   validate(

@@ -1,30 +1,44 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const apiUrl = import.meta.env.VITE_SUP_DEV_URL;
-const apiKey = import.meta.env.VITE_SUP_DEV_API_KEY;
+// Variáveis de ambiente
+const SUPABASE_URL = import.meta.env.VITE_SUP_DEV_URL as string | undefined;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUP_DEV_API_KEY as
+  | string
+  | undefined;
 
-// Verificar se as variáveis de ambiente estão configuradas
-if (!apiUrl || !apiKey) {
-  console.error('❌ Variáveis de ambiente do Supabase não configuradas!');
-  console.error(
-    'VITE_SUP_DEV_URL:',
-    apiUrl ? '✅ Configurado' : '❌ Não configurado'
-  );
-  console.error(
-    'VITE_SUP_DEV_API_KEY:',
-    apiKey ? '✅ Configurado' : '❌ Não configurado'
-  );
-  console.error('Crie um arquivo .env na raiz do projeto com:');
-  console.error('VITE_SUP_DEV_URL=sua_url_do_supabase');
-  console.error('VITE_SUP_DEV_API_KEY=sua_chave_do_supabase');
+// Flag indicando se podemos realmente inicializar
+export const isSupabaseConfigured = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+
+// Instância lazy – só cria quando for realmente usada
+let _supabase: SupabaseClient | null = null;
+
+function _create() {
+  if (!isSupabaseConfigured) {
+    throw new Error(
+      'Supabase não configurado (defina VITE_SUP_DEV_URL e VITE_SUP_DEV_API_KEY ou remova o fallback).'
+    );
+  }
+  return createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!);
 }
 
-export const supabase = createClient(apiUrl || '', apiKey || '');
+export function getSupabase(): SupabaseClient {
+  if (!_supabase) {
+    _supabase = _create();
+  }
+  return _supabase;
+}
 
-// Teste de conexão
-export const testConnection = async () => {
+// Export antigo para compatibilidade – pode ser null se não configurado
+// (Evitar usar diretamente; prefira getSupabase())
+export const supabase: SupabaseClient | null = isSupabaseConfigured
+  ? getSupabase()
+  : null;
+
+export async function testConnection(): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
   try {
-    const { data, error } = await supabase
+    const client = getSupabase();
+    const { error } = await client
       .from('patients')
       .select('count', { count: 'exact', head: true });
     if (error) {
@@ -32,7 +46,8 @@ export const testConnection = async () => {
       return false;
     }
     return true;
-  } catch (error) {
+  } catch (err) {
     return false;
   }
-};
+}
+// (export único de testConnection acima)

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useConvenios } from '@/context/ConvenioContext';
+import { useConvenios } from '@/context';
 import { Convenio } from '@/types/convenio';
 import { convenioService } from '@/services/convenioService';
 import { toast } from 'sonner';

@@ -1,5 +1,6 @@
-import { supabase } from '@/lib/supabaseClient';
+// Backend-only appointment service (remove Supabase direto)
 import { toast } from 'sonner';
+import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/apiClient';
 import type {
   Appointment,
   CreateAppointmentData,
@@ -114,28 +115,107 @@ class AppointmentTransformer {
 }
 
 class AppointmentService {
-  /**
-   * Fetch all appointments from database with related data
-   */
-  async getAllAppointments(): Promise<Appointment[]> {
+  // Cache simples para evitar múltiplas chamadas durante uma sessão curta
+  private _cacheTimestamp: number = 0;
+  private _cache: Appointment[] = [];
+  private cacheTTL = 15_000; // 15s
+
+  private async enrichAppointments(
+    rows: SupabaseAppointment[]
+  ): Promise<Appointment[]> {
+    // Tipos mínimos para enriquecer relacionamentos
+    interface PatientRow {
+      id: string;
+      full_name: string;
+      phone: string | null;
+      email: string | null;
+    }
+    interface EmployeeRow {
+      id: string;
+      full_name: string;
+      role: string;
+    }
+    interface ServiceRow {
+      id: number;
+      name: string;
+      duration_minutes: number;
+      price: number;
+    }
+    const [patients, employees, services] = await Promise.all([
+      apiGet<PatientRow[]>('/api/patients').catch(() => []),
+      apiGet<EmployeeRow[]>('/api/employees').catch(() => []),
+      apiGet<ServiceRow[]>('/api/services').catch(() => []),
+    ]);
+    const patientMap = new Map<
+      string,
+      { fullName: string; phone: string | null; email: string | null }
+    >(
+      patients.map(
+        (
+          p
+        ): [
+          string,
+          { fullName: string; phone: string | null; email: string | null }
+        ] => [p.id, { fullName: p.full_name, phone: p.phone, email: p.email }]
+      )
+    );
+    const employeeMap = new Map<string, { fullName: string; role: string }>(
+      employees.map((e): [string, { fullName: string; role: string }] => [
+        e.id,
+        { fullName: e.full_name, role: e.role },
+      ])
+    );
+    const serviceMap = new Map<
+      number,
+      { name: string; durationMinutes: number; price: number }
+    >(
+      services.map(
+        (
+          s
+        ): [
+          number,
+          { name: string; durationMinutes: number; price: number }
+        ] => [
+          s.id,
+          { name: s.name, durationMinutes: s.duration_minutes, price: s.price },
+        ]
+      )
+    );
+    return rows.map((r) => {
+      const base = AppointmentTransformer.fromSupabase(r);
+      const p = patientMap.get(r.patient_id);
+      if (p)
+        base.patient = { fullName: p.fullName, phone: p.phone, email: p.email };
+      const em = employeeMap.get(r.employee_id);
+      if (em) base.employee = { fullName: em.fullName, role: em.role };
+      const sv = serviceMap.get(r.service_id);
+      if (sv)
+        base.service = {
+          name: sv.name,
+          durationMinutes: sv.durationMinutes,
+          price: sv.price,
+        };
+      return base;
+    });
+  }
+
+  async getAllAppointments(force = false): Promise<Appointment[]> {
+    const now = Date.now();
+    if (
+      !force &&
+      this._cache.length &&
+      now - this._cacheTimestamp < this.cacheTTL
+    ) {
+      return this._cache;
+    }
     try {
-      const { data, error } = await supabase
-        .from('appointments')
-        .select(
-          `
-          *,
-          patient:patients(full_name, phone, email),
-          employee:employees(full_name, role),
-          service:services(name, duration_minutes, price)
-        `
-        )
-        .order('appointment_at');
-
-      if (error) throw error;
-
-      return data.map(this.transformWithRelations);
+      const rows = await apiGet<SupabaseAppointment[]>('/api/appointments');
+      const enriched = await this.enrichAppointments(rows);
+      this._cache = enriched;
+      this._cacheTimestamp = now;
+      return enriched;
     } catch (error) {
-      console.error('Error fetching appointments:', error);
+      console.error('Erro ao carregar agendamentos:', error);
       toast.error('Erro ao carregar agendamentos');
       throw error;
     }
@@ -146,26 +226,11 @@ class AppointmentService {
    */
   async getAppointmentById(id: string): Promise<Appointment | null> {
     try {
-      const { data, error } = await supabase
-        .from('appointments')
-        .select(
-          `
-          *,
-          patient:patients(full_name, phone, email),
-          employee:employees(full_name, role),
-          service:services(name, duration_minutes, price)
-        `
-        )
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-
-      if (!data) return null;
-
-      return this.transformWithRelations(data);
+      const row = await apiGet<SupabaseAppointment>(`/api/appointments/${id}`);
+      const [appt] = await this.enrichAppointments([row]);
+      return appt || null;
     } catch (error) {
-      console.error('Error fetching appointment by ID:', error);
+      console.error('Erro ao carregar agendamento:', error);
       toast.error('Erro ao carregar agendamento');
       throw error;
     }
@@ -174,54 +239,20 @@ class AppointmentService {
   /**
    * Create a new appointment
    */
-  async createAppointment(
-    appointmentData: CreateAppointmentData
-  ): Promise<Appointment> {
+  async createAppointment(data: CreateAppointmentData): Promise<Appointment> {
     try {
-      const insertData =
-        AppointmentTransformer.toSupabaseInsert(appointmentData);
-
-      const { data, error } = await supabase
-        .from('appointments')
-        .insert(insertData)
-        .select(
-          `
-          *,
-          patient:patients(full_name, phone, email),
-          employee:employees(full_name, role),
-          service:services(name, duration_minutes, price)
-        `
-        )
-        .single();
-
-      if (error) throw error;
-
-      // Incrementa o times_used do serviço relacionado
-      if (appointmentData.serviceId) {
-        try {
-          // Buscar o valor atual de times_used
-          const { data: serviceData, error: serviceError } = await supabase
-            .from('services')
-            .select('times_used')
-            .eq('id', appointmentData.serviceId)
-            .single();
-          if (!serviceError && serviceData) {
-            await supabase
-              .from('services')
-              .update({ times_used: (serviceData.times_used || 0) + 1 })
-              .eq('id', appointmentData.serviceId);
-          }
-        } catch (e) {
-          // Não bloqueia o agendamento se falhar
-          console.error('Erro ao incrementar times_used do serviço:', e);
-        }
-      }
-
-      toast.success('Agendamento criado com sucesso!');
-
-      return this.transformWithRelations(data);
+      const payload = AppointmentTransformer.toSupabaseInsert(data);
+      const created = await apiPost<SupabaseAppointment>(
+        '/api/appointments',
+        payload
+      );
+      // Backend já cuida de times_used
+      const [appt] = await this.enrichAppointments([created]);
+      this._cacheTimestamp = 0; // invalida cache
+      toast.success('Agendamento criado');
+      return appt;
     } catch (error) {
-      console.error('Error creating appointment:', error);
+      console.error('Erro ao criar agendamento:', error);
       toast.error('Erro ao criar agendamento');
       throw error;
     }
@@ -230,34 +261,28 @@ class AppointmentService {
   /**
    * Update an existing appointment
    */
-  async updateAppointment(
-    appointmentData: UpdateAppointmentData
-  ): Promise<Appointment> {
+  async updateAppointment(data: UpdateAppointmentData): Promise<Appointment> {
     try {
-      const updateData =
-        AppointmentTransformer.toSupabaseUpdate(appointmentData);
-
-      const { data, error } = await supabase
-        .from('appointments')
-        .update(updateData)
-        .eq('id', appointmentData.id)
-        .select(
-          `
-          *,
-          patient:patients(full_name, phone, email),
-          employee:employees(full_name, role),
-          service:services(name, duration_minutes, price)
-        `
-        )
-        .single();
-
-      if (error) throw error;
-
-      toast.success('Agendamento atualizado com sucesso!');
-
-      return this.transformWithRelations(data);
+      const payload = AppointmentTransformer.toSupabaseUpdate(data);
+      const updated = await apiPut<SupabaseAppointment>(
+        `/api/appointments/${data.id}`,
+        {
+          // Para atualização completa mantendo compatibilidade com backend (usa PUT)
+          patient_id: payload.patient_id ?? data.patientId,
+          employee_id: payload.employee_id ?? data.employeeId,
+          service_id: payload.service_id ?? data.serviceId,
+          appointment_at: payload.appointment_at ?? data.appointmentAt!,
+          appointment_end: payload.appointment_end ?? data.appointmentEnd!,
+          date: payload.date ?? data.date,
+          status: payload.status ?? data.status,
+        }
+      );
+      const [appt] = await this.enrichAppointments([updated]);
+      this._cacheTimestamp = 0;
+      toast.success('Agendamento atualizado');
+      return appt;
     } catch (error) {
-      console.error('Error updating appointment:', error);
+      console.error('Erro ao atualizar agendamento:', error);
       toast.error('Erro ao atualizar agendamento');
       throw error;
     }
@@ -268,16 +293,11 @@ class AppointmentService {
    */
   async deleteAppointment(id: string): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('appointments')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      toast.success('Agendamento removido com sucesso!');
+      await apiDelete(`/api/appointments/${id}`);
+      this._cacheTimestamp = 0;
+      toast.success('Agendamento removido');
     } catch (error) {
-      console.error('Error deleting appointment:', error);
+      console.error('Erro ao remover agendamento:', error);
       toast.error('Erro ao remover agendamento');
       throw error;
     }
@@ -287,56 +307,16 @@ class AppointmentService {
    * Get appointments for a specific date
    */
   async getAppointmentsByDate(date: string): Promise<Appointment[]> {
-    try {
-      const { data, error } = await supabase
-        .from('appointments')
-        .select(
-          `
-          *,
-          patient:patients(full_name, phone, email),
-          employee:employees(full_name, role),
-          service:services(name, duration_minutes, price)
-        `
-        )
-        .eq('date', date)
-        .order('appointment_at');
-
-      if (error) throw error;
-
-      return data.map(this.transformWithRelations);
-    } catch (error) {
-      console.error('Error fetching appointments by date:', error);
-      toast.error('Erro ao carregar agendamentos da data');
-      throw error;
-    }
+    const all = await this.getAllAppointments();
+    return all.filter((a) => a.date === date);
   }
 
   /**
    * Get appointments for a specific employee
    */
   async getAppointmentsByEmployee(employeeId: string): Promise<Appointment[]> {
-    try {
-      const { data, error } = await supabase
-        .from('appointments')
-        .select(
-          `
-          *,
-          patient:patients(full_name, phone, email),
-          employee:employees(full_name, role),
-          service:services(name, duration_minutes, price)
-        `
-        )
-        .eq('employee_id', employeeId)
-        .order('appointment_at');
-
-      if (error) throw error;
-
-      return data.map(this.transformWithRelations);
-    } catch (error) {
-      console.error('Error fetching appointments by employee:', error);
-      toast.error('Erro ao carregar agendamentos do funcionário');
-      throw error;
-    }
+    const all = await this.getAllAppointments();
+    return all.filter((a) => a.employeeId === employeeId);
   }
 
   /**
@@ -345,73 +325,44 @@ class AppointmentService {
   async getNextAppointmentForPatient(
     patientId: string
   ): Promise<Appointment | null> {
-    try {
-      const nowIso = new Date().toISOString();
-      const { data, error } = await supabase
-        .from('appointments')
-        .select(
-          `
-          *,
-          patient:patients(full_name, phone, email),
-          employee:employees(full_name, role),
-          service:services(name, duration_minutes, price)
-        `
-        )
-        .eq('patient_id', patientId)
-        .gte('appointment_at', nowIso)
-        .in('status', [
-          AppointmentStatus.AGENDADA,
-          AppointmentStatus.CONFIRMADA,
-          AppointmentStatus.REAGENDADA,
-          AppointmentStatus.EM_ANDAMENTO,
-        ])
-        .order('appointment_at', { ascending: true })
-        .limit(1);
-
-      if (error) throw error;
-
-      if (!data || data.length === 0) return null;
-
-      return this.transformWithRelations(data[0]);
-    } catch (error) {
-      console.error('Error fetching next appointment for patient:', error);
-      toast.error('Erro ao buscar próxima consulta do paciente');
-      throw error;
-    }
+    const all = await this.getAllAppointments();
+    const now = new Date();
+    const upcoming = all
+      .filter(
+        (a) =>
+          a.patientId === patientId &&
+          new Date(a.appointmentAt) >= now &&
+          [
+            AppointmentStatus.AGENDADA,
+            AppointmentStatus.CONFIRMADA,
+            AppointmentStatus.REAGENDADA,
+            AppointmentStatus.EM_ANDAMENTO,
+          ].includes(a.status as AppointmentStatus)
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.appointmentAt).getTime() -
+          new Date(b.appointmentAt).getTime()
+      );
+    return upcoming[0] || null;
   }
 
   /**
    * Search appointments by term
    */
   async searchAppointments(searchTerm: string): Promise<Appointment[]> {
-    try {
-      if (!searchTerm.trim()) {
-        return this.getAllAppointments();
-      }
-
-      const { data, error } = await supabase
-        .from('appointments')
-        .select(
-          `
-          *,
-          patient:patients(full_name, phone, email),
-          employee:employees(full_name, role),
-          service:services(name, duration_minutes, price)
-        `
-        )
-        .or(
-          `patient.full_name.ilike.%${searchTerm}%,employee.full_name.ilike.%${searchTerm}%,service.name.ilike.%${searchTerm}%`
-        )
-        .order('appointment_at');
-
-      if (error) throw error;
-
-      return data.map(this.transformWithRelations);
-    } catch (error) {
-      console.error('Error searching appointments:', error);
-      toast.error('Erro ao buscar agendamentos');
-      throw error;
-    }
+    const term = searchTerm.trim().toLowerCase();
+    const all = await this.getAllAppointments();
+    if (!term) return all;
+    return all.filter((a) =>
+      [
+        a.patient?.fullName || '',
+        a.employee?.fullName || '',
+        a.service?.name || '',
+      ]
+        .map((t) => t.toLowerCase())
+        .some((f) => f.includes(term))
+    );
   }
 
   /**
@@ -420,206 +371,82 @@ class AppointmentService {
   async filterAppointments(
     filters: AppointmentFilters
   ): Promise<Appointment[]> {
-    try {
-      let query = supabase.from('appointments').select(`
-          *,
-          patient:patients(full_name, phone, email),
-          employee:employees(full_name, role),
-          service:services(name, duration_minutes, price)
-        `);
-
-      // Apply search filter
-      if (filters.search) {
-        query = query.or(
-          `patient.full_name.ilike.%${filters.search}%,employee.full_name.ilike.%${filters.search}%,service.name.ilike.%${filters.search}%`
-        );
+    const all = await this.getAllAppointments();
+    return all.filter((a) => {
+      if (filters.search && filters.search.trim() !== '') {
+        const t = filters.search.toLowerCase();
+        if (
+          ![
+            a.patient?.fullName || '',
+            a.employee?.fullName || '',
+            a.service?.name || '',
+          ]
+            .map((f) => f.toLowerCase())
+            .some((f) => f.includes(t))
+        )
+          return false;
       }
-
-      // Apply status filter
-      if (filters.status && filters.status !== 'all') {
-        query = query.eq('status', filters.status);
-      }
-
-      // Apply employee filter
-      if (filters.employeeId) {
-        query = query.eq('employee_id', filters.employeeId);
-      }
-
-      // Apply service filter
-      if (filters.serviceId) {
-        query = query.eq('service_id', filters.serviceId);
-      }
-
-      // Apply date range filter
+      if (
+        filters.status &&
+        filters.status !== 'all' &&
+        a.status !== filters.status
+      )
+        return false;
+      if (filters.employeeId && a.employeeId !== filters.employeeId)
+        return false;
+      if (filters.serviceId && a.serviceId !== filters.serviceId) return false;
       if (filters.dateRange) {
-        const toDateOnly = (s: string) =>
-          new Date(s).toISOString().slice(0, 10);
-        if (filters.dateRange.start) {
-          query = query.gte('date', toDateOnly(filters.dateRange.start));
-        }
-        if (filters.dateRange.end) {
-          query = query.lte('date', toDateOnly(filters.dateRange.end));
-        }
+        if (
+          filters.dateRange.start &&
+          a.date < filters.dateRange.start.slice(0, 10)
+        )
+          return false;
+        if (
+          filters.dateRange.end &&
+          a.date > filters.dateRange.end.slice(0, 10)
+        )
+          return false;
       }
-
-      const { data, error } = await query.order('appointment_at');
-
-      if (error) throw error;
-
-      return data.map(this.transformWithRelations);
-    } catch (error) {
-      console.error('Error filtering appointments:', error);
-      toast.error('Erro ao filtrar agendamentos');
-      throw error;
-    }
+      return true;
+    });
   }
 
   /**
    * Get appointment statistics
    */
   async getAppointmentStats(): Promise<AppointmentStats> {
-    try {
-      // Get total appointments
-      const { count: total, error: totalError } = await supabase
-        .from('appointments')
-        .select('*', { count: 'exact', head: true });
-
-      if (totalError) throw totalError;
-
-      // Get today's appointments
-      const today = new Date();
-      const todayStr = today.toISOString().slice(0, 10);
-
-      const { count: todayCount, error: todayError } = await supabase
-        .from('appointments')
-        .select('*', { count: 'exact', head: true })
-        .eq('date', todayStr);
-
-      if (todayError) throw todayError;
-
-      // Get this week's appointments
-      const startOfWeek = new Date(today);
-      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(endOfWeek.getDate() + 7);
-
-      const { count: thisWeek, error: weekError } = await supabase
-        .from('appointments')
-        .select('*', { count: 'exact', head: true })
-        .gte('date', startOfWeek.toISOString().slice(0, 10))
-        .lt('date', endOfWeek.toISOString().slice(0, 10));
-
-      if (weekError) throw weekError;
-
-      // Get this month's appointments
-      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
-      const { count: thisMonth, error: monthError } = await supabase
-        .from('appointments')
-        .select('*', { count: 'exact', head: true })
-        .gte('date', startOfMonth.toISOString().slice(0, 10))
-        .lte('date', endOfMonth.toISOString().slice(0, 10));
-
-      if (monthError) throw monthError;
-
-      // Get appointments by status
-      const { data: statusData, error: statusError } = await supabase
-        .from('appointments')
-        .select('status');
-
-      if (statusError) throw statusError;
-
-      const byStatus: Record<string, number> = {};
-      statusData?.forEach((appointment) => {
-        byStatus[appointment.status] = (byStatus[appointment.status] || 0) + 1;
-      });
-
-      // Get appointments by employee
-      const { data: employeeData, error: employeeError } = await supabase
-        .from('appointments')
-        .select('employee_id');
-
-      if (employeeError) throw employeeError;
-
-      const byEmployee: Record<string, number> = {};
-      employeeData?.forEach((appointment) => {
-        byEmployee[appointment.employee_id] =
-          (byEmployee[appointment.employee_id] || 0) + 1;
-      });
-
-      return {
-        total: total || 0,
-        today: todayCount || 0,
-        thisWeek: thisWeek || 0,
-        thisMonth: thisMonth || 0,
-        byStatus,
-        byEmployee,
-      };
-    } catch (error) {
-      console.error('Error getting appointment stats:', error);
-      toast.error('Erro ao carregar estatísticas');
-      throw error;
+    const all = await this.getAllAppointments();
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10);
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(endOfWeek.getDate() + 7);
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    const byStatus: Record<string, number> = {};
+    const byEmployee: Record<string, number> = {};
+    for (const a of all) {
+      byStatus[a.status] = (byStatus[a.status] || 0) + 1;
+      byEmployee[a.employeeId] = (byEmployee[a.employeeId] || 0) + 1;
     }
+    return {
+      total: all.length,
+      today: all.filter((a) => a.date === todayStr).length,
+      thisWeek: all.filter((a) => {
+        const d = new Date(a.date + 'T00:00:00');
+        return d >= startOfWeek && d < endOfWeek;
+      }).length,
+      thisMonth: all.filter((a) => {
+        const d = new Date(a.date + 'T00:00:00');
+        return d >= startOfMonth && d <= endOfMonth;
+      }).length,
+      byStatus,
+      byEmployee,
+    };
   }
 
-  /**
-   * Transform appointment data with relations
-   */
-  private transformWithRelations(data: {
-    id: string;
-    patient_id: string;
-    employee_id: string;
-    service_id: number;
-    appointment_at: string;
-    appointment_end: string;
-    date: string;
-    status: string;
-    created_at: string;
-    updated_at: string;
-    patient?: {
-      full_name: string;
-      phone: string | null;
-      email: string | null;
-    };
-    employee?: {
-      full_name: string;
-      role: string;
-    };
-    service?: {
-      name: string;
-      duration_minutes: number;
-      price: number;
-    };
-  }): Appointment {
-    const appointment = AppointmentTransformer.fromSupabase(data);
-
-    // Add related data if available
-    if (data.patient) {
-      appointment.patient = {
-        fullName: data.patient.full_name,
-        phone: data.patient.phone,
-        email: data.patient.email,
-      };
-    }
-
-    if (data.employee) {
-      appointment.employee = {
-        fullName: data.employee.full_name,
-        role: data.employee.role,
-      };
-    }
-
-    if (data.service) {
-      appointment.service = {
-        name: data.service.name,
-        durationMinutes: data.service.duration_minutes,
-        price: data.service.price,
-      };
-    }
-
-    return appointment;
-  }
+  // (transformWithRelations removido – enriquecimento feito em enrichAppointments)
 
   /**
    * Validate appointment data

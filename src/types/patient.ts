@@ -76,6 +76,9 @@ export interface SupabasePatientUpdate {
 export interface PatientFilters {
   search?: string;
   status?: string;
+  // Data de criação (intervalo) - usado apenas no frontend por enquanto
+  dateFrom?: string; // ISO date (inclusive)
+  dateTo?: string; // ISO date (inclusive)
 }
 
 // Estatísticas de pacientes
@@ -93,4 +96,4 @@ export interface ValidationResult {
 }
 
 // Status do paciente (para compatibilidade)
-export type PatientStatus = "ativo" | "inativo" | "";
+export type PatientStatus = 'ativo' | 'inativo' | '';

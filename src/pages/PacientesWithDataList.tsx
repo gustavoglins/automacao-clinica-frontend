@@ -14,7 +14,7 @@ import {
 } from '@/components/pacientes';
 import { Patient, PatientStatus } from '@/types/patient';
 import { patientService } from '@/services/patientService';
-import { usePatients } from '@/context/PatientContext';
+import { usePatients } from '@/context';
 
 const PacientesWithDataList = () => {
   const [search, setSearch] = useState('');

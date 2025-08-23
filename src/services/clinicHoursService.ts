@@ -1,4 +1,5 @@
-import { supabase } from '@/lib/supabaseClient';
+// Backend-only implementation (removed Supabase usage)
+import { apiGet, apiPut } from '@/lib/apiClient';
 import { toast } from 'sonner';
 import { webhookService, WebhookOperation } from './webhookService';
 import type {
@@ -8,7 +9,7 @@ import type {
   DayOfWeek,
 } from '@/types/clinicHours';
 
-interface SupabaseClinicHours {
+interface ClinicHoursDto {
   id: number;
   day_of_week: string;
   open_time: string | null;
@@ -16,7 +17,7 @@ interface SupabaseClinicHours {
   is_open: boolean;
 }
 
-function transformFromSupabase(data: SupabaseClinicHours): ClinicHours {
+function fromDto(data: ClinicHoursDto): ClinicHours {
   return {
     id: data.id,
     dayOfWeek: data.day_of_week,
@@ -26,11 +27,8 @@ function transformFromSupabase(data: SupabaseClinicHours): ClinicHours {
   };
 }
 
-function transformToSupabase(
-  data: CreateClinicHoursData
-): Omit<SupabaseClinicHours, 'id'> {
+function toDtoPayload(data: CreateClinicHoursData) {
   return {
-    day_of_week: data.dayOfWeek,
     open_time: data.openTime,
     close_time: data.closeTime,
     is_open: data.isOpen,
@@ -41,18 +39,8 @@ export const clinicHoursService = {
   // Buscar todos os horários de funcionamento
   async getAllClinicHours(): Promise<ClinicHours[]> {
     try {
-      const { data, error } = await supabase
-        .from('clinic_hours')
-        .select('*')
-        .order('id');
-
-      if (error) {
-        console.error('Erro ao buscar horários de funcionamento:', error);
-        toast.error('Erro ao carregar horários de funcionamento');
-        return [];
-      }
-
-      return data.map(transformFromSupabase);
+      const data = await apiGet<ClinicHoursDto[]>('/api/clinic-hours');
+      return data.map(fromDto);
     } catch (error) {
       console.error('Erro ao buscar horários de funcionamento:', error);
       toast.error('Erro ao carregar horários de funcionamento');
@@ -63,22 +51,10 @@ export const clinicHoursService = {
   // Buscar horário de funcionamento por dia da semana
   async getClinicHoursByDay(dayOfWeek: string): Promise<ClinicHours | null> {
     try {
-      const { data, error } = await supabase
-        .from('clinic_hours')
-        .select('*')
-        .eq('day_of_week', dayOfWeek)
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') {
-          return null; // Não encontrado
-        }
-        console.error('Erro ao buscar horário de funcionamento:', error);
-        toast.error('Erro ao carregar horário de funcionamento');
-        return null;
-      }
-
-      return transformFromSupabase(data);
+      const data = await apiGet<ClinicHoursDto>(
+        `/api/clinic-hours/${dayOfWeek}`
+      );
+      return data ? fromDto(data) : null;
     } catch (error) {
       console.error('Erro ao buscar horário de funcionamento:', error);
       toast.error('Erro ao carregar horário de funcionamento');
@@ -92,31 +68,14 @@ export const clinicHoursService = {
     hoursData: Omit<CreateClinicHoursData, 'dayOfWeek'>
   ): Promise<ClinicHours | null> {
     try {
-      const dataToUpsert = transformToSupabase({
-        dayOfWeek,
-        ...hoursData,
-      });
-
-      const { data, error } = await supabase
-        .from('clinic_hours')
-        .upsert(dataToUpsert, {
-          onConflict: 'day_of_week',
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Erro ao salvar horário de funcionamento:', error);
-        toast.error('Erro ao salvar horário de funcionamento');
-        return null;
-      }
-
+      const payload = toDtoPayload({ dayOfWeek, ...hoursData });
+      const data = await apiPut<ClinicHoursDto>(
+        `/api/clinic-hours/${dayOfWeek}`,
+        payload
+      );
       toast.success('Horário de funcionamento salvo com sucesso!');
-
-      // Enviar notificação de webhook (para operações individuais)
       await webhookService.notifyClinicHours(WebhookOperation.UPDATE);
-
-      return transformFromSupabase(data);
+      return fromDto(data);
     } catch (error) {
       console.error('Erro ao salvar horário de funcionamento:', error);
       toast.error('Erro ao salvar horário de funcionamento');
@@ -130,25 +89,12 @@ export const clinicHoursService = {
     hoursData: Omit<CreateClinicHoursData, 'dayOfWeek'>
   ): Promise<ClinicHours | null> {
     try {
-      const dataToUpsert = transformToSupabase({
-        dayOfWeek,
-        ...hoursData,
-      });
-
-      const { data, error } = await supabase
-        .from('clinic_hours')
-        .upsert(dataToUpsert, {
-          onConflict: 'day_of_week',
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Erro ao salvar horário de funcionamento:', error);
-        return null;
-      }
-
-      return transformFromSupabase(data);
+      const payload = toDtoPayload({ dayOfWeek, ...hoursData });
+      const data = await apiPut<ClinicHoursDto>(
+        `/api/clinic-hours/${dayOfWeek}`,
+        payload
+      );
+      return fromDto(data);
     } catch (error) {
       console.error('Erro ao salvar horário de funcionamento:', error);
       return null;
@@ -225,33 +171,30 @@ export const clinicHoursService = {
     hoursData: UpdateClinicHoursData
   ): Promise<ClinicHours | null> {
     try {
-      const updateData: Partial<SupabaseClinicHours> = {};
-
-      if (hoursData.openTime !== undefined)
-        updateData.open_time = hoursData.openTime;
-      if (hoursData.closeTime !== undefined)
-        updateData.close_time = hoursData.closeTime;
-      if (hoursData.isOpen !== undefined) updateData.is_open = hoursData.isOpen;
-
-      const { data, error } = await supabase
-        .from('clinic_hours')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Erro ao atualizar horário de funcionamento:', error);
-        toast.error('Erro ao atualizar horário de funcionamento');
+      // Como o backend atualiza por dia, precisamos descobrir o dia a partir do id
+      const all = await this.getAllClinicHours();
+      const record = all.find((h) => h.id === id);
+      if (!record) {
+        toast.error('Horário não encontrado');
         return null;
       }
-
+      const payload: Partial<{
+        open_time: string | null;
+        close_time: string | null;
+        is_open: boolean;
+      }> = {};
+      if (hoursData.openTime !== undefined)
+        payload.open_time = hoursData.openTime;
+      if (hoursData.closeTime !== undefined)
+        payload.close_time = hoursData.closeTime;
+      if (hoursData.isOpen !== undefined) payload.is_open = hoursData.isOpen;
+      const data = await apiPut<ClinicHoursDto>(
+        `/api/clinic-hours/${record.dayOfWeek}`,
+        payload
+      );
       toast.success('Horário de funcionamento atualizado com sucesso!');
-
-      // Enviar notificação de webhook
       await webhookService.notifyClinicHours(WebhookOperation.UPDATE);
-
-      return transformFromSupabase(data);
+      return fromDto(data);
     } catch (error) {
       console.error('Erro ao atualizar horário de funcionamento:', error);
       toast.error('Erro ao atualizar horário de funcionamento');

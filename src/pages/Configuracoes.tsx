@@ -11,6 +11,7 @@ import { Clock, Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { ClinicAddressSettings } from '@/components/configuracoes';
+import { clinicHoursService } from '@/services/clinicHoursService';
 
 // Interface para os horários da clínica
 interface ClinicHour {
@@ -59,90 +60,42 @@ const Configuracoes = () => {
   const [loading, setLoading] = useState(false);
   const [loadingHorarios, setLoadingHorarios] = useState(true);
 
-  // Função para salvar horários no Supabase
+  // Salvar horários via backend service
   const saveClinicHours = async () => {
     try {
       setLoading(true);
-
-      // Primeiro, busca os registros existentes
-      const { data: existingData, error: fetchError } = await supabase
-        .from('clinic_hours')
-        .select('*');
-
-      if (fetchError) {
-        console.error('Erro ao buscar horários existentes:', fetchError);
-        toast.error('Erro ao buscar horários existentes');
-        return;
-      }
-
-      // Prepara os dados para upsert
-      const horariosParaSalvar = Object.entries(horarioFuncionamento).map(
-        ([diaLocal, config]) => {
-          const diaDB = diasSemanaMap[diaLocal as keyof typeof diasSemanaMap];
-          const existingRecord = existingData?.find(
-            (record) => record.day_of_week === diaDB
-          );
-
-          return {
-            id: existingRecord?.id,
-            day_of_week: diaDB,
-            open_time: config.inicio,
-            close_time: config.fim,
-            is_open: config.ativo,
-          };
-        }
-      );
-
-      // Faz upsert (insert ou update)
-      const { error } = await supabase
-        .from('clinic_hours')
-        .upsert(horariosParaSalvar, {
-          onConflict: 'day_of_week',
-          ignoreDuplicates: false,
-        });
-
-      if (error) {
-        console.error('Erro ao salvar horários:', error);
-        toast.error('Erro ao salvar horários de funcionamento');
-      } else {
-        toast.success('Horários de funcionamento salvos com sucesso!');
-
-        // Enviar notificação de webhook
-        try {
-          await webhookService.notifyClinicHours(WebhookOperation.UPDATE);
-          console.log('✅ [Webhook] Notificação enviada para clinic-hours');
-        } catch (webhookError) {
-          console.error(
-            '❌ [Webhook] Erro ao enviar notificação:',
-            webhookError
-          );
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao salvar horários:', error);
+      const payload: Array<{
+        dayOfWeek: string;
+        openTime: string;
+        closeTime: string;
+        isOpen: boolean;
+      }> = Object.entries(horarioFuncionamento).map(([diaLocal, config]) => {
+        const diaBackend =
+          diasSemanaMap[diaLocal as keyof typeof diasSemanaMap];
+        return {
+          dayOfWeek: diaBackend,
+          openTime: config.inicio,
+          closeTime: config.fim,
+          isOpen: config.ativo,
+        };
+      });
+      await clinicHoursService.saveMultipleClinicHours(payload);
+    } catch (e) {
+      console.error('Erro ao salvar horários (service):', e);
       toast.error('Erro ao salvar horários de funcionamento');
     } finally {
       setLoading(false);
     }
   };
 
-  // Carrega os horários quando o componente monta
+  // Carrega os horários quando o componente monta (via backend service)
   useEffect(() => {
+    let ignore = false;
     const loadClinicHours = async () => {
       try {
         setLoadingHorarios(true);
-        const { data, error } = await supabase
-          .from('clinic_hours')
-          .select('*')
-          .order('id');
-
-        if (error) {
-          console.error('Erro ao carregar horários:', error);
-          return;
-        }
-
-        if (data && data.length > 0) {
-          // Converte os dados do Supabase para o formato do estado local
+        const data = await clinicHoursService.getAllClinicHours();
+        if (!ignore && data.length) {
           const horariosDB = {
             segunda: { ativo: true, inicio: '08:00', fim: '18:00' },
             terca: { ativo: true, inicio: '08:00', fim: '18:00' },
@@ -152,28 +105,28 @@ const Configuracoes = () => {
             sabado: { ativo: true, inicio: '08:00', fim: '12:00' },
             domingo: { ativo: false, inicio: '08:00', fim: '18:00' },
           };
-
           Object.entries(diasSemanaMap).forEach(([diaLocal, diaDB]) => {
-            const horarioDB = data.find((h) => h.day_of_week === diaDB);
+            const horarioDB = data.find((h) => h.dayOfWeek === diaDB);
             if (horarioDB) {
               horariosDB[diaLocal as keyof typeof horariosDB] = {
-                ativo: horarioDB.is_open,
-                inicio: horarioDB.open_time,
-                fim: horarioDB.close_time,
+                ativo: horarioDB.isOpen,
+                inicio: horarioDB.openTime || '08:00',
+                fim: horarioDB.closeTime || '18:00',
               };
             }
           });
-
           setHorarioFuncionamento(horariosDB);
         }
       } catch (error) {
         console.error('Erro ao carregar horários:', error);
       } finally {
-        setLoadingHorarios(false);
+        if (!ignore) setLoadingHorarios(false);
       }
     };
-
     loadClinicHours();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const handleSave = (e: React.FormEvent) => {

@@ -25,7 +25,7 @@ import {
   FilterDialog,
 } from '@/components/funcionarios';
 import { toast } from 'sonner';
-import { useEmployees } from '@/context/EmployeeContext';
+import { useEmployees } from '@/context/hooks/useEmployees';
 
 interface FilterState {
   search: string;
@@ -92,8 +92,11 @@ function Funcionarios() {
     if (rawSearch) {
       matchesSearch =
         employee.fullName.toLowerCase().includes(searchLower) ||
-        (!!employee.email && employee.email.toLowerCase().includes(searchLower)) ||
-        (searchNumbers !== '' && !!employee.phone && employee.phone.includes(searchNumbers)) ||
+        (!!employee.email &&
+          employee.email.toLowerCase().includes(searchLower)) ||
+        (searchNumbers !== '' &&
+          !!employee.phone &&
+          employee.phone.includes(searchNumbers)) ||
         (!!employee.phone && employee.phone.includes(rawSearch));
     }
 
@@ -221,7 +224,7 @@ function Funcionarios() {
 
   const handleEmployeeAdded = async (employeeData: CreateEmployeeData) => {
     try {
-      await employeeService.createEmployeeWithSchedule(employeeData);
+      await employeeService.createEmployee(employeeData);
       fetchEmployees();
       setAddDialogOpen(false);
       // Toast de sucesso/erro já é disparado pelo service

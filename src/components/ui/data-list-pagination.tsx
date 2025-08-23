@@ -1,7 +1,7 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
-import { cn } from "@/lib/utils";
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface DataListPaginationProps {
   currentPage: number;
@@ -28,7 +28,7 @@ export const DataListPagination: React.FC<DataListPaginationProps> = ({
 }) => {
   // Gerar lista de páginas para mostrar
   const getPageNumbers = () => {
-    const pages: (number | "...")[] = [];
+    const pages: (number | '...')[] = [];
     const maxVisiblePages = 5;
 
     if (totalPages <= maxVisiblePages) {
@@ -45,7 +45,7 @@ export const DataListPagination: React.FC<DataListPaginationProps> = ({
 
       // Adiciona ... se necessário
       if (startPage > 2) {
-        pages.push("...");
+        pages.push('...');
       }
 
       // Adiciona páginas ao redor da atual
@@ -55,7 +55,7 @@ export const DataListPagination: React.FC<DataListPaginationProps> = ({
 
       // Adiciona ... se necessário
       if (endPage < totalPages - 1) {
-        pages.push("...");
+        pages.push('...');
       }
 
       // Sempre mostra a última página
@@ -95,28 +95,30 @@ export const DataListPagination: React.FC<DataListPaginationProps> = ({
 
         {/* Números das páginas */}
         <div className="flex items-center gap-1">
-          {pageNumbers.map((page, index) => (
-            <React.Fragment key={index}>
-              {page === "..." ? (
-                <div className="flex h-8 w-8 items-center justify-center">
-                  <MoreHorizontal className="h-4 w-4" />
-                </div>
-              ) : (
-                <Button
-                  variant={page === currentPage ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => onPageChange(page)}
-                  disabled={loading}
-                  className={cn(
-                    "h-8 w-8 p-0",
-                    page === currentPage && "bg-primary text-primary-foreground"
-                  )}
-                >
-                  {page}
-                </Button>
-              )}
-            </React.Fragment>
-          ))}
+          {pageNumbers.map((page, index) =>
+            page === '...' ? (
+              <div
+                key={`ellipsis-${index}`}
+                className="flex h-8 w-8 items-center justify-center"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </div>
+            ) : (
+              <Button
+                key={`page-${page}`}
+                variant={page === currentPage ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => onPageChange(page)}
+                disabled={loading}
+                className={cn(
+                  'h-8 w-8 p-0',
+                  page === currentPage && 'bg-primary text-primary-foreground'
+                )}
+              >
+                {page}
+              </Button>
+            )
+          )}
         </div>
 
         {/* Botão próximo */}

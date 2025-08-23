@@ -1,6 +1,8 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { convenioService } from '@/services/convenioService';
+import { isBackendEnabled } from '@/lib/apiClient';
 import type { Convenio } from '@/types/convenio';
+import ConvenioContext from './internal/ConvenioContextInternal';
 
 interface ConvenioContextProps {
   convenios: Convenio[];
@@ -9,16 +11,7 @@ interface ConvenioContextProps {
   fetchConvenios: () => Promise<void>;
 }
 
-const ConvenioContext = createContext<ConvenioContextProps | undefined>(
-  undefined
-);
-
-export function useConvenios() {
-  const ctx = useContext(ConvenioContext);
-  if (!ctx)
-    throw new Error('useConvenios must be used within ConvenioProvider');
-  return ctx;
-}
+// Hook movido para hooks/useConvenios.ts
 
 export function ConvenioProvider({ children }: { children: React.ReactNode }) {
   const [convenios, setConvenios] = useState<Convenio[]>([]);
@@ -27,6 +20,10 @@ export function ConvenioProvider({ children }: { children: React.ReactNode }) {
   const fetchConvenios = async () => {
     setLoading(true);
     try {
+      if (!isBackendEnabled) {
+        setConvenios([]);
+        return;
+      }
       const data = await convenioService.getAll();
       setConvenios(data);
     } catch (e) {

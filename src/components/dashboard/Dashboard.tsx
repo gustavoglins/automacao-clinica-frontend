@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 // Helper para capitalizar a primeira letra
 function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -17,42 +17,42 @@ import {
   User,
   Zap,
   Stethoscope,
-} from "lucide-react";
-import { StatsCard } from "./StatsCard";
+} from 'lucide-react';
+import { StatsCard } from './StatsCard';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
-import { AddEmployeeDialog } from "@/components/funcionarios/AddEmployeeDialog";
-import AddPatientDialog from "@/components/pacientes/AddPatientDialog";
-import ServiceFormDialog from "@/components/servicos/ServiceFormDialog";
+} from '@/components/ui/dialog';
+import { AddEmployeeDialog } from '@/components/funcionarios/AddEmployeeDialog';
+import AddPatientDialog from '@/components/pacientes/AddPatientDialog';
+import ServiceFormDialog from '@/components/servicos/ServiceFormDialog';
 import {
   AddAppointmentDialog,
   AppointmentProfileDialog,
-} from "@/components/agenda";
+} from '@/components/agenda';
 import {
   dashboardService,
   DashboardStats,
   TodayAppointment,
   NextAppointment,
-} from "@/services/dashboardService";
-import { employeeService } from "@/services/employeeService";
-import { serviceService } from "@/services/servicesService";
-import { patientService } from "@/services/patientService";
-import { appointmentService } from "@/services/appointmentService";
-import { UpdateAppointmentData } from "@/types/appointment";
-import { useDashboard } from "@/context/DashboardContext";
+} from '@/services/dashboardService';
+import { employeeService } from '@/services/employeeService';
+import { serviceService } from '@/services/servicesService';
+import { patientService } from '@/services/patientService';
+import { appointmentService } from '@/services/appointmentService';
+import { UpdateAppointmentData } from '@/types/appointment';
+import { useDashboard } from '@/context/hooks/useDashboard';
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -69,28 +69,28 @@ export function Dashboard() {
 
   const todayStats = [
     {
-      title: "Consultas Agendadas",
+      title: 'Consultas Agendadas',
       value: allScheduledAppointments,
       icon: Calendar,
-      change: { value: "", type: "increase" as const },
+      change: { value: '', type: 'increase' as const },
     },
     {
-      title: "Pacientes Ativos",
+      title: 'Pacientes Ativos',
       value: stats.activePatients,
       icon: Users,
-      change: { value: "", type: "increase" as const },
+      change: { value: '', type: 'increase' as const },
     },
     {
-      title: "Funcionários Ativos",
+      title: 'Funcionários Ativos',
       value: activeEmployees,
       icon: UserCheck,
-      change: { value: "", type: "increase" as const },
+      change: { value: '', type: 'increase' as const },
     },
     {
-      title: "Serviços Ativos",
+      title: 'Serviços Ativos',
       value: activeServices,
       icon: Briefcase,
-      change: { value: "", type: "increase" as const },
+      change: { value: '', type: 'increase' as const },
     },
   ];
 
@@ -111,16 +111,16 @@ export function Dashboard() {
     const handlerService = () => setOpenServiceFormDialog(true);
     const handlerEmployee = () => setOpenAddEmployeeDialog(true);
     const handlerAppointment = () => setOpenAddAppointmentDialog(true);
-    window.addEventListener("openAddPatientDialog", handlerPatient);
-    window.addEventListener("openAddServiceDialog", handlerService);
-    window.addEventListener("openAddEmployeeDialog", handlerEmployee);
-    window.addEventListener("openAddAppointmentDialog", handlerAppointment);
+    window.addEventListener('openAddPatientDialog', handlerPatient);
+    window.addEventListener('openAddServiceDialog', handlerService);
+    window.addEventListener('openAddEmployeeDialog', handlerEmployee);
+    window.addEventListener('openAddAppointmentDialog', handlerAppointment);
     return () => {
-      window.removeEventListener("openAddPatientDialog", handlerPatient);
-      window.removeEventListener("openAddServiceDialog", handlerService);
-      window.removeEventListener("openAddEmployeeDialog", handlerEmployee);
+      window.removeEventListener('openAddPatientDialog', handlerPatient);
+      window.removeEventListener('openAddServiceDialog', handlerService);
+      window.removeEventListener('openAddEmployeeDialog', handlerEmployee);
       window.removeEventListener(
-        "openAddAppointmentDialog",
+        'openAddAppointmentDialog',
         handlerAppointment
       );
     };
@@ -141,11 +141,11 @@ export function Dashboard() {
 
   // Estado do formulário de serviço
   const [serviceFormData, setServiceFormData] = useState({
-    name: "",
-    description: "",
-    price: "",
-    duration: "",
-    category: "",
+    name: '',
+    description: '',
+    price: '',
+    duration: '',
+    category: '',
     isActive: true,
   });
 
@@ -231,7 +231,7 @@ export function Dashboard() {
               <CardDescription className="text-sm">
                 {nextAppointment
                   ? `Próxima consulta ${nextAppointment.timeUntil}`
-                  : "Nenhuma consulta agendada"}
+                  : 'Nenhuma consulta agendada'}
               </CardDescription>
             </CardHeader>
             <CardContent className="p-3 sm:p-4 flex-1 flex items-center">
@@ -253,24 +253,31 @@ export function Dashboard() {
                       const patient =
                         patients.find(
                           (p) => p.id === nextAppointment.patientId
-                        ) || 
+                        ) ||
                         patients.find(
-                          (p) => p.fullName?.trim().toLowerCase() === nextAppointment.patientName?.trim().toLowerCase()
-                        ) || null;
+                          (p) =>
+                            p.fullName?.trim().toLowerCase() ===
+                            nextAppointment.patientName?.trim().toLowerCase()
+                        ) ||
+                        null;
                       const employee =
                         employees.find(
                           (e) => e.id === nextAppointment.employeeId
-                        ) || 
+                        ) ||
                         employees.find(
-                          (e) => e.fullName?.trim().toLowerCase() === nextAppointment.employeeName?.trim().toLowerCase()
-                        ) || null;
+                          (e) =>
+                            e.fullName?.trim().toLowerCase() ===
+                            nextAppointment.employeeName?.trim().toLowerCase()
+                        ) ||
+                        null;
                       const service =
                         services.find(
                           (s) => s.id === nextAppointment.serviceId
-                        ) || 
+                        ) ||
                         services.find(
                           (s) => s.name === nextAppointment.serviceName
-                        ) || null;
+                        ) ||
+                        null;
                       let appointmentEnd = nextAppointment.appointmentAt;
                       if (
                         nextAppointment.appointmentAt &&
@@ -290,11 +297,14 @@ export function Dashboard() {
                         service,
                         appointmentAt: nextAppointment.appointmentAt,
                         appointmentEnd,
-                        status: nextAppointment.status || "Agendado",
+                        status: nextAppointment.status || 'Agendado',
                         // IDs para selects do dialog (garante preenchimento)
-                        patientId: nextAppointment.patientId || patient?.id || "",
-                        employeeId: nextAppointment.employeeId || employee?.id || "",
-                        serviceId: nextAppointment.serviceId || service?.id || "",
+                        patientId:
+                          nextAppointment.patientId || patient?.id || '',
+                        employeeId:
+                          nextAppointment.employeeId || employee?.id || '',
+                        serviceId:
+                          nextAppointment.serviceId || service?.id || '',
                       };
                       setProfileDialogAppointment({ ...appointment }); // força nova referência
                       setProfileDialogPatients(
@@ -353,7 +363,7 @@ export function Dashboard() {
                     </div>
                     {nextAppointment.employeeName && (
                       <p className="text-xs text-gray-700 mb-1">
-                        com Dr(a).{" "}
+                        com Dr(a).{' '}
                         <span className="font-semibold">
                           {nextAppointment.employeeName}
                         </span>
@@ -366,18 +376,18 @@ export function Dashboard() {
                           {capitalizeFirstLetter(
                             new Date(
                               nextAppointment.appointmentAt
-                            ).toLocaleDateString("pt-BR", {
-                              weekday: "long",
-                              day: "2-digit",
-                              month: "long",
+                            ).toLocaleDateString('pt-BR', {
+                              weekday: 'long',
+                              day: '2-digit',
+                              month: 'long',
                             })
-                          )}{" "}
-                          às{" "}
+                          )}{' '}
+                          às{' '}
                           {new Date(
                             nextAppointment.appointmentAt
-                          ).toLocaleTimeString("pt-BR", {
-                            hour: "2-digit",
-                            minute: "2-digit",
+                          ).toLocaleTimeString('pt-BR', {
+                            hour: '2-digit',
+                            minute: '2-digit',
                           })}
                         </span>
                       </div>
@@ -477,14 +487,14 @@ export function Dashboard() {
                   <div className="text-right">
                     <p className="font-medium text-blue-600">
                       {new Date(appointment.appointmentAt).toLocaleTimeString(
-                        "pt-BR",
-                        { hour: "2-digit", minute: "2-digit" }
+                        'pt-BR',
+                        { hour: '2-digit', minute: '2-digit' }
                       )}
                     </p>
                     <p className="text-sm text-gray-600">
                       {appointment.employeeName
                         ? `com Dr(a). ${appointment.employeeName}`
-                        : ""}
+                        : ''}
                     </p>
                   </div>
                 </div>
@@ -494,7 +504,7 @@ export function Dashboard() {
                 length: APPOINTMENTS_PER_PAGE - paginatedAppointments.length,
               }).map((_, idx) => (
                 <div
-                  key={"placeholder-appointment-" + idx}
+                  key={'placeholder-appointment-' + idx}
                   className="opacity-0 select-none pointer-events-none"
                 >
                   <div className="flex items-center justify-between p-3 bg-white border border-gray-200 border-l-4 border-l-blue-500 rounded-xl">
@@ -580,7 +590,7 @@ export function Dashboard() {
                 size="sm"
                 className="w-full mt-auto"
                 variant="link"
-                onClick={() => navigate("/agenda")}
+                onClick={() => navigate('/agenda')}
               >
                 Ver Agenda Completa
               </Button>
@@ -609,7 +619,7 @@ export function Dashboard() {
           setOpenAddPatientDialog(false);
           // Notifica o AddAppointmentDialog para recarregar e selecionar o novo paciente
           window.dispatchEvent(
-            new CustomEvent("newPatientCreated", {
+            new CustomEvent('newPatientCreated', {
               detail: { patientId: newPatient.id },
             })
           );
@@ -650,14 +660,14 @@ export function Dashboard() {
                 <div className="text-right">
                   <p className="font-medium text-blue-600">
                     {new Date(appointment.appointmentAt).toLocaleTimeString(
-                      "pt-BR",
-                      { hour: "2-digit", minute: "2-digit" }
+                      'pt-BR',
+                      { hour: '2-digit', minute: '2-digit' }
                     )}
                   </p>
                   <p className="text-sm text-gray-600">
                     {appointment.employeeName
                       ? `Dr(a). ${appointment.employeeName}`
-                      : ""}
+                      : ''}
                   </p>
                 </div>
               </div>
@@ -672,12 +682,13 @@ export function Dashboard() {
         onClose={() => setOpenAddEmployeeDialog(false)}
         onEmployeeAdded={async (employeeData) => {
           try {
-            const newEmployee =
-              await employeeService.createEmployeeWithSchedule(employeeData);
+            const newEmployee = await employeeService.createEmployee(
+              employeeData
+            );
             setOpenAddEmployeeDialog(false);
             // Notifica o AddAppointmentDialog para recarregar e selecionar o novo funcionário
             window.dispatchEvent(
-              new CustomEvent("newEmployeeCreated", {
+              new CustomEvent('newEmployeeCreated', {
                 detail: { employeeId: newEmployee.id },
               })
             );
@@ -698,16 +709,16 @@ export function Dashboard() {
           const newService = await serviceService.createService(serviceData);
           setOpenServiceFormDialog(false);
           setServiceFormData({
-            name: "",
-            description: "",
-            price: "",
-            duration: "",
-            category: "",
+            name: '',
+            description: '',
+            price: '',
+            duration: '',
+            category: '',
             isActive: true,
           });
           // Notifica o AddAppointmentDialog para recarregar e selecionar o novo serviço
           window.dispatchEvent(
-            new CustomEvent("newServiceCreated", {
+            new CustomEvent('newServiceCreated', {
               detail: { serviceId: newService.id },
             })
           );
@@ -715,11 +726,11 @@ export function Dashboard() {
         onCancel={() => {
           setOpenServiceFormDialog(false);
           setServiceFormData({
-            name: "",
-            description: "",
-            price: "",
-            duration: "",
-            category: "",
+            name: '',
+            description: '',
+            price: '',
+            duration: '',
+            category: '',
             isActive: true,
           });
         }}

@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabaseClient';
+// Backend-only employee service (sem fallback Supabase)
 import { toast } from 'sonner';
-import { isValidPhone, onlyNumbers } from '@/lib/utils';
+import { isValidPhone } from '@/lib/utils';
 import { webhookService, WebhookOperation } from './webhookService';
+import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/apiClient';
 import type {
   Employee,
   CreateEmployeeData,
@@ -241,258 +242,84 @@ class EmployeeTransformer {
 }
 
 class EmployeeService {
-  /**
-   * Fetch all employees from database
-   */
   async getAllEmployees(): Promise<Employee[]> {
     try {
-      const { data, error } = await supabase
-        .from('employees')
-        .select('*')
-        .order('full_name');
-
-      if (error) {
-        console.error('❌ Erro ao buscar funcionários:', error);
-        throw error;
-      }
-
-      const employees = data.map(EmployeeTransformer.fromSupabaseSimple);
-      return employees;
+      const data = await apiGet<
+        (SupabaseEmployee & { work_hours?: SupabaseEmployeeWorkSchedule[] })[]
+      >('/api/employees');
+      return data.map((e) =>
+        EmployeeTransformer.fromSupabase(e, e.work_hours || [])
+      );
     } catch (error) {
+      console.error('Erro ao buscar funcionários:', error);
       toast.error('Erro ao carregar funcionários');
       throw error;
     }
   }
 
-  /**
-   * Get employee by ID
-   */
   async getEmployeeById(id: string): Promise<Employee | null> {
     try {
-      const { data, error } = await supabase
-        .from('employees')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-
-      if (!data) return null;
-
-      // Buscar horários de trabalho
-      const { data: workSchedules, error: scheduleError } = await supabase
-        .from('work_hours')
-        .select('*')
-        .eq('employee_id', id);
-
-      if (scheduleError) {
-        console.error('Error fetching work schedules:', scheduleError);
-      }
-
-      return EmployeeTransformer.fromSupabase(data, workSchedules || []);
+      const data = await apiGet<
+        SupabaseEmployee & { work_hours?: SupabaseEmployeeWorkSchedule[] }
+      >(`/api/employees/${id}`);
+      return EmployeeTransformer.fromSupabase(data, data.work_hours);
     } catch (error) {
-      console.error('Error fetching employee by ID:', error);
+      console.error('Erro ao buscar funcionário:', error);
       toast.error('Erro ao carregar funcionário');
       throw error;
     }
   }
 
-  /**
-   * Create a new employee
-   */
   async createEmployee(employeeData: CreateEmployeeData): Promise<Employee> {
     try {
       const insertData = EmployeeTransformer.toSupabaseInsert(employeeData);
-
-      const { data, error } = await supabase
-        .from('employees')
-        .insert(insertData)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      toast.success('Funcionário adicionado com sucesso!');
-
-      // Enviar notificação de webhook
+      const created = await apiPost<
+        SupabaseEmployee & { work_hours?: SupabaseEmployeeWorkSchedule[] }
+      >('/api/employees', {
+        ...insertData,
+        work_days: employeeData.workDays?.map((d) => WEEKDAY_MAP[d]),
+        start_time: employeeData.startHour,
+        end_time: employeeData.endHour,
+      });
+      toast.success('Funcionário adicionado');
       await webhookService.notifyEmployees(WebhookOperation.INSERT);
-
-      return EmployeeTransformer.fromSupabase(data);
+      return EmployeeTransformer.fromSupabase(created, created.work_hours);
     } catch (error) {
-      console.error('Error creating employee:', error);
+      console.error('Erro ao criar funcionário:', error);
       toast.error('Erro ao adicionar funcionário');
       throw error;
     }
   }
 
-  /**
-   * Create a new employee with work schedules
-   */
-  async createEmployeeWithSchedule(
-    employeeData: CreateEmployeeData
-  ): Promise<Employee> {
-    try {
-      const insertData = EmployeeTransformer.toSupabaseInsert(employeeData);
-
-      const { data, error } = await supabase
-        .from('employees')
-        .insert(insertData)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('❌ Erro ao criar funcionário:', error);
-        throw error;
-      }
-
-      // Add work schedules if provided
-      if (
-        employeeData.workDays &&
-        employeeData.workDays.length > 0 &&
-        employeeData.startHour &&
-        employeeData.endHour
-      ) {
-        const schedules = EmployeeTransformer.toSupabaseWorkScheduleInsert(
-          data.id,
-          employeeData.workDays,
-          employeeData.startHour,
-          employeeData.endHour
-        );
-
-        const { error: scheduleError } = await supabase
-          .from('work_hours')
-          .insert(schedules);
-
-        if (scheduleError) {
-          console.error('❌ Erro ao criar horários:', scheduleError);
-          throw scheduleError;
-        }
-      }
-
-      toast.success('Funcionário adicionado com sucesso!');
-
-      // Enviar notificação de webhook
-      await webhookService.notifyEmployees(WebhookOperation.INSERT);
-
-      return EmployeeTransformer.fromSupabase(data);
-    } catch (error) {
-      console.error('❌ Erro ao criar funcionário:', error);
-      toast.error('Erro ao adicionar funcionário');
-      throw error;
-    }
-  }
-
-  /**
-   * Update an existing employee
-   */
   async updateEmployee(employeeData: UpdateEmployeeData): Promise<Employee> {
     try {
       const updateData = EmployeeTransformer.toSupabaseUpdate(employeeData);
-
-      const { data, error } = await supabase
-        .from('employees')
-        .update(updateData)
-        .eq('id', employeeData.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      toast.success('Funcionário atualizado com sucesso!');
-
-      // Enviar notificação de webhook
+      const updated = await apiPut<
+        SupabaseEmployee & { work_hours?: SupabaseEmployeeWorkSchedule[] }
+      >(`/api/employees/${employeeData.id}`, {
+        ...updateData,
+        work_days: employeeData.workDays?.map((d) => WEEKDAY_MAP[d]),
+        start_time: employeeData.startHour,
+        end_time: employeeData.endHour,
+      });
+      toast.success('Funcionário atualizado');
       await webhookService.notifyEmployees(WebhookOperation.UPDATE);
-
-      return EmployeeTransformer.fromSupabase(data);
+      return EmployeeTransformer.fromSupabase(updated, updated.work_hours);
     } catch (error) {
-      console.error('Error updating employee:', error);
+      console.error('Erro ao atualizar funcionário:', error);
       toast.error('Erro ao atualizar funcionário');
       throw error;
     }
   }
 
-  /**
-   * Update an existing employee with work schedules
-   */
-  async updateEmployeeWithSchedule(
-    employeeData: UpdateEmployeeData
-  ): Promise<Employee> {
-    try {
-      const updateData = EmployeeTransformer.toSupabaseUpdate(employeeData);
-
-      const { data, error } = await supabase
-        .from('employees')
-        .update(updateData)
-        .eq('id', employeeData.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Update work schedules if provided
-      if (
-        employeeData.workDays &&
-        employeeData.startHour &&
-        employeeData.endHour
-      ) {
-        // First, delete existing schedules
-        const { error: deleteError } = await supabase
-          .from('work_hours')
-          .delete()
-          .eq('employee_id', employeeData.id);
-
-        if (deleteError) throw deleteError;
-
-        // Then, insert new schedules
-        const schedules = EmployeeTransformer.toSupabaseWorkScheduleInsert(
-          employeeData.id.toString(),
-          employeeData.workDays,
-          employeeData.startHour,
-          employeeData.endHour
-        );
-
-        const { error: scheduleError } = await supabase
-          .from('work_hours')
-          .insert(schedules);
-
-        if (scheduleError) throw scheduleError;
-      }
-
-      toast.success('Funcionário atualizado com sucesso!');
-
-      // Enviar notificação de webhook
-      await webhookService.notifyEmployees(WebhookOperation.UPDATE);
-
-      return EmployeeTransformer.fromSupabase(data);
-    } catch (error) {
-      console.error('Error updating employee:', error);
-      toast.error('Erro ao atualizar funcionário');
-      throw error;
-    }
-  }
-
-  /**
-   * Delete an employee
-   */
   async deleteEmployee(id: string): Promise<void> {
     try {
-      const { error } = await supabase.from('employees').delete().eq('id', id);
-
-      if (error) {
-        console.error('Supabase error ao deletar funcionário:', error);
-        toast.error(`Erro ao remover funcionário: ${error.message}`);
-        throw error;
-      }
-
-      // Sempre mostrar toast de sucesso se não houve erro
-      toast.success('Funcionário removido com sucesso!');
-
-      // Notificar webhook
+      await apiDelete(`/api/employees/${id}`);
+      toast.success('Funcionário removido');
       await webhookService.notifyEmployees(WebhookOperation.DELETE, id);
     } catch (error) {
-      const errMsg = error instanceof Error ? error.message : String(error);
-      console.error('Error deleting employee:', error);
-      toast.error(`Erro ao remover funcionário: ${errMsg}`);
+      console.error('Erro ao remover funcionário:', error);
+      toast.error('Erro ao remover funcionário');
       throw error;
     }
   }
@@ -501,131 +328,63 @@ class EmployeeService {
    * Delete an employee with related data
    */
   async deleteEmployeeWithRelations(id: string): Promise<void> {
-    try {
-      // First, delete related work schedules
-      const { error: scheduleError } = await supabase
-        .from('work_hours')
-        .delete()
-        .eq('employee_id', id);
-
-      if (scheduleError) {
-        console.error(
-          'Erro ao deletar horários do funcionário:',
-          scheduleError
-        );
-        toast.error(
-          `Erro ao remover horários do funcionário: ${scheduleError.message}`
-        );
-        throw scheduleError;
-      }
-
-      // TODO: Adicionar deleção de outros dados relacionados se necessário
-
-      // Then delete the employee
-      await this.deleteEmployee(id);
-    } catch (error) {
-      const errMsg = error instanceof Error ? error.message : String(error);
-      console.error('Error deleting employee with relations:', error);
-      toast.error(`Erro ao remover funcionário: ${errMsg}`);
-      throw error;
-    }
+    // Backend deverá cuidar de relações; chamamos delete simples
+    return this.deleteEmployee(id);
   }
 
-  /**
-   * Search employees by term
-   */
   async searchEmployees(searchTerm: string): Promise<Employee[]> {
-    try {
-      const { data, error } = await supabase
-        .from('employees')
-        .select('*')
-        .or(
-          `full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`
-        )
-        .order('full_name');
-
-      if (error) throw error;
-
-      return data.map(EmployeeTransformer.fromSupabaseSimple);
-    } catch (error) {
-      console.error('Error searching employees:', error);
-      toast.error('Erro ao buscar funcionários');
-      throw error;
-    }
+    const term = searchTerm.trim().toLowerCase();
+    const all = await this.getAllEmployees();
+    if (!term) return all;
+    return all.filter((e) =>
+      [e.fullName, e.email || '', e.phone || '']
+        .map((f) => f.toLowerCase())
+        .some((f) => f.includes(term))
+    );
   }
 
-  /**
-   * Filter employees by role and/or specialty
-   */
   async filterEmployees(filters: EmployeeFilters): Promise<Employee[]> {
-    try {
-      let query = supabase.from('employees').select('*');
-
-      if (filters.role && filters.role !== '') {
-        query = query.eq('role', filters.role);
-      }
-
-      if (filters.specialty && filters.specialty !== '') {
-        query = query.eq('specialty', filters.specialty);
-      }
-
+    const all = await this.getAllEmployees();
+    return all.filter((e) => {
+      if (filters.role && filters.role !== '' && e.role !== filters.role)
+        return false;
+      if (
+        filters.specialty &&
+        filters.specialty !== '' &&
+        e.specialty !== filters.specialty
+      )
+        return false;
       if (filters.search && filters.search.trim() !== '') {
-        query = query.or(
-          `full_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%,phone.ilike.%${filters.search}%`
-        );
+        const t = filters.search.toLowerCase();
+        if (
+          ![e.fullName, e.email || '', e.phone || '']
+            .map((f) => f.toLowerCase())
+            .some((f) => f.includes(t))
+        )
+          return false;
       }
-
-      const { data, error } = await query.order('full_name');
-
-      if (error) throw error;
-
-      return data.map(EmployeeTransformer.fromSupabaseSimple);
-    } catch (error) {
-      console.error('Error filtering employees:', error);
-      toast.error('Erro ao filtrar funcionários');
-      throw error;
-    }
+      return true;
+    });
   }
 
-  /**
-   * Get employee statistics
-   */
   async getEmployeeStats(): Promise<EmployeeStats> {
-    try {
-      const employees = await this.getAllEmployees();
-
-      const stats: EmployeeStats = {
-        total: employees.length,
-        byRole: {},
-        bySpecialty: {},
-        recent: 0,
-      };
-
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-      employees.forEach((emp) => {
-        // Count by role
-        stats.byRole[emp.role] = (stats.byRole[emp.role] || 0) + 1;
-
-        // Count by specialty
-        if (emp.specialty) {
-          stats.bySpecialty[emp.specialty] =
-            (stats.bySpecialty[emp.specialty] || 0) + 1;
-        }
-
-        // Count recent additions
-        const hireDate = new Date(emp.hiredAt);
-        if (hireDate >= thirtyDaysAgo) {
-          stats.recent++;
-        }
-      });
-
-      return stats;
-    } catch (error) {
-      console.error('Error getting employee stats:', error);
-      throw error;
-    }
+    const employees = await this.getAllEmployees();
+    const stats: EmployeeStats = {
+      total: employees.length,
+      byRole: {},
+      bySpecialty: {},
+      recent: 0,
+    };
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    employees.forEach((e) => {
+      stats.byRole[e.role] = (stats.byRole[e.role] || 0) + 1;
+      if (e.specialty)
+        stats.bySpecialty[e.specialty] =
+          (stats.bySpecialty[e.specialty] || 0) + 1;
+      if (new Date(e.hiredAt) >= thirtyDaysAgo) stats.recent++;
+    });
+    return stats;
   }
 
   /**

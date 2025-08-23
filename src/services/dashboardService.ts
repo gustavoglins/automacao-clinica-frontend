@@ -1,4 +1,13 @@
-import { supabase } from '@/lib/supabaseClient';
+// Backend-only dashboard service (Supabase removido)
+import { appointmentService } from './appointmentService';
+import { patientService } from './patientService';
+import { serviceService } from './servicesService';
+import { AppointmentStatus } from '@/types/appointment';
+import { apiGet } from '@/lib/apiClient';
+
+// Flag opcional para tentar endpoint de pagamentos. Evita 404 desnecessário.
+const ENABLE_PAYMENTS_ENDPOINT =
+  import.meta.env.VITE_ENABLE_PAYMENTS_ENDPOINT === 'true';
 
 export interface DashboardStats {
   todayAppointments: number;
@@ -38,98 +47,71 @@ export interface NextAppointment {
 }
 
 export const dashboardService = {
-  // Buscar estatísticas gerais do dashboard
   async getDashboardStats(): Promise<DashboardStats> {
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayStr = today.toISOString().slice(0, 10);
-
-      // Consultas de hoje (usar coluna date para evitar problemas de fuso)
-      const { count: todayAppointments } = await supabase
-        .from('appointments')
-        .select('*', { count: 'exact', head: true })
-        .eq('date', todayStr);
-
-      // Total de pacientes
-      const { count: totalPatients } = await supabase
-        .from('patients_with_status')
-        .select('*', { count: 'exact', head: true });
-
-      // Pacientes ativos (usando a nova view)
-      const { count: activePatients } = await supabase
-        .from('patients_with_status')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'ativo');
-
-      // Receita mensal (soma dos pagamentos do mês)
+      const appointments = await appointmentService.getAllAppointments(true);
+      const patients = await patientService.getAllPatients();
+      const todayAppointments = appointments.filter(
+        (a) => a.date === todayStr
+      ).length;
+      const totalPatients = patients.length;
+      const activePatients = totalPatients; // sem status ativo distinto no frontend
+      // Receita mensal: somatório dos serviços realizados no mês (status realizada)
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
-      let monthlyPayments: { amount_paid: number | null }[] | null = null;
-      try {
-        const {
-          data,
-          error: paymentsError,
-          status,
-        } = await supabase
-          .from('payments')
-          .select('amount_paid')
-          .gte('paid_at', startOfMonth.toISOString())
-          .lte('paid_at', endOfMonth.toISOString())
-          .eq('status', 'pago');
-        if (paymentsError) {
-          // Ignora erro se tabela não existir (404 / undefined_table) ou permissão negada
-          const pgError = paymentsError as { code?: string } | null;
-          if (status === 404 || pgError?.code === '42P01') {
-            console.warn(
-              'Tabela payments inexistente. Considerando receita 0.'
-            );
-          } else {
-            console.warn(
-              'Erro ao buscar payments, usando receita 0:',
-              paymentsError
-            );
-          }
-        } else {
-          monthlyPayments = data;
-        }
-      } catch (paymentsUnexpected) {
-        console.warn(
-          'Falha inesperada ao consultar payments:',
-          paymentsUnexpected
-        );
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+      interface ApptLite {
+        service?: { price?: number };
+        appointmentAt?: string;
+        status: string;
       }
-
-      const monthlyRevenue =
-        monthlyPayments?.reduce(
-          (sum, payment) => sum + (payment.amount_paid || 0),
-          0
-        ) || 0;
-
-      // Total de consultas agendadas (todas)
-      const { count: totalAppointments } = await supabase
-        .from('appointments')
-        .select('*', { count: 'exact', head: true });
-
-      const { count: completedAppointments } = await supabase
-        .from('appointments')
-        .select('*', { count: 'exact', head: true })
-        .gte('date', startOfMonth.toISOString().slice(0, 10))
-        .lte('date', endOfMonth.toISOString().slice(0, 10))
-        .eq('status', 'realizada');
-
+      const monthlyRevenue = (appointments as ApptLite[])
+        .filter((a) => a.status === 'realizada')
+        .filter((a) => {
+          if (!a.appointmentAt) return false;
+          const d = new Date(a.appointmentAt);
+          return d >= startOfMonth && d < endOfMonth;
+        })
+        .reduce((sum, a) => sum + (a.service?.price || 0), 0);
+      const totalAppointments = appointments.length;
+      const completedThisMonth = appointments.filter(
+        (a) =>
+          a.status === 'realizada' &&
+          a.date &&
+          a.date >= startOfMonth.toISOString().slice(0, 10) &&
+          a.date < endOfMonth.toISOString().slice(0, 10)
+      ).length;
       const attendanceRate = totalAppointments
-        ? Math.round(((completedAppointments || 0) / totalAppointments) * 100)
+        ? Math.round((completedThisMonth / totalAppointments) * 100)
         : 0;
-
+      // Tentar sobrescrever receita com endpoint /api/payments se existir
+      let finalMonthlyRevenue = monthlyRevenue;
+      if (ENABLE_PAYMENTS_ENDPOINT) {
+        try {
+          const ym = `${today.getFullYear()}-${String(
+            today.getMonth() + 1
+          ).padStart(2, '0')}`;
+          // hipotético endpoint /api/payments?month=YYYY-MM
+          const payments = await apiGet<{ amount_paid: number }[]>(
+            `/api/payments?month=${ym}`
+          );
+          finalMonthlyRevenue = payments.reduce(
+            (s, p) => s + (p.amount_paid || 0),
+            0
+          );
+        } catch (_e) {
+          /* fallback mantido */
+        }
+      }
       return {
-        todayAppointments: todayAppointments || 0,
-        totalPatients: totalPatients || 0,
-        activePatients: activePatients || 0,
-        monthlyRevenue,
+        todayAppointments,
+        totalPatients,
+        activePatients,
+        monthlyRevenue: finalMonthlyRevenue,
         attendanceRate,
-        totalAppointments: totalAppointments || 0,
+        totalAppointments,
       };
     } catch (error) {
       console.error('Erro ao buscar estatísticas do dashboard:', error);
@@ -143,175 +125,81 @@ export const dashboardService = {
       };
     }
   },
-
-  // Buscar consultas de hoje
   async getTodayAppointments(): Promise<TodayAppointment[]> {
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayStr = today.toISOString().slice(0, 10);
-
-      const { data, error } = await supabase
-        .from('appointments')
-        .select(
-          `
-          id,
-          appointment_at,
-          status,
-          patient_id,
-          service_id,
-          employee_id,
-          patients(full_name),
-          services(name, duration_minutes),
-          employees(full_name)
-        `
-        )
-        .eq('date', todayStr)
-        .order('appointment_at', { ascending: true });
-
-      if (error) throw error;
-
-      const results: TodayAppointment[] = [];
-      for (const appointment of data || []) {
-        const patientName =
-          appointment.patients?.[0]?.full_name || 'Paciente não encontrado';
-        const serviceName =
-          appointment.services?.[0]?.name || 'Serviço não encontrado';
-        const durationMinutes =
-          appointment.services?.[0]?.duration_minutes || 30;
-        const employeeName =
-          appointment.employees?.[0]?.full_name || 'Funcionário não encontrado';
-
-        results.push({
-          id: appointment.id,
-          appointmentAt: appointment.appointment_at,
-          patientName,
-          serviceName,
-          employeeName,
-          status: appointment.status,
-          durationMinutes,
-        });
-      }
-      return results;
+      const appointments = await appointmentService.getAllAppointments(true);
+      return appointments
+        .filter((a) => a.date === todayStr)
+        .sort((a, b) => a.appointmentAt.localeCompare(b.appointmentAt))
+        .map((a) => ({
+          id: a.id,
+          appointmentAt: a.appointmentAt,
+          patientName: a.patient?.fullName || 'Paciente não encontrado',
+          serviceName: a.service?.name || 'Serviço não encontrado',
+          employeeName: a.employee?.fullName || 'Funcionário não encontrado',
+          status: a.status,
+          durationMinutes: a.service?.durationMinutes || 30,
+        }));
     } catch (error) {
       console.error('Erro ao buscar consultas de hoje:', error);
       return [];
     }
   },
-
-  // Buscar próxima consulta
   async getNextAppointment(): Promise<NextAppointment | null> {
     try {
       const now = new Date();
-
-      const { data, error } = await supabase
-        .from('appointments')
-        .select(
-          `
-          id,
-          appointment_at,
-          status,
-          patient_id,
-          employee_id,
-          patients(full_name, birth_date, email, phone),
-          services(name, duration_minutes),
-          employees(full_name),
-          service_id
-        `
+      const statuses = new Set([
+        AppointmentStatus.AGENDADA,
+        'confirmada',
+        'reagendada',
+        'em_andamento',
+      ]);
+      const appointments = await appointmentService.getAllAppointments(true);
+      const upcoming = appointments
+        .filter(
+          (a) =>
+            a.appointmentAt &&
+            new Date(a.appointmentAt) >= now &&
+            statuses.has(a.status)
         )
-        .gte('appointment_at', now.toISOString())
-        .in('status', ['agendada', 'confirmada', 'reagendada', 'em_andamento'])
-        .order('appointment_at', { ascending: true })
-        .limit(1);
-
-      if (error) throw error;
-
-      if (!data || data.length === 0) {
-        return null;
-      }
-
-      const appointment = data[0];
-      const appointmentDate = new Date(appointment.appointment_at);
-      const timeDiff = appointmentDate.getTime() - now.getTime();
-
-      // Buscar paciente pelo id/relacionamento
-      let patientName = 'Paciente não encontrado';
-      let patientAge: number | undefined = undefined;
-      let patientEmail: string | undefined = undefined;
-      let patientPhone: string | undefined = undefined;
-      if (appointment.patients?.[0]) {
-        const p = appointment.patients[0];
-        if (p.full_name) patientName = p.full_name;
-        if (p.birth_date) {
-          const birthDate = new Date(p.birth_date);
-          const today = new Date();
-          let age = today.getFullYear() - birthDate.getFullYear();
-          const m = today.getMonth() - birthDate.getMonth();
-          if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-          }
-          patientAge = age;
-        }
-        if (p.email) patientEmail = p.email;
-        if (p.phone) patientPhone = p.phone;
-      } else if (appointment.patient_id) {
-        const { data: patientData } = await supabase
-          .from('patients')
-          .select('full_name, birth_date, email, phone')
-          .eq('id', appointment.patient_id)
-          .single();
-        if (patientData) {
-          if (patientData.full_name) patientName = patientData.full_name;
-          if (patientData.birth_date) {
-            const birthDate = new Date(patientData.birth_date);
-            const today = new Date();
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const m = today.getMonth() - birthDate.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-              age--;
+        .sort((a, b) => a.appointmentAt.localeCompare(b.appointmentAt));
+      if (!upcoming.length) return null;
+      const appt = upcoming[0];
+      // Buscar informações adicionais do paciente (idade) se necessário
+      let patientAge: number | undefined;
+      let patientEmail: string | undefined;
+      let patientPhone: string | undefined;
+      let patientName = appt.patient?.fullName || 'Paciente não encontrado';
+      if (appt.patientId) {
+        try {
+          const p = await patientService.getPatientById(appt.patientId);
+          if (p) {
+            patientName = p.fullName;
+            patientEmail = p.email || undefined;
+            patientPhone = p.phone || undefined;
+            if (p.birthDate) {
+              const bd = new Date(p.birthDate);
+              const today = new Date();
+              let age = today.getFullYear() - bd.getFullYear();
+              const m = today.getMonth() - bd.getMonth();
+              if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) age--;
+              patientAge = age;
             }
-            patientAge = age;
           }
-          patientEmail = patientData.email || undefined;
-          patientPhone = patientData.phone || undefined;
+        } catch (_e) {
+          /* ignore */
         }
       }
-
-      // Funcionário
-      let employeeName = 'Funcionário não encontrado';
-      if (appointment.employees?.[0]?.full_name) {
-        employeeName = appointment.employees[0].full_name;
-      } else if (appointment.employee_id) {
-        const { data: employeeData } = await supabase
-          .from('employees')
-          .select('full_name')
-          .eq('id', appointment.employee_id)
-          .single();
-        if (employeeData?.full_name) employeeName = employeeData.full_name;
-      }
-
-      // Serviço
-      let serviceName = 'Serviço não encontrado';
-      let durationMinutes = 30;
-      if (appointment.services?.[0]) {
-        const s = appointment.services[0];
-        if (s.name) serviceName = s.name;
-        if (s.duration_minutes) durationMinutes = s.duration_minutes;
-      } else if (appointment.service_id) {
-        const { data: serviceData } = await supabase
-          .from('services')
-          .select('name, duration_minutes')
-          .eq('id', appointment.service_id)
-          .single();
-        if (serviceData?.name) serviceName = serviceData.name;
-        if (serviceData?.duration_minutes)
-          durationMinutes = serviceData.duration_minutes;
-      }
-
-      // Calcular tempo até a consulta
+      const serviceName = appt.service?.name || 'Serviço não encontrado';
+      const durationMinutes = appt.service?.durationMinutes || 30;
+      const employeeName =
+        appt.employee?.fullName || 'Funcionário não encontrado';
+      const appointmentDate = new Date(appt.appointmentAt);
+      const timeDiff = appointmentDate.getTime() - now.getTime();
       const timeUntil = this.calculateTimeUntil(timeDiff);
-
-      // Format the appointment date for display (e.g., "dd/MM/yyyy HH:mm")
       const formattedDate = appointmentDate.toLocaleString('pt-BR', {
         day: '2-digit',
         month: '2-digit',
@@ -319,20 +207,19 @@ export const dashboardService = {
         hour: '2-digit',
         minute: '2-digit',
       });
-
       return {
-        id: appointment.id,
-        appointmentAt: appointment.appointment_at,
-        patientId: appointment.patient_id,
+        id: appt.id,
+        appointmentAt: appt.appointmentAt,
+        patientId: appt.patientId,
         patientName,
         patientAge,
         patientEmail,
         patientPhone,
-        employeeId: appointment.employee_id,
+        employeeId: appt.employeeId,
         serviceName,
-        serviceId: appointment.service_id,
+        serviceId: appt.serviceId as number | undefined,
         employeeName,
-        status: appointment.status,
+        status: appt.status,
         durationMinutes,
         timeUntil,
         formattedDate,

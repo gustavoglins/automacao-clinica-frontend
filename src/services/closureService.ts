@@ -1,83 +1,55 @@
-import { supabase } from '@/lib/supabaseClient';
+import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/apiClient';
 import { webhookService, WebhookOperation } from './webhookService';
 import { Closure } from '@/types/closure';
 
 export const closureService = {
   // Buscar todos os fechamentos
   async getAllClosures(): Promise<Closure[]> {
-    const { data, error } = await supabase
-      .from('clinic_closures')
-      .select('*')
-      .order('start_date', { ascending: true });
-
-    if (error) {
+    try {
+      const data = await apiGet<Closure[]>('/api/closures');
+      return data || [];
+    } catch (error) {
       console.error('Erro ao buscar fechamentos:', error);
       throw new Error('Não foi possível carregar os fechamentos');
     }
-
-    return data || [];
   },
 
   // Criar um novo fechamento
   async createClosure(
     closureData: Omit<Closure, 'id' | 'created_at' | 'updated_at'>
   ): Promise<Closure> {
-    const { data, error } = await supabase
-      .from('clinic_closures')
-      .insert([closureData])
-      .select()
-      .single();
-
-    if (error) {
+    try {
+      const created = await apiPost<Closure>('/api/closures', closureData);
+      await webhookService.notifyClosures(WebhookOperation.INSERT);
+      return created;
+    } catch (error) {
       console.error('Erro ao criar fechamento:', error);
       throw new Error('Não foi possível criar o fechamento');
     }
-
-    // Enviar notificação de webhook
-    await webhookService.notifyClosures(WebhookOperation.INSERT);
-
-    return data;
   },
 
   // Atualizar um fechamento
   async updateClosure(closureData: Closure): Promise<Closure> {
-    const { id, created_at, ...updateData } = closureData;
-
-    const { data, error } = await supabase
-      .from('clinic_closures')
-      .update({
-        ...updateData,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
+    try {
+      const { id, created_at, ...updateData } = closureData;
+      const updated = await apiPut<Closure>(`/api/closures/${id}`, updateData);
+      await webhookService.notifyClosures(WebhookOperation.UPDATE);
+      return updated;
+    } catch (error) {
       console.error('Erro ao atualizar fechamento:', error);
       throw new Error('Não foi possível atualizar o fechamento');
     }
-
-    // Enviar notificação de webhook
-    await webhookService.notifyClosures(WebhookOperation.UPDATE);
-
-    return data;
   },
 
   // Deletar um fechamento
   async deleteClosure(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('clinic_closures')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
+    try {
+      await apiDelete(`/api/closures/${id}`);
+      await webhookService.notifyClosures(WebhookOperation.DELETE, id);
+    } catch (error) {
       console.error('Erro ao deletar fechamento:', error);
       throw new Error('Não foi possível deletar o fechamento');
     }
-
-    // Enviar notificação de webhook
-    await webhookService.notifyClosures(WebhookOperation.DELETE, id);
   },
 
   // Buscar fechamentos por data
@@ -85,19 +57,15 @@ export const closureService = {
     startDate: string,
     endDate: string
   ): Promise<Closure[]> {
-    const { data, error } = await supabase
-      .from('clinic_closures')
-      .select('*')
-      .gte('start_date', startDate)
-      .lte('end_date', endDate)
-      .order('start_date', { ascending: true });
-
-    if (error) {
+    try {
+      const data = await apiGet<Closure[]>(
+        `/api/closures/range/search?from=${startDate}&to=${endDate}`
+      );
+      return data || [];
+    } catch (error) {
       console.error('Erro ao buscar fechamentos por data:', error);
       throw new Error('Não foi possível carregar os fechamentos');
     }
-
-    return data || [];
   },
 
   // Verificar se existe conflito de datas
@@ -106,22 +74,13 @@ export const closureService = {
     endDate: string,
     excludeId?: string
   ): Promise<boolean> {
-    let query = supabase
-      .from('clinic_closures')
-      .select('id')
-      .or(`and(start_date.lte.${endDate},end_date.gte.${startDate})`);
-
-    if (excludeId) {
-      query = query.neq('id', excludeId);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
+    try {
+      // Buscar fechamentos que intersectam (usar range search amplo)
+      const list = await this.getClosuresByDateRange(startDate, endDate);
+      return list.some((c) => c.id !== excludeId);
+    } catch (error) {
       console.error('Erro ao verificar conflito de datas:', error);
       return false;
     }
-
-    return (data?.length || 0) > 0;
   },
 };

@@ -398,8 +398,9 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
         onClose={() => setOpenAddEmployeeDialog(false)}
         onEmployeeAdded={async (employeeData) => {
           try {
-            const newEmployee =
-              await employeeService.createEmployeeWithSchedule(employeeData);
+            const newEmployee = await employeeService.createEmployee(
+              employeeData
+            );
             setOpenAddEmployeeDialog(false);
             // Notifica o AddAppointmentDialog para recarregar e selecionar o novo funcionário
             window.dispatchEvent(

@@ -1,6 +1,7 @@
-import { supabase } from '@/lib/supabaseClient';
+// Backend-only convenio service
 import { toast } from 'sonner';
 import { webhookService, WebhookOperation } from './webhookService';
+import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/apiClient';
 import type {
   Convenio,
   CreateConvenioData,
@@ -49,12 +50,8 @@ class ConvenioTransformer {
 class ConvenioService {
   async getAll(): Promise<Convenio[]> {
     try {
-      const { data, error } = await supabase
-        .from('convenios')
-        .select('*')
-        .order('nome');
-      if (error) throw error;
-      return (data || []).map(ConvenioTransformer.fromSupabase);
+      const rows = await apiGet<SupabaseConvenio[]>('/api/convenios');
+      return rows.map(ConvenioTransformer.fromSupabase);
     } catch (e) {
       console.error('Erro ao buscar convênios', e);
       toast.error('Erro ao carregar convênios');
@@ -64,13 +61,8 @@ class ConvenioService {
 
   async getById(id: number): Promise<Convenio | null> {
     try {
-      const { data, error } = await supabase
-        .from('convenios')
-        .select('*')
-        .eq('id', id)
-        .single();
-      if (error) throw error;
-      return data ? ConvenioTransformer.fromSupabase(data) : null;
+      const row = await apiGet<SupabaseConvenio>(`/api/convenios/${id}`);
+      return row ? ConvenioTransformer.fromSupabase(row) : null;
     } catch (e) {
       console.error('Erro ao buscar convênio', e);
       toast.error('Erro ao carregar convênio');
@@ -81,55 +73,44 @@ class ConvenioService {
   async create(payload: CreateConvenioData): Promise<Convenio> {
     try {
       const insertData = ConvenioTransformer.toSupabaseInsert(payload);
-      const { data, error } = await supabase
-        .from('convenios')
-        .insert(insertData)
-        .select()
-        .single();
-      if (error) throw error;
-      toast.success('Convênio cadastrado com sucesso');
-      // Webhook (não bloqueante em caso de falha interna)
+      const created = await apiPost<SupabaseConvenio>(
+        '/api/convenios',
+        insertData
+      );
+      toast.success('Convênio cadastrado');
       await webhookService.notifyConvenios(WebhookOperation.INSERT);
-      return ConvenioTransformer.fromSupabase(data);
+      return ConvenioTransformer.fromSupabase(created);
     } catch (e: unknown) {
-      const err = e as { code?: string } | undefined;
-      if (err?.code === '23505') {
+      const err = e as { response?: { status?: number } };
+      if (err.response?.status === 409)
         toast.error('Já existe um convênio com este nome');
-      } else {
-        toast.error('Erro ao cadastrar convênio');
-      }
-      throw e;
+      else toast.error('Erro ao cadastrar convênio');
+      throw err;
     }
   }
 
   async update(payload: UpdateConvenioData): Promise<Convenio> {
     try {
       const updateData = ConvenioTransformer.toSupabaseUpdate(payload);
-      const { data, error } = await supabase
-        .from('convenios')
-        .update(updateData)
-        .eq('id', payload.id)
-        .select()
-        .single();
-      if (error) throw error;
-      toast.success('Convênio atualizado com sucesso');
+      const updated = await apiPut<SupabaseConvenio>(
+        `/api/convenios/${payload.id}`,
+        updateData
+      );
+      toast.success('Convênio atualizado');
       await webhookService.notifyConvenios(WebhookOperation.UPDATE);
-      return ConvenioTransformer.fromSupabase(data);
+      return ConvenioTransformer.fromSupabase(updated);
     } catch (e: unknown) {
-      const err = e as { code?: string } | undefined;
-      if (err?.code === '23505') {
+      const err = e as { response?: { status?: number } };
+      if (err.response?.status === 409)
         toast.error('Nome de convênio já existente');
-      } else {
-        toast.error('Erro ao atualizar convênio');
-      }
-      throw e;
+      else toast.error('Erro ao atualizar convênio');
+      throw err;
     }
   }
 
   async delete(id: number): Promise<void> {
     try {
-      const { error } = await supabase.from('convenios').delete().eq('id', id);
-      if (error) throw error;
+      await apiDelete(`/api/convenios/${id}`);
       toast.success('Convênio removido');
       await webhookService.notifyConvenios(WebhookOperation.DELETE, id);
     } catch (e) {
@@ -140,39 +121,33 @@ class ConvenioService {
   }
 
   async search(term: string): Promise<Convenio[]> {
-    if (!term.trim()) return this.getAll();
-    const { data, error } = await supabase
-      .from('convenios')
-      .select('*')
-      .ilike('nome', `%${term}%`)
-      .order('nome');
-    if (error) {
-      toast.error('Erro na busca');
-      throw error;
-    }
-    return (data || []).map(ConvenioTransformer.fromSupabase);
+    const all = await this.getAll();
+    const t = term.trim().toLowerCase();
+    if (!t) return all;
+    return all.filter((c) => c.nome.toLowerCase().includes(t));
   }
 
   async filter(filters: ConvenioFilters): Promise<Convenio[]> {
-    let query = supabase.from('convenios').select('*');
-    if (filters.search) {
-      query = query.ilike('nome', `%${filters.search}%`);
-    }
-    if (filters.abrangencia) {
-      query = query.ilike('abrangencia', `%${filters.abrangencia}%`);
-    }
-    if (filters.tipo_cobertura) {
-      query = query.eq('tipo_cobertura', filters.tipo_cobertura);
-    }
-    if (filters.ativo !== undefined) {
-      query = query.eq('ativo', filters.ativo);
-    }
-    const { data, error } = await query.order('nome');
-    if (error) {
-      toast.error('Erro ao filtrar convênios');
-      throw error;
-    }
-    return (data || []).map(ConvenioTransformer.fromSupabase);
+    const all = await this.getAll();
+    return all.filter((c) => {
+      if (
+        filters.search &&
+        !c.nome.toLowerCase().includes(filters.search.toLowerCase())
+      )
+        return false;
+      if (
+        filters.abrangencia &&
+        !c.abrangencia
+          ?.toLowerCase()
+          .includes(filters.abrangencia.toLowerCase())
+      )
+        return false;
+      if (filters.tipo_cobertura && c.tipo_cobertura !== filters.tipo_cobertura)
+        return false;
+      if (filters.ativo !== undefined && c.ativo !== filters.ativo)
+        return false;
+      return true;
+    });
   }
 
   validate(data: CreateConvenioData | UpdateConvenioData): ValidationResult {

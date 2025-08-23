@@ -1,4 +1,8 @@
-import { supabase } from '@/lib/supabaseClient';
+// Backend-only reports service (removed direct Supabase queries)
+import { apiGet } from '@/lib/apiClient';
+import { appointmentService } from './appointmentService';
+import { patientService } from './patientService';
+// services data not directly needed for current local aggregations; import can be added if required later
 
 export interface ClinicProductionReport {
   totalAppointments: number;
@@ -54,92 +58,62 @@ export interface AppointmentReport {
 }
 
 // Funções auxiliares
-async function getMonthlyData() {
-  const months = [];
-  const currentDate = new Date();
+interface RealizedAppointmentLite {
+  appointmentAt: string;
+  status: string;
+  service?: { price?: number; category?: string } | null;
+}
 
+async function getMonthlyDataLocal(
+  realizedAppointments: RealizedAppointmentLite[]
+) {
+  const months: { month: string; appointments: number; revenue: number }[] = [];
+  const currentDate = new Date();
   for (let i = 5; i >= 0; i--) {
     const date = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth() - i,
       1
     );
-    const nextMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() - i + 1,
-      1
+    const monthKey = date.getMonth();
+    const filtered = realizedAppointments.filter((a) => {
+      const d = new Date(a.appointmentAt);
+      return (
+        d.getFullYear() === date.getFullYear() && d.getMonth() === monthKey
+      );
+    });
+    const revenue = filtered.reduce(
+      (sum, a) => sum + (a.service?.price || 0),
+      0
     );
-
-    const { data: appointments } = await supabase
-      .from('appointments')
-      .select(
-        `
-        id,
-        services (price)
-      `
-      )
-      .eq('status', 'realizada')
-      .gte('appointment_at', date.toISOString())
-      .lt('appointment_at', nextMonth.toISOString());
-
-    const monthData = {
+    months.push({
       month: date.toLocaleDateString('pt-BR', {
         month: 'short',
         year: 'numeric',
       }),
-      appointments: appointments?.length || 0,
-      revenue:
-        appointments?.reduce((sum, apt) => {
-          const service = Array.isArray(apt.services)
-            ? apt.services[0]
-            : apt.services;
-          return sum + (service?.price || 0);
-        }, 0) || 0,
-    };
-
-    months.push(monthData);
+      appointments: filtered.length,
+      revenue,
+    });
   }
-
   return months;
 }
 
-async function getServicesByCategory() {
-  const { data: appointments } = await supabase
-    .from('appointments')
-    .select(
-      `
-      services (
-        category,
-        price
-      )
-    `
-    )
-    .eq('status', 'realizada');
-
-  const categoryMap = new Map();
-
-  appointments?.forEach((apt) => {
-    const service = Array.isArray(apt.services)
-      ? apt.services[0]
-      : apt.services;
-    const category = service?.category || 'outros';
-    const price = service?.price || 0;
-
-    if (categoryMap.has(category)) {
-      const existing = categoryMap.get(category);
-      categoryMap.set(category, {
-        count: existing.count + 1,
-        revenue: existing.revenue + price,
-      });
-    } else {
-      categoryMap.set(category, { count: 1, revenue: price });
-    }
+async function getServicesByCategoryLocal(
+  realizedAppointments: RealizedAppointmentLite[]
+) {
+  const categoryMap = new Map<string, { count: number; revenue: number }>();
+  realizedAppointments.forEach((a) => {
+    const cat = a.service?.category || 'outros';
+    const price = a.service?.price || 0;
+    const existing = categoryMap.get(cat) || { count: 0, revenue: 0 };
+    existing.count += 1;
+    existing.revenue += price;
+    categoryMap.set(cat, existing);
   });
-
-  return Array.from(categoryMap.entries()).map(([category, data]) => ({
+  return Array.from(categoryMap.entries()).map(([category, v]) => ({
     category,
-    count: data.count,
-    revenue: data.revenue,
+    count: v.count,
+    revenue: v.revenue,
   }));
 }
 
@@ -167,10 +141,13 @@ function calculateAgeDistribution(patients: { birth_date: string }[]) {
   });
 }
 
-async function getMonthlyNewPatients() {
-  const months = [];
+interface PatientLite {
+  createdAt: string;
+  birthDate?: string | null;
+}
+function getMonthlyNewPatientsLocal(patients: PatientLite[]) {
+  const months: { month: string; count: number }[] = [];
   const currentDate = new Date();
-
   for (let i = 5; i >= 0; i--) {
     const date = new Date(
       currentDate.getFullYear(),
@@ -182,22 +159,18 @@ async function getMonthlyNewPatients() {
       currentDate.getMonth() - i + 1,
       1
     );
-
-    const { data: patients } = await supabase
-      .from('patients')
-      .select('id')
-      .gte('created_at', date.toISOString())
-      .lt('created_at', nextMonth.toISOString());
-
+    const count = patients.filter((p) => {
+      const created = new Date(p.createdAt);
+      return created >= date && created < nextMonth;
+    }).length;
     months.push({
       month: date.toLocaleDateString('pt-BR', {
         month: 'short',
         year: 'numeric',
       }),
-      count: patients?.length || 0,
+      count,
     });
   }
-
   return months;
 }
 
@@ -231,10 +204,14 @@ function calculateStatusDistribution(appointments: { status: string }[]) {
   }));
 }
 
-async function getMonthlyAppointments() {
-  const months = [];
+function getMonthlyAppointmentsLocal(appointments: RealizedAppointmentLite[]) {
+  const months: {
+    month: string;
+    total: number;
+    confirmed: number;
+    canceled: number;
+  }[] = [];
   const currentDate = new Date();
-
   for (let i = 5; i >= 0; i--) {
     const date = new Date(
       currentDate.getFullYear(),
@@ -246,19 +223,13 @@ async function getMonthlyAppointments() {
       currentDate.getMonth() - i + 1,
       1
     );
-
-    const { data: appointments } = await supabase
-      .from('appointments')
-      .select('status')
-      .gte('appointment_at', date.toISOString())
-      .lt('appointment_at', nextMonth.toISOString());
-
-    const total = appointments?.length || 0;
-    const confirmed =
-      appointments?.filter((a) => a.status === 'realizada').length || 0;
-    const canceled =
-      appointments?.filter((a) => a.status === 'cancelada').length || 0;
-
+    const filtered = appointments.filter((a) => {
+      const d = new Date(a.appointmentAt);
+      return d >= date && d < nextMonth;
+    });
+    const total = filtered.length;
+    const confirmed = filtered.filter((a) => a.status === 'realizada').length;
+    const canceled = filtered.filter((a) => a.status === 'cancelada').length;
     months.push({
       month: date.toLocaleDateString('pt-BR', {
         month: 'short',
@@ -269,86 +240,49 @@ async function getMonthlyAppointments() {
       canceled,
     });
   }
-
   return months;
 }
 
 export const reportService = {
   async getClinicProductionReport(): Promise<ClinicProductionReport> {
     try {
-      // Buscar agendamentos com serviços
-      const { data: appointments, error: appointmentsError } = await supabase
-        .from('appointments')
-        .select(
-          `
-          id,
-          appointment_at,
-          status,
-          services (
-            price,
-            category
-          )
-        `
-        )
-        .eq('status', 'realizada');
-
-      if (appointmentsError) {
-        console.error('Erro ao buscar agendamentos:', appointmentsError);
-        throw appointmentsError;
+      // Tenta usar endpoint backend direto se existir
+      try {
+        return await apiGet<ClinicProductionReport>(
+          '/api/reports/clinic-production'
+        );
+      } catch (_e) {
+        // fallback local
       }
-
-      const totalAppointments = appointments?.length || 0;
-      const totalRevenue =
-        appointments?.reduce((sum, apt) => {
-          const service = Array.isArray(apt.services)
-            ? apt.services[0]
-            : apt.services;
-          return sum + (service?.price || 0);
-        }, 0) || 0;
+      const allAppointments = await appointmentService.getAllAppointments(true);
+      const realized = allAppointments.filter(
+        (a: RealizedAppointmentLite) => a.status === 'realizada'
+      );
+      const totalAppointments = realized.length;
+      const totalRevenue = realized.reduce(
+        (s: number, a: RealizedAppointmentLite) => s + (a.service?.price || 0),
+        0
+      );
       const averageAppointmentValue =
         totalAppointments > 0 ? totalRevenue / totalAppointments : 0;
-
-      // Dados mensais dos últimos 6 meses
-      const monthlyData = await getMonthlyData();
-
-      // Dados por categoria de serviço
-      const servicesByCategory = await getServicesByCategory();
-
-      const result = {
+      const monthlyData = await getMonthlyDataLocal(realized);
+      const servicesByCategory = await getServicesByCategoryLocal(realized);
+      if (totalAppointments === 0) {
+        return {
+          totalAppointments: 0,
+          totalRevenue: 0,
+          averageAppointmentValue: 0,
+          monthlyData,
+          servicesByCategory,
+        };
+      }
+      return {
         totalAppointments,
         totalRevenue,
         averageAppointmentValue,
         monthlyData,
         servicesByCategory,
       };
-
-      // Se não há dados, retornar dados de exemplo para demonstração
-      if (
-        totalAppointments === 0 &&
-        monthlyData.length === 0 &&
-        servicesByCategory.length === 0
-      ) {
-        return {
-          totalAppointments: 0,
-          totalRevenue: 0,
-          averageAppointmentValue: 0,
-          monthlyData: [
-            { month: 'Jan 2025', appointments: 0, revenue: 0 },
-            { month: 'Fev 2025', appointments: 0, revenue: 0 },
-            { month: 'Mar 2025', appointments: 0, revenue: 0 },
-            { month: 'Abr 2025', appointments: 0, revenue: 0 },
-            { month: 'Mai 2025', appointments: 0, revenue: 0 },
-            { month: 'Jun 2025', appointments: 0, revenue: 0 },
-          ],
-          servicesByCategory: [
-            { category: 'Limpeza', count: 0, revenue: 0 },
-            { category: 'Restauração', count: 0, revenue: 0 },
-            { category: 'Ortodontia', count: 0, revenue: 0 },
-          ],
-        };
-      }
-
-      return result;
     } catch (error) {
       console.error('Erro ao buscar relatório de produção:', error);
       throw error;
@@ -357,39 +291,32 @@ export const reportService = {
 
   async getPatientReport(): Promise<PatientReport> {
     try {
-      // Total de pacientes ativos
-      const { data: patients, error: patientsError } = await supabase
-        .from('patients')
-        .select('id, created_at, birth_date');
-
-      if (patientsError) throw patientsError;
-
-      const totalRegisteredPatients = patients?.length || 0;
-
-      // Novos pacientes este mês
+      try {
+        return await apiGet<PatientReport>('/api/reports/patients');
+      } catch (_e) {
+        /* fallback to local aggregation */
+      }
+      const patients = await patientService.getAllPatients();
+      const totalRegisteredPatients = patients.length;
       const currentDate = new Date();
       const firstDayOfMonth = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
         1
       );
-
-      const newPatientsThisMonth =
-        patients?.filter((p) => new Date(p.created_at) >= firstDayOfMonth)
-          .length || 0;
-
-      // Taxa de crescimento (simulada)
+      const newPatientsThisMonth = patients.filter(
+        (p: PatientLite) => new Date(p.createdAt) >= firstDayOfMonth
+      ).length;
       const patientsGrowthRate =
         totalRegisteredPatients > 0
           ? (newPatientsThisMonth / totalRegisteredPatients) * 100
           : 0;
-
-      // Distribuição por idade
-      const ageDistribution = calculateAgeDistribution(patients || []);
-
-      // Dados mensais dos novos pacientes
-      const monthlyNewPatients = await getMonthlyNewPatients();
-
+      const ageDistribution = calculateAgeDistribution(
+        patients.map((p: PatientLite) => ({
+          birth_date: p.birthDate || '',
+        })) as { birth_date: string }[]
+      );
+      const monthlyNewPatients = getMonthlyNewPatientsLocal(patients);
       return {
         totalRegisteredPatients,
         newPatientsThisMonth,
@@ -405,20 +332,24 @@ export const reportService = {
 
   async getAppointmentReport(): Promise<AppointmentReport> {
     try {
-      const { data: appointments, error } = await supabase
-        .from('appointments')
-        .select('id, appointment_at, status');
-
-      if (error) throw error;
-
-      const totalAppointments = appointments?.length || 0;
-      const confirmedAppointments =
-        appointments?.filter((a) => a.status === 'realizada').length || 0;
-      const canceledAppointments =
-        appointments?.filter((a) => a.status === 'cancelada').length || 0;
-      const noShowAppointments =
-        appointments?.filter((a) => a.status === 'nao_compareceu').length || 0;
-
+      try {
+        return await apiGet<AppointmentReport>('/api/reports/appointments');
+      } catch (_e) {
+        /* fallback to local aggregation */
+      }
+      const allAppointments = (await appointmentService.getAllAppointments(
+        true
+      )) as RealizedAppointmentLite[];
+      const totalAppointments = allAppointments.length;
+      const confirmedAppointments = allAppointments.filter(
+        (a: RealizedAppointmentLite) => a.status === 'realizada'
+      ).length;
+      const canceledAppointments = allAppointments.filter(
+        (a: RealizedAppointmentLite) => a.status === 'cancelada'
+      ).length;
+      const noShowAppointments = allAppointments.filter(
+        (a: RealizedAppointmentLite) => a.status === 'nao_compareceu'
+      ).length;
       const noShowRate =
         totalAppointments > 0
           ? (noShowAppointments / totalAppointments) * 100
@@ -427,18 +358,13 @@ export const reportService = {
         totalAppointments > 0
           ? (confirmedAppointments / totalAppointments) * 100
           : 0;
-
-      // Horários mais movimentados
-      const busyHours = calculateBusyHours(appointments || []);
-
-      // Distribuição por status
-      const statusDistribution = calculateStatusDistribution(
-        appointments || []
+      const busyHours = calculateBusyHours(
+        allAppointments.map((a: RealizedAppointmentLite) => ({
+          appointment_at: a.appointmentAt,
+        }))
       );
-
-      // Dados mensais
-      const monthlyAppointments = await getMonthlyAppointments();
-
+      const statusDistribution = calculateStatusDistribution(allAppointments);
+      const monthlyAppointments = getMonthlyAppointmentsLocal(allAppointments);
       return {
         totalAppointments,
         confirmedAppointments,

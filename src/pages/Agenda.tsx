@@ -51,7 +51,7 @@ import { Service } from '@/types/service';
 import { patientService } from '@/services/patientService';
 import { employeeService } from '@/services/employeeService';
 import { serviceService } from '@/services/servicesService';
-import { useAppointments } from '@/context/AppointmentContext';
+import { useAppointments } from '@/context/hooks/useAppointments';
 
 const Agenda = () => {
   const [search, setSearch] = useState('');
@@ -619,7 +619,7 @@ const Agenda = () => {
           onClose={() => setOpenAddEmployeeDialog(false)}
           onEmployeeAdded={async (employeeData) => {
             try {
-              await employeeService.createEmployeeWithSchedule(employeeData);
+              await employeeService.createEmployee(employeeData);
               setOpenAddEmployeeDialog(false);
               // Notifica o AddAppointmentDialog para recarregar seus dados
               window.dispatchEvent(

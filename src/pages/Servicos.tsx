@@ -13,7 +13,7 @@ import {
 } from '@/components/servicos';
 import { Service, CreateServiceData } from '@/types/service';
 import { serviceService } from '@/services/servicesService';
-import { useServices } from '@/context/ServiceContext';
+import { useServices } from '@/context';
 
 // Interface para o formulário de serviço
 interface ServiceFormData {
