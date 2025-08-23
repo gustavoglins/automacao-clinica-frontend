@@ -639,6 +639,9 @@ const Agenda = () => {
           employees={employees}
           services={services}
           onSave={handleUpdateAppointment}
+          onDeleted={(id) => {
+            setAppointments((prev) => prev.filter((a) => a.id !== id));
+          }}
         />
       </div>
     </AppLayout>

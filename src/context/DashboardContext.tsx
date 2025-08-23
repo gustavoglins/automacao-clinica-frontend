@@ -97,6 +97,9 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     fetchDashboardData();
+    const refresh = () => fetchDashboardData();
+    window.addEventListener('appointments:changed', refresh);
+    return () => window.removeEventListener('appointments:changed', refresh);
   }, []);
 
   return (

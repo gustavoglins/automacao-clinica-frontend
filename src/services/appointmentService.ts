@@ -250,6 +250,11 @@ class AppointmentService {
       const [appt] = await this.enrichAppointments([created]);
       this._cacheTimestamp = 0; // invalida cache
       toast.success('Agendamento criado');
+      window.dispatchEvent(
+        new CustomEvent('appointments:changed', {
+          detail: { type: 'create', id: appt.id },
+        })
+      );
       return appt;
     } catch (error) {
       console.error('Erro ao criar agendamento:', error);
@@ -280,6 +285,11 @@ class AppointmentService {
       const [appt] = await this.enrichAppointments([updated]);
       this._cacheTimestamp = 0;
       toast.success('Agendamento atualizado');
+      window.dispatchEvent(
+        new CustomEvent('appointments:changed', {
+          detail: { type: 'update', id: appt.id },
+        })
+      );
       return appt;
     } catch (error) {
       console.error('Erro ao atualizar agendamento:', error);
@@ -296,6 +306,11 @@ class AppointmentService {
       await apiDelete(`/api/appointments/${id}`);
       this._cacheTimestamp = 0;
       toast.success('Agendamento removido');
+      window.dispatchEvent(
+        new CustomEvent('appointments:changed', {
+          detail: { type: 'delete', id },
+        })
+      );
     } catch (error) {
       console.error('Erro ao remover agendamento:', error);
       toast.error('Erro ao remover agendamento');

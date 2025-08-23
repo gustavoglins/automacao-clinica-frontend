@@ -221,8 +221,10 @@ export const PatientProfileDialog: React.FC<PatientProfileDialogProps> = ({
                           : 'bg-gray-400'
                       }`}
                     ></div>
-                    {patient.status.charAt(0).toUpperCase() +
-                      patient.status.slice(1)}
+                    {patient.status
+                      ? patient.status.charAt(0).toUpperCase() +
+                        patient.status.slice(1)
+                      : 'Não informado'}
                   </Badge>
                   <Badge
                     variant="outline"

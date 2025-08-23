@@ -184,7 +184,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
         hiredAt: formData.hireDate ? formData.hireDate : null,
       };
 
-      await employeeService.updateEmployeeWithSchedule(updatedEmployee);
+      await employeeService.updateEmployee(updatedEmployee);
       onEmployeeUpdated();
       onClose();
     } catch (error) {

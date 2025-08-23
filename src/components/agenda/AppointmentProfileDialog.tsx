@@ -38,11 +38,21 @@ interface AppointmentProfileDialogProps {
   employees: Array<{ id: string; fullName: string; status?: string }>;
   services: Array<{ id: number; name: string; durationMinutes?: number }>;
   onSave: (data: UpdateAppointmentData) => Promise<void>;
+  onDeleted?: (id: string) => void; // novo callback opcional
 }
 
 export const AppointmentProfileDialog: React.FC<
   AppointmentProfileDialogProps
-> = ({ appointment, open, onClose, patients, employees, services, onSave }) => {
+> = ({
+  appointment,
+  open,
+  onClose,
+  patients,
+  employees,
+  services,
+  onSave,
+  onDeleted,
+}) => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -298,9 +308,9 @@ export const AppointmentProfileDialog: React.FC<
                 setDeleting(true);
                 try {
                   await appointmentService.deleteAppointment(appointment.id);
+                  if (onDeleted) onDeleted(appointment.id);
                   setConfirmDeleteOpen(false);
                   onClose();
-                  window.location.reload();
                 } catch (error) {
                   // O service já mostra o toast de erro
                 } finally {
